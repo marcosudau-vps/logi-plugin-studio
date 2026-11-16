@@ -1,0 +1,50 @@
+{
+  "schema_version": "0.1-draft",
+  "project": {
+    "id": "fixture.four_actions",
+    "display_name": "Fixture mit vier frei benannten Aktionen"
+  },
+  "dependencies": [
+    {"type": "core.command_action", "version": "1.0.0"}
+  ],
+  "components": [
+    {
+      "id": "action.datei_oeffnen",
+      "type": "core.command_action",
+      "version": "1.0.0",
+      "config": {"display_name": "Datei öffnen – „zuletzt verwendet“"}
+    },
+    {
+      "id": "action.konsole_starten",
+      "type": "core.command_action",
+      "version": "1.0.0",
+      "config": {"display_name": "Konsole \"PowerShell\" starten"}
+    },
+    {
+      "id": "action.pfad_anzeigen",
+      "type": "core.command_action",
+      "version": "1.0.0",
+      "config": {"display_name": "Pfad C:\\Temp\\prüfen anzeigen"}
+    },
+    {
+      "id": "action.umbenannt_lang",
+      "type": "core.command_action",
+      "version": "1.0.0",
+      "config": {"display_name": "Sehr langer Name einer frei umbenannten Aktion, der die Grenzen von Anzeigenamen und Typnamen bewusst ausreizt und deshalb vollständig im Manifest erhalten bleiben muss"}
+    }
+  ],
+  "states": [],
+  "bindings": [],
+  "presentations": [],
+  "assets": [],
+  "views": [
+    {
+      "id": "view.main",
+      "type": "folder",
+      "placements": [
+        {"id": "placement.first", "component": "action.datei_oeffnen", "position": 0},
+        {"id": "placement.second", "component": "action.konsole_starten", "position": 1}
+      ]
+    }
+  ]
+}

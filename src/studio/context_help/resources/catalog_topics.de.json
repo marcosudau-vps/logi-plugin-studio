@@ -1,0 +1,44 @@
+[
+  {
+    "topic_id": "catalog.type_filter",
+    "title": "Nach SDK-Typ filtern",
+    "summary": "Der Typfilter grenzt vorhandene Aktionsdefinitionen nach ihrem SDK-Typ ein.",
+    "description": "„Alle“ hebt die Typbegrenzung auf. Der Filter ändert nur die Ansicht und entfernt eine ausgeblendete Hostauswahl.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "catalog.search",
+      "action.definition"
+    ]
+  },
+  {
+    "topic_id": "catalog.sort",
+    "title": "Katalog sortieren",
+    "summary": "A–Z sortiert Gruppen und Aktionen nach Namen.",
+    "description": "Ohne A–Z gilt die Projektreihenfolge. Die native Kennung bleibt bei gleichen Namen maßgeblich. Die Sortierung schreibt keine Projektänderung.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "catalog"
+    ]
+  },
+  {
+    "topic_id": "catalog.edit",
+    "title": "Anzeigename bearbeiten",
+    "summary": "Bearbeiten öffnet für die ausgewählte Aktion den begrenzten Anzeigenamendialog.",
+    "description": "Nur NativeAction.display_name kann geändert werden. Ohne Auswahl ist Bearbeiten gesperrt. Ein vollständiger ActionInspector gehört zu einem späteren Arbeitspaket.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "native_shell.rename",
+      "action.definition"
+    ]
+  },
+  {
+    "topic_id": "catalog.create_unavailable",
+    "title": "Neue Aktion – gesperrt",
+    "summary": "Die Erstellung ist gesperrt, weil in dieser Shell noch kein Aktionserstellungs-Editor angebunden ist.",
+    "description": "Vorhandene Aktionen können ausgewählt und ihre Anzeigenamen bearbeitet werden. Ein Klick erzeugt keine Definition und schreibt keine Datei.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "catalog.edit"
+    ]
+  }
+]

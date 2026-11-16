@@ -1,0 +1,92 @@
+namespace $NAMESPACE$
+{
+    using System;
+    using System.Linq;
+    using System.Reflection;
+    using System.Text.Json;
+    using System.Threading;
+    using Loupedeck;
+
+    internal class ProbeFolder : $FOLDER_TYPE$
+    {
+        public System.Collections.Generic.Dictionary<string, PluginDynamicAction> Actions = new();
+        protected override PluginDynamicAction ResolveAction(string id) => Actions.TryGetValue(id, out var action) ? action : null;
+    }
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            FolderRuntimeHub.Initialize(); // Explicit optional extension bootstrap before IPC.
+            Bridge.Start(args[0]);
+            var command = new $COMMAND_TYPE$();
+            var multistate = new $MULTISTATE_TYPE$();
+            var adjustment = new $ADJUSTMENT_TYPE$();
+            var folder = new ProbeFolder();
+            var otherFolder = new $OTHER_FOLDER_TYPE$();
+            folder.Actions["action.command"] = command;
+            folder.Actions["action.multistate"] = multistate;
+            folder.Actions["action.adjustment"] = adjustment;
+            var init = typeof(PluginDynamicFolder).GetMethod("Init", BindingFlags.Instance | BindingFlags.NonPublic);
+            var notifications = new System.Collections.Generic.List<string>();
+            var plugin = new $PLUGIN_TYPE$();
+            // Test-only SDK context, no service initialization or profile access.
+            typeof(Plugin).GetFields(BindingFlags.Instance|BindingFlags.NonPublic).Single(f => f.FieldType == typeof(Assembly)).SetValue(plugin, typeof(Program).Assembly);
+            foreach (var action in folder.Actions.Values)
+                typeof(PluginDynamicAction).GetProperty("Plugin",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(action, plugin);
+            init.Invoke(folder, new object[] { plugin,
+                new Action<string,string,DeviceControlType>((a,b,c) => notifications.Add(a+":"+b)),
+                new Action<string,string,string>((a,b,c) => {}),
+                new Action<string,string,string>((a,b,c) => {}),
+                new Action<string,string,int>((a,b,c) => throw new Exception("Undocumented generic invoke used")) });
+            init.Invoke(otherFolder, new object[] { plugin,
+                new Action<string,string,DeviceControlType>((a,b,c) => {}),
+                new Action<string,string,string>((a,b,c) => {}),
+                new Action<string,string,string>((a,b,c) => {}),
+                new Action<string,string,int>((a,b,c) => throw new Exception("Undocumented generic invoke used")) });
+            folder.Load();
+            otherFolder.Load();
+            try
+            {
+                string line;
+                while ((line = Console.ReadLine()) != null && line != "stop")
+                {
+                    try
+                    {
+                        var parts = line.Split('|', 3);
+                        object result;
+                        switch (parts[0])
+                        {
+                            case "inspect":
+                                result = new { ready = Bridge.Ready, transport=JsonSerializer.Deserialize<JsonElement>(Bridge.Inspect()), buttons=folder.GetButtonPressActionNames(DeviceType.Loupedeck70).ToArray(),
+                                    encoders=folder.GetEncoderRotateActionNames(DeviceType.Loupedeck70).ToArray(),
+                                    resets=folder.GetEncoderPressActionNames(DeviceType.Loupedeck70).ToArray(),
+                                    node=folder.CurrentNode, page=folder.CurrentPage, back=folder.BackDepth,
+                                    other_node=otherFolder.CurrentNode, other_buttons=otherFolder.GetButtonPressActionNames(DeviceType.Loupedeck70).ToArray(),
+                                    membership=folder.MembershipNotifications, images=folder.ImageNotifications,
+                                    diagnostic=folder.LastDiagnostic, notifications=notifications.ToArray() }; break;
+                            case "run": folder.RunCommand(parts[1]); result=new {ok=true}; break;
+                            case "adjust": folder.ApplyAdjustment(parts[1],Int32.Parse(parts[2])); result=new {ok=true};break;
+                            case "direct": result = new {ok=folder.Actions[parts[1]].TryRunCommand(parts.Length>2 ? parts[2] : null)};break;
+                            case "direct-adjust": result=new {ok=adjustment.TryApplyAdjustment(null,Int32.Parse(parts[1]))};break;
+                            case "state":
+                                result = new {name=multistate.TryGetCurrentStateName(out var name)?name:null};break;
+                            case "text": result=new {text=folder.GetCommandDisplayName(parts[1],PluginImageSize.Width90)};break;
+                            case "value": result=new {value=folder.GetAdjustmentValue(parts[1])};break;
+                            case "image":
+                                var image=folder.GetCommandImage(parts[1],PluginImageSize.Width90);
+                                result=new {width=image?.Width,height=image?.Height};break;
+                            case "direct-image":
+                                multistate.TryGetCommandImage(null,PluginImageSize.Width90,out var directImage);
+                                result=new {width=directImage?.Width,height=directImage?.Height};break;
+                            case "replace": FolderRuntimeHub.Replace(parts[1]); result=new {ok=true};break;
+                            default: throw new Exception("Unknown test command");
+                        }
+                        Console.WriteLine("JSON:"+JsonSerializer.Serialize(result));
+                    }
+                    catch(Exception ex) { Console.WriteLine("JSON:"+JsonSerializer.Serialize(new {error=ex.ToString()})); }
+                }
+            }
+            finally { folder.Unload(); otherFolder.Unload(); Bridge.Stop(); }
+        }
+    }
+}

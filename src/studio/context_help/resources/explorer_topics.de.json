@@ -1,0 +1,68 @@
+[
+  {
+    "topic_id": "explorer",
+    "title": "Projektübersicht",
+    "summary": "Der Baum zeigt das geöffnete native Plugin-Projekt nur lesend.",
+    "description": "Gruppen gliedern die Ansicht. Wähle eine konkrete Entität, um ihre native Kennung und Details zu sehen. Die Auswahl führt keine Aktion aus.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "explorer.search",
+      "explorer.plugin"
+    ]
+  },
+  {
+    "topic_id": "explorer.search",
+    "title": "Projektbaum durchsuchen",
+    "summary": "Die Suche filtert Namen, native IDs, SDK-Typen und angezeigte Details.",
+    "description": "Esc oder „Filter zurücksetzen“ leert die Suche. Ausgeblendete Auswahlen werden im Host entfernt. Die Projektdatei bleibt unverändert.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "explorer"
+    ]
+  },
+  {
+    "topic_id": "explorer.plugin",
+    "title": "Plugin-Projekt",
+    "summary": "Dieser Knoten bezeichnet das geöffnete native Plugin.",
+    "description": "Die Projektübersicht ist eine Leseansicht. Native Definitionen gehören zum Autorenprojekt; Logitech-Service-Profile werden hier nicht bearbeitet.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "action.definition",
+      "explorer.handler",
+      "explorer.folder"
+    ]
+  },
+  {
+    "topic_id": "explorer.handler",
+    "title": "Handlerzuordnung ansehen",
+    "summary": "Ein Handlerdatensatz verbindet eine native Kennung mit einer Callback-Kennung.",
+    "description": "Der Baum zeigt die vorhandene Definition. Auswahl und Enter starten keinen Callback. Ein Handlereditor ist in dieser Shell nicht verfügbar.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "action.definition",
+      "explorer"
+    ]
+  },
+  {
+    "topic_id": "explorer.folder",
+    "title": "Dynamic Folder ansehen",
+    "summary": "Hier siehst du einen im Plugin-Projekt definierten Dynamic Folder.",
+    "description": "Die Einträge gehören zum plugin-eigenen Folder. Sie sind keine Logitech-Profil-UI-Ordner. Bearbeitung und Geräteplatzierung sind hier nicht freigeschaltet.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "explorer.folder_entry"
+    ]
+  },
+  {
+    "topic_id": "explorer.folder_entry",
+    "title": "Folder-Eintrag und Action-Referenz",
+    "summary": "Der Eintrag bezeichnet eine Platzierung innerhalb des nativen Folders.",
+    "description": "Seine native Placement-ID ist von der referenzierten Action-ID getrennt. Die angezeigte Position wird nicht in eine Geräte-Taste oder Seite umgerechnet. Der Folder wird hier nur gelesen.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "explorer.folder",
+      "action.definition",
+      "catalog.parameter"
+    ]
+  }
+]

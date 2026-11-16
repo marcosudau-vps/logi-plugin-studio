@@ -1,0 +1,11 @@
+{
+  "type_id": "core.command_action",
+  "version": "1.0.0",
+  "config_schema": {
+    "type": "object",
+    "required": ["display_name"],
+    "properties": {"display_name": {"type": "string"}},
+    "additionalProperties": false
+  },
+  "ports": [{"id": "activated", "direction": "out", "kind": "command", "payload_schema": {"type": "object", "properties": {}, "additionalProperties": false}}]
+}

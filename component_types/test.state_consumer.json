@@ -1,0 +1,15 @@
+{
+  "type_id": "test.state_consumer",
+  "version": "1.0.0",
+  "test_only": true,
+  "config_schema": {
+    "type": "object",
+    "required": ["display_name"],
+    "properties": {"display_name": {"type": "string"}},
+    "additionalProperties": false
+  },
+  "ports": [
+    {"id": "observe", "direction": "in", "kind": "state", "payload_schema": {"type": "string"}},
+    {"id": "trigger", "direction": "in", "kind": "event", "payload_schema": {"type": "object", "properties": {}, "additionalProperties": false}}
+  ]
+}

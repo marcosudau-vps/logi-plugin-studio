@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/logi-plugin-studio/project/0.1-core-draft",
+  "$comment": "DRAFT — P1 core working schema derived from project_v0_1_draft.schema.json; NOT an approved exchange format (P0-ADR-004/007, ADR-005 scope limit).",
+  "title": "Logi Plugin Studio Project – P1 CORE DRAFT, not approved",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project", "dependencies", "components", "states", "bindings", "presentations", "assets", "views"],
+  "properties": {
+    "schema_version": {"const": "0.1-draft"},
+    "project": {"type": "object", "additionalProperties": false, "required": ["id", "display_name"], "properties": {"id": {"$ref": "#/$defs/id"}, "display_name": {"type": "string", "minLength": 1}}},
+    "dependencies": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["type", "version"], "properties": {"type": {"$ref": "#/$defs/id"}, "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"}}}},
+    "components": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "type", "version", "config"], "properties": {"id": {"$ref": "#/$defs/id"}, "type": {"$ref": "#/$defs/id"}, "version": {"type": "string"}, "config": {"type": "object"}}}},
+    "states": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "value_schema", "authority", "scope", "persistence"], "properties": {"id": {"$ref": "#/$defs/id"}, "value_schema": {"type": "object"}, "authority": {"type": "object", "additionalProperties": false, "required": ["role"], "properties": {"role": {"enum": ["host", "runtime", "component"], "$comment": "DRAFT candidates only (P0-ADR-005 scope limit)"}, "component": {"$ref": "#/$defs/id"}}}, "scope": {"enum": ["project", "component", "placement", "session"], "$comment": "DRAFT candidates only (P0-ADR-005 scope limit)"}, "persistence": {"enum": ["none", "runtime_local", "external"]}, "fallback": {}}}},
+    "bindings": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "source", "target", "kind"], "properties": {"id": {"$ref": "#/$defs/id"}, "source": {"$ref": "#/$defs/endpoint"}, "target": {"$ref": "#/$defs/endpoint"}, "kind": {"enum": ["command", "event", "state"]}}}},
+    "presentations": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "variants"], "properties": {"id": {"$ref": "#/$defs/id"}, "variants": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "object"}}}}},
+    "assets": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "path"], "properties": {"id": {"$ref": "#/$defs/id"}, "path": {"type": "string", "minLength": 1}}}},
+    "views": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "type", "placements"], "properties": {"id": {"$ref": "#/$defs/id"}, "type": {"type": "string"}, "placements": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "component", "position"], "properties": {"id": {"$ref": "#/$defs/id"}, "component": {"$ref": "#/$defs/id"}, "presentation": {"$ref": "#/$defs/id"}, "position": {"type": "integer", "minimum": 0}}}}}}}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"},
+    "endpoint": {"type": "object", "additionalProperties": false, "required": ["owner_kind", "owner_id", "port"], "properties": {"owner_kind": {"enum": ["component", "state", "presentation"]}, "owner_id": {"$ref": "#/$defs/id"}, "port": {"$ref": "#/$defs/id"}}}
+  }
+}

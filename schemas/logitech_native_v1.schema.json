@@ -1,0 +1,364 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plugin-studio.local/schemas/logitech_native_v1.schema.json",
+  "title": "Logitech SDK-native plugin project v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "plugin",
+    "handlers",
+    "actions",
+    "folders"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "logitech-native-1"
+    },
+    "plugin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "display_name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "default_icon_template": {
+          "type": "string",
+          "pattern": "\\.ict$"
+        }
+      }
+    },
+    "handlers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/handler"
+      }
+    },
+    "actions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/action"
+      }
+    },
+    "folders": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/folder"
+      }
+    },
+    "licenses": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "handler": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "callback_id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "callback_id": {
+          "type": "string"
+        }
+      }
+    },
+    "parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "display_name",
+        "group_name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "group_name": {
+          "type": "string"
+        },
+        "super_group_name": {
+          "type": "string"
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "index",
+        "name",
+        "display_name",
+        "description"
+      ],
+      "properties": {
+        "index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "name": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "led_color": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Rejected when non-null by the installed-SDK capability gate."
+        }
+      }
+    },
+    "editor_control": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "name",
+        "label"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "textbox",
+            "checkbox",
+            "textarea",
+            "file_selector",
+            "directory_selector",
+            "slider",
+            "numeric_up_down"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "default": {
+          "type": [
+            "boolean",
+            "number",
+            "null"
+          ]
+        },
+        "minimum": {
+          "type": "number"
+        },
+        "maximum": {
+          "type": "number"
+        },
+        "step": {
+          "type": "number"
+        },
+        "format_string": {
+          "type": "string"
+        },
+        "dialog_title": {
+          "type": "string"
+        },
+        "initial_directory": {
+          "type": "string"
+        },
+        "filters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pattern",
+              "label"
+            ],
+            "properties": {
+              "pattern": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "sdk_type",
+        "display_name",
+        "handler"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "sdk_type": {
+          "enum": [
+            "PluginDynamicCommand",
+            "PluginMultistateDynamicCommand",
+            "PluginDynamicAdjustment",
+            "ActionEditorCommand"
+          ]
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "group_name": {
+          "type": "string"
+        },
+        "handler": {
+          "type": "string"
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/parameter"
+          }
+        },
+        "states": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/state"
+          }
+        },
+        "state_change": {
+          "enum": [
+            "none",
+            "increment",
+            "decrement",
+            "toggle"
+          ]
+        },
+        "adjustment": {
+          "type": "object"
+        },
+        "editor_controls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/editor_control"
+          }
+        },
+        "icon": {
+          "type": "string"
+        },
+        "icon_template": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "parameter_symbols": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "folder_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "action",
+        "position"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "position": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "action_parameter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "folder": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "display_name",
+        "navigation",
+        "entries"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "navigation": {
+          "enum": [
+            "None",
+            "ButtonArea",
+            "EncoderArea"
+          ]
+        },
+        "device_navigation": {
+          "type": "object",
+          "additionalProperties": {
+            "enum": [
+              "None",
+              "ButtonArea",
+              "EncoderArea"
+            ]
+          }
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/folder_entry"
+          }
+        }
+      }
+    }
+  }
+}

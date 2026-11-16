@@ -1,0 +1,42 @@
+{
+    "backgroundColor": 4278221516,
+    "items": [
+        {
+            "$type": "Loupedeck.Service.ActionIconImageItem, LoupedeckShared",
+            "image": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4NCjxwYXRoIGQ9Ik03IDE3IEwxMyAyMyBMMjUgOSIvPg0KPC9zdmc+DQo=",
+            "imageFileName": "Haken.svg",
+            "imageColor": 4293059298,
+            "imageRotation": "None",
+            "isVisible": true,
+            "itemType": "Image",
+            "area": {
+                "x": 17,
+                "y": 0,
+                "width": 65,
+                "height": 65,
+                "isFullScreen": false
+            }
+        },
+        {
+            "$type": "Loupedeck.Service.ActionIconTextItem, LoupedeckShared",
+            "text": "Fertig\r\nmelden",
+            "originalText": null,
+            "textColor": 4294967295,
+            "fontSize": 5,
+            "fontName": "Brown Logitech Pan Light",
+            "isVisible": true,
+            "itemType": "Text",
+            "area": {
+                "x": 0,
+                "y": 65,
+                "width": 100,
+                "height": 30,
+                "isFullScreen": false
+            },
+            "futureTextOption": {
+                "shadow": true
+            }
+        }
+    ],
+    "futureTemplateField": "bleibt erhalten"
+}

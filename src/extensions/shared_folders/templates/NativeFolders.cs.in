@@ -1,0 +1,540 @@
+namespace $NAMESPACE$
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Text.Json;
+    using System.Text.Json.Serialization;
+    using System.Threading;
+    using Loupedeck;
+
+    internal static class SdkLabels
+    {
+        // A parameterised SDK command is shown by its SDK parameter display name
+        // (as in the Options+ action picker); stateful commands keep their state name.
+        public static string ForEntry(PluginDynamicAction action, string parameter, PluginImageSize size)
+        {
+            if (action == null) return null;
+            if (parameter != null && !(action is PluginMultistateDynamicCommand)
+                && action.TryGetParameters(out var parameters))
+            {
+                var label = parameters.FirstOrDefault(p => p.Name == parameter)?.DisplayName;
+                if (!String.IsNullOrEmpty(label)) return label;
+            }
+            return action.TryGetCommandDisplayName(parameter, size, out var text) ? text : null;
+        }
+    }
+
+    // Only transient call correlation. SDK action instances own every action value.
+    internal static class FolderCall
+    {
+        public static event Action Changed;
+        public static void Notify() => Changed?.Invoke();
+        private static readonly AsyncLocal<string> Current = new AsyncLocal<string>();
+        public static string Placement => Current.Value;
+        public static bool Invoke(string placement, Func<bool> invoke)
+        {
+            var previous = Current.Value;
+            try { Current.Value = placement; return invoke(); }
+            finally { Current.Value = previous; }
+        }
+    }
+    internal sealed class FolderEntry
+    {
+        public string id { get; set; }
+        public string kind { get; set; }
+        public string label { get; set; }
+        public string action_id { get; set; }
+        public string action_parameter { get; set; }
+        public string target_id { get; set; }
+        public string reason { get; set; }
+#if SHARED_FOLDER_PEER
+        public string peer { get; set; }
+        public string instance { get; set; }
+        public string sdk_type { get; set; }
+        public string[] operations { get; set; }
+        public string value { get; set; }
+        public int? state { get; set; }
+        public string image_hash { get; set; }
+#endif
+    }
+    internal sealed class FolderPage
+    {
+        public string id { get; set; }
+        public FolderEntry[] entries { get; set; }
+    }
+    internal sealed class FolderNode
+    {
+        public string id { get; set; }
+        public string label { get; set; }
+        public FolderPage[] pages { get; set; }
+    }
+    internal sealed class FolderDefinition
+    {
+        public string id { get; set; }
+        public string start { get; set; }
+        public FolderNode[] nodes { get; set; }
+    }
+    internal sealed class FolderLayout
+    {
+        public string version { get; set; }
+        public string plugin_id { get; set; }
+        public long revision { get; set; }
+        public FolderDefinition[] folders { get; set; }
+    }
+    internal sealed class NativeFolderActionSpec
+    {
+        public string type { get; set; }
+        public string sdk_type { get; set; }
+        public string[] parameters { get; set; }
+        public bool has_reset { get; set; }
+    }
+
+    // Trusted in-process owner, or signed Bridge snapshot/event. No service injection.
+    public static class FolderRuntimeHub
+    {
+        private static readonly object Gate = new object();
+        private static string _stream = "build";
+        private static string _json = Spec.FolderLayout;
+        private static FolderLayout _current;
+        internal static event Action<FolderLayout> Changed;
+        internal static readonly Dictionary<string, NativeFolderActionSpec> Actions =
+            JsonSerializer.Deserialize<Dictionary<string, NativeFolderActionSpec>>(Spec.NativeActions);
+        private static readonly JsonSerializerOptions Options = new JsonSerializerOptions {
+            UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow, MaxDepth = 24 };
+
+        static FolderRuntimeHub()
+        {
+            _current = Validate(Spec.FolderLayout);
+            // This optional extension subscribes to neutral bridge notifications.
+            // SDK-native plugins initialize the subscriber before IPC starts.
+            Bridge.SnapshotReceived += ReceiveSnapshot;
+            Bridge.JournalEventReceived += ReceiveJournalEvent;
+        }
+        public static void Initialize() { } // Forces early extension registration.
+        private static void ReceiveSnapshot(string runtime, JsonElement response)
+        {
+            if (response.TryGetProperty("folder_runtime", out var layout))
+                Replace(layout.GetRawText(), runtime);
+        }
+        private static void ReceiveJournalEvent(string runtime, JsonElement data)
+        {
+            if (data.TryGetProperty("port", out var port) &&
+                port.ValueKind == JsonValueKind.String && port.GetString() == "folder.layout")
+                Replace(data.GetProperty("report").GetRawText(), runtime);
+        }
+        internal static FolderLayout Current { get { lock (Gate) return _current; } }
+        private static bool Id(string value) => value != null && System.Text.RegularExpressions.Regex.IsMatch(value, @"^[a-z][a-z0-9_.-]*$");
+        private static void Require(bool condition, string reason)
+        { if (!condition) throw new ArgumentException("FOLDER_LAYOUT: " + reason); }
+        private static void Fields(JsonElement value, string[] required, params string[] optional)
+        {
+            Require(value.ValueKind == JsonValueKind.Object, "object required");
+            var keys = value.EnumerateObject().Select(p => p.Name).ToHashSet();
+            Require(keys.IsSupersetOf(required) && keys.IsSubsetOf(required.Concat(optional)), "missing/unknown fields");
+        }
+
+        private static FolderLayout Validate(string json)
+        {
+            Require(json != null && Encoding.UTF8.GetByteCount(json) <= 49152, "size");
+            // Bridge.Parse rejects duplicate keys and non-finite values too.
+            var raw = Bridge.Parse(Encoding.UTF8.GetBytes(json));
+            Fields(raw, new[] {"version", "plugin_id", "revision", "folders"});
+            foreach (var f in raw.GetProperty("folders").EnumerateArray())
+            {
+                Fields(f, new[] {"id", "start", "nodes"});
+                foreach (var n in f.GetProperty("nodes").EnumerateArray())
+                {
+                    Fields(n, new[] {"id", "label", "pages"});
+                    foreach (var p in n.GetProperty("pages").EnumerateArray())
+                    {
+                        Fields(p, new[] {"id", "entries"});
+                        foreach (var e in p.GetProperty("entries").EnumerateArray())
+                        {
+                            string kind = e.GetProperty("kind").GetString();
+                            var required = new[] {"id", "kind", "label"};
+                            if (kind == "action") Fields(e, required.Concat(new[]{"action_id"}).ToArray(), "action_parameter");
+#if SHARED_FOLDER_PEER
+                            else if (kind == "peer_action") Fields(e, required.Concat(new[]{"action_id", "action_parameter", "peer", "instance", "sdk_type", "operations", "value", "state", "image_hash"}).ToArray());
+#endif
+                            else if (kind == "folder" || kind == "link") Fields(e, required.Concat(new[]{"target_id"}).ToArray());
+                            else Fields(e, required.Concat(new[]{"reason"}).ToArray());
+                        }
+                    }
+                }
+            }
+            var layout = JsonSerializer.Deserialize<FolderLayout>(json, Options);
+            Require(layout != null && layout.version == "sdk-folders-1" && layout.plugin_id == Spec.PluginId &&
+                    layout.revision >= 0 && layout.revision <= 9007199254740991L && layout.folders != null, "header");
+            var expected = JsonSerializer.Deserialize<string[]>(Spec.NativeFolders).ToHashSet();
+            var encoderFolders = JsonSerializer.Deserialize<string[]>(Spec.NativeEncoderFolders).ToHashSet();
+            var seen = new HashSet<string>();
+            var bindings = new Dictionary<string, (string, string)>();
+            foreach (var folder in layout.folders)
+            {
+                Require(folder != null && expected.Contains(folder.id) && seen.Add(folder.id) && folder.nodes != null && folder.nodes.Length > 0, "folder");
+                var nodes = new HashSet<string>(); var pages = new HashSet<string>(); var entries = new HashSet<string>();
+                var targets = new List<string>();
+                foreach (var node in folder.nodes)
+                {
+                    Require(node != null && Id(node.id) && nodes.Add(node.id) && !String.IsNullOrEmpty(node.label) && node.pages != null && node.pages.Length > 0, "node");
+                    foreach (var page in node.pages)
+                    {
+                        Require(page != null && Id(page.id) && pages.Add(page.id) && page.entries != null, "page");
+                        foreach (var entry in page.entries)
+                        {
+                            Require(entry != null && Id(entry.id) && entries.Add(entry.id) && entry.label != null, "placement");
+                            if (entry.kind == "action")
+                            {
+                                Require(entry.action_id != null && Actions.ContainsKey(entry.action_id) && entry.target_id == null && entry.reason == null, "action ID/fields");
+                                var action = Actions[entry.action_id];
+                                Require(action.sdk_type != "ActionEditorCommand", "FOLDER_ACTION_EDITOR_UNSUPPORTED");
+                                Require(action.sdk_type != "PluginDynamicAdjustment" || encoderFolders.Contains(folder.id), "FOLDER_ENCODER_NAVIGATION_CONFLICT");
+                                Require(entry.action_parameter == null || action.parameters.Contains(entry.action_parameter), "action parameter");
+                                var binding = (entry.action_id, entry.action_parameter);
+                                Require(!bindings.TryGetValue(entry.id, out var old) || old == binding, "ambiguous placement binding");
+                                bindings[entry.id] = binding;
+                            }
+#if SHARED_FOLDER_PEER
+                            else if (entry.kind == "peer_action")
+                            {
+                                Require(Id(entry.peer) && entry.peer != Spec.PluginId && Id(entry.action_id) &&
+                                        Guid.TryParseExact(entry.instance, "N", out _) && entry.operations != null &&
+                                        entry.operations.Length > 0 && entry.operations.All(op => op == "command" || op == "adjustment") &&
+                                        (entry.sdk_type == "PluginDynamicAdjustment" && encoderFolders.Contains(folder.id) ||
+                                         (entry.sdk_type == "PluginDynamicCommand" || entry.sdk_type == "PluginMultistateDynamicCommand") &&
+                                         entry.operations.SequenceEqual(new[]{"command"})), "peer action binding");
+                            }
+#endif
+                            else if (entry.kind == "folder" || entry.kind == "link")
+                            {
+                                Require(entry.action_id == null && entry.action_parameter == null && entry.reason == null, "navigation fields");
+                                targets.Add(entry.target_id);
+                            }
+                            else Require(entry.kind == "unavailable" && entry.reason != null && entry.action_id == null && entry.action_parameter == null && entry.target_id == null, "entry kind");
+                        }
+                    }
+                }
+                Require(nodes.Contains(folder.start) && targets.All(t => t != null && nodes.Contains(t)), "navigation target");
+            }
+            Require(seen.SetEquals(expected), "incomplete folder snapshot");
+            return layout;
+        }
+        public static void Replace(string json, string stream = "local")
+        {
+            var candidate = Validate(json);
+            Require(!String.IsNullOrEmpty(stream) && stream.Length <= 128, "stream");
+            lock (Gate)
+            {
+                if (stream == _stream)
+                {
+                    Require(candidate.revision >= _current.revision, "stale revision");
+                    if (candidate.revision == _current.revision)
+                    {
+                        Require(JsonElement.DeepEquals(Bridge.Parse(Encoding.UTF8.GetBytes(json)), Bridge.Parse(Encoding.UTF8.GetBytes(_json))), "revision reused with different contents");
+                        return;
+                    }
+                }
+                _current = candidate; _json = json; _stream = stream;
+            }
+            Changed?.Invoke(candidate);
+        }
+    }
+
+    public abstract class NativeFolderBase : PluginDynamicFolder
+    {
+        protected abstract string FolderId { get; }
+        private readonly object _gate = new object();
+        private FolderDefinition _definition;
+        private string _node;
+        private int _page;
+        private long _generation;
+        private readonly Stack<(string Placement, string Origin, int Page, string Target)> _back = new();
+        private bool _loaded;
+        private readonly Dictionary<string, FolderEntry> _visible = new();
+        public string CurrentNode { get { lock (_gate) { Ensure(); return _node; } } }
+        public int CurrentPage { get { lock (_gate) return _page; } }
+        public int BackDepth { get { lock (_gate) return _back.Count; } }
+        public string LastDiagnostic { get; private set; }
+        // Counters also make the distinction between membership and repaint observable.
+        public long MembershipNotifications { get; private set; }
+        public long ImageNotifications { get; private set; }
+
+        private void Ensure()
+        {
+            if (_definition == null) Install(FolderRuntimeHub.Current);
+        }
+        private FolderNode Node => _definition.nodes.First(n => n.id == _node);
+        private string ViewSignature() => _definition == null ? "" : String.Join("|", Node.pages[_page].entries.Select(e =>
+            $"{e.id}:{e.kind}:{e.action_id}:{e.action_parameter}:{e.target_id}:{BindingSignature(e)}")) + $"/{_node}/{_page}/{Node.pages.Length}/{_back.Count}";
+        private static string BindingSignature(FolderEntry e)
+        {
+#if SHARED_FOLDER_PEER
+            if (e.kind == "peer_action") return $"{e.peer}:{e.instance}:{e.sdk_type}:{String.Join(",", e.operations)}";
+#endif
+            return "";
+        }
+        private bool Install(FolderLayout layout)
+        {
+            string before = ViewSignature();
+            _definition = layout.folders.First(f => f.id == FolderId);
+            // Validate actual path edges; a true parent is never substituted for a link origin.
+            bool valid = _definition.nodes.Any(n => n.id == _node);
+            foreach (var step in _back)
+            {
+                var origin = _definition.nodes.FirstOrDefault(n => n.id == step.Origin);
+                var entry = origin?.pages.ElementAtOrDefault(step.Page)?.entries.FirstOrDefault(e => e.id == step.Placement);
+                valid &= entry != null && (entry.kind == "folder" || entry.kind == "link") && entry.target_id == step.Target;
+            }
+            if (!valid) { _node = _definition.start; _page = 0; _back.Clear(); }
+            if (_page >= Node.pages.Length) _page = 0;
+            bool changed = before != ViewSignature();
+            if (changed) _generation++;
+            BuildVisible();
+            return changed;
+        }
+        private void BuildVisible()
+        {
+            _visible.Clear();
+            foreach (var entry in Node.pages[_page].entries)
+                _visible["item:" + _generation + ":" + entry.id] = entry;
+        }
+        private void LayoutChanged(FolderLayout layout)
+        {
+            lock (_gate) { if (Install(FolderRuntimeHub.Current)) MembershipChanged(); else Repaint(); }
+        }
+        private void MembershipChanged()
+        {
+            MembershipNotifications++;
+            if (_loaded) { this.ButtonActionNamesChanged(); this.EncoderActionNamesChanged(); }
+        }
+        private void Repaint()
+        {
+            lock (_gate)
+            {
+                Ensure(); ImageNotifications++;
+                if (_loaded)
+                    foreach (var pair in _visible)
+                    {
+                        if (IsAdjustment(pair.Value)) { this.AdjustmentImageChanged(pair.Key); this.AdjustmentValueChanged(pair.Key); }
+                        else this.CommandImageChanged(pair.Key);
+                    }
+            }
+        }
+        public override bool Load()
+        {
+            lock (_gate)
+            {
+                Ensure(); if (_loaded) return true;
+                FolderRuntimeHub.Changed += LayoutChanged; Bridge.Changed += Repaint; FolderCall.Changed += Repaint;
+                _loaded = true; return true;
+            }
+        }
+        public override bool Unload()
+        {
+            lock (_gate) { _loaded = false; FolderRuntimeHub.Changed -= LayoutChanged; Bridge.Changed -= Repaint; FolderCall.Changed -= Repaint; return true; }
+        }
+        private bool IsAdjustment(FolderEntry e)
+        {
+#if SHARED_FOLDER_PEER
+            if (e.kind == "peer_action") return e.sdk_type == "PluginDynamicAdjustment";
+#endif
+            return e.kind == "action" && FolderRuntimeHub.Actions[e.action_id].sdk_type == "PluginDynamicAdjustment";
+        }
+        private bool HasReset(FolderEntry e)
+        {
+#if SHARED_FOLDER_PEER
+            if (e.kind == "peer_action") return e.operations.Contains("command");
+#endif
+            return FolderRuntimeHub.Actions[e.action_id].has_reset;
+        }
+        private bool CanRotate(FolderEntry e)
+        {
+#if SHARED_FOLDER_PEER
+            if (e.kind == "peer_action") return e.operations.Contains("adjustment");
+#endif
+            return true;
+        }
+        protected virtual PluginDynamicAction ResolveAction(string id)
+        {
+            if (this.Plugin == null || !FolderRuntimeHub.Actions.TryGetValue(id, out var spec)) return null;
+            return this.Plugin.GetActions().OfType<PluginDynamicAction>().FirstOrDefault(a => a.GetType().FullName == spec.type);
+        }
+        private bool TryEntry(string parameter, bool adjustment, out FolderEntry entry)
+        {
+            Ensure(); entry = null;
+            foreach (var pair in _visible)
+                if (parameter == pair.Key || parameter == (adjustment ? this.CreateAdjustmentName(pair.Key) : this.CreateCommandName(pair.Key)))
+                { entry = pair.Value; return true; }
+            LastDiagnostic = "FOLDER_PLACEMENT_UNKNOWN_OR_STALE"; return false;
+        }
+        private string Nav(string name) => "nav:" + _generation + ":" + name;
+        private bool Matches(string input, string name) => input == Nav(name) || input == this.CreateCommandName(Nav(name));
+        public override IEnumerable<string> GetButtonPressActionNames(DeviceType deviceType)
+        {
+            lock (_gate)
+            {
+                Ensure(); var names = _visible.Where(p => !IsAdjustment(p.Value)).Select(p => this.CreateCommandName(p.Key)).ToList();
+                if (_back.Count > 0) names.Add(this.CreateCommandName(Nav("back")));
+                if (_page > 0) names.Add(this.CreateCommandName(Nav("previous")));
+                if (_page + 1 < Node.pages.Length) names.Add(this.CreateCommandName(Nav("next")));
+                if (GetNavigationArea(deviceType) == PluginDynamicFolderNavigation.None)
+                {
+                    names.Add(NavigateUpActionName); names.Add(NavigateLeftActionName); names.Add(NavigateRightActionName);
+                }
+                return names.ToArray();
+            }
+        }
+        public override IEnumerable<string> GetEncoderRotateActionNames(DeviceType deviceType)
+        {
+            lock (_gate)
+            {
+                Ensure();
+                if (GetNavigationArea(deviceType) == PluginDynamicFolderNavigation.EncoderArea)
+                { LastDiagnostic = "FOLDER_ENCODER_NAVIGATION_CONFLICT"; return Array.Empty<string>(); }
+                return _visible.Where(p => IsAdjustment(p.Value) && CanRotate(p.Value)).Select(p => this.CreateAdjustmentName(p.Key)).ToArray();
+            }
+        }
+        public override IEnumerable<string> GetEncoderPressActionNames(DeviceType deviceType)
+        {
+            lock (_gate)
+            {
+                Ensure();
+                if (GetNavigationArea(deviceType) == PluginDynamicFolderNavigation.EncoderArea) return Array.Empty<string>();
+                return _visible.Where(p => IsAdjustment(p.Value) && HasReset(p.Value))
+                               .Select(p => this.CreateCommandName(p.Key)).ToArray();
+            }
+        }
+        private bool Navigate(string input)
+        {
+            if (Matches(input, "back") && _back.Count > 0)
+            { var previous = _back.Pop(); _node = previous.Origin; _page = previous.Page; }
+            else if (Matches(input, "previous") && _page > 0) _page--;
+            else if (Matches(input, "next") && _page + 1 < Node.pages.Length) _page++;
+            else return false;
+            _generation++; BuildVisible(); MembershipChanged(); return true;
+        }
+        public override void RunCommand(string parameter)
+        {
+            FolderEntry e;
+            PluginDynamicAction action;
+            lock (_gate)
+            {
+                Ensure(); if (Navigate(parameter)) return;
+                if (!TryEntry(parameter, false, out e)) return;
+                if (e.kind == "folder" || e.kind == "link")
+                {
+#if SHARED_FOLDER_PEER
+                    if (e.target_id == _node || _back.Any(step => step.Origin == e.target_id))
+                    { LastDiagnostic = "FOLDER_LINK_CYCLE"; return; }
+#endif
+                    if (_back.Count >= 128) { LastDiagnostic = "FOLDER_NAVIGATION_DEPTH"; return; }
+                    _back.Push((e.id, _node, _page, e.target_id)); _node = e.target_id; _page = 0;
+                    _generation++; BuildVisible(); MembershipChanged(); return;
+                }
+#if SHARED_FOLDER_PEER
+                if (e.kind == "peer_action")
+                {
+                    if (!SharedSdk.Forward(e, "command", null)) LastDiagnostic = "FOLDER_REMOTE_INVOKE_REJECTED";
+                    return;
+                }
+#endif
+                if (e.kind != "action") { LastDiagnostic = e.reason; return; }
+                action = ResolveAction(e.action_id);
+                if (action == null) { LastDiagnostic = "FOLDER_ACTION_UNAVAILABLE"; return; }
+                if (IsAdjustment(e) && !FolderRuntimeHub.Actions[e.action_id].has_reset)
+                { LastDiagnostic = "FOLDER_ADJUSTMENT_RESET_UNSUPPORTED"; return; }
+            }
+            if (!FolderCall.Invoke(e.id, () => action.TryRunCommand(e.action_parameter))) LastDiagnostic = "FOLDER_SDK_COMMAND_REJECTED";
+            Repaint();
+        }
+        public override void ApplyAdjustment(string parameter, int diff)
+        {
+            FolderEntry e;
+            PluginDynamicAdjustment action;
+            lock (_gate)
+            {
+                if (!TryEntry(parameter, true, out e) || !IsAdjustment(e)) { LastDiagnostic = "FOLDER_ADJUSTMENT_UNSUPPORTED"; return; }
+#if SHARED_FOLDER_PEER
+                if (e.kind == "peer_action")
+                {
+                    if (!SharedSdk.Forward(e, "adjustment", diff)) LastDiagnostic = "FOLDER_REMOTE_ADJUSTMENT_REJECTED";
+                    return;
+                }
+#endif
+                action = ResolveAction(e.action_id) as PluginDynamicAdjustment;
+            }
+            if (action == null || !FolderCall.Invoke(e.id, () => action.TryApplyAdjustment(e.action_parameter, diff)))
+                LastDiagnostic = "FOLDER_SDK_ADJUSTMENT_REJECTED";
+            Repaint();
+        }
+        private string NavigationLabel(string p) => Matches(p, "back") ? "Back" : Matches(p, "next") ? "Next page" : Matches(p, "previous") ? "Previous page" : null;
+        public override string GetCommandDisplayName(string parameter, PluginImageSize size)
+        {
+            lock (_gate)
+            {
+                Ensure(); var navigation = NavigationLabel(parameter); if (navigation != null) return navigation;
+                if (!TryEntry(parameter, false, out var e)) return null;
+                if (e.kind != "action") return e.kind == "unavailable" ? e.label + " [unavailable]" : e.label;
+                return SdkLabels.ForEntry(ResolveAction(e.action_id), e.action_parameter, size) ?? e.label;
+            }
+        }
+        public override BitmapImage GetCommandImage(string parameter, PluginImageSize size)
+        {
+            lock (_gate)
+            {
+                if (!TryEntry(parameter, false, out var e)) return null;
+#if SHARED_FOLDER_PEER
+                if (e.kind == "peer_action") return SharedSdk.RemoteImage(e.image_hash);
+#endif
+                if (e.kind != "action") return null;
+                var action = ResolveAction(e.action_id);
+                return action != null && action.TryGetCommandImage(e.action_parameter, size, out var image) ? image : null;
+            }
+        }
+        public override string GetAdjustmentDisplayName(string parameter, PluginImageSize size)
+        {
+            lock (_gate)
+            {
+#if SHARED_FOLDER_PEER
+                if (TryEntry(parameter, true, out var peer) && peer.kind == "peer_action" && IsAdjustment(peer)) return peer.label;
+#endif
+                return TryEntry(parameter, true, out var e) && IsAdjustment(e) && ResolveAction(e.action_id) is PluginDynamicAdjustment action
+                    ? action.TryGetAdjustmentDisplayName(e.action_parameter, size) : null;
+            }
+        }
+        public override BitmapImage GetAdjustmentImage(string parameter, PluginImageSize size)
+        {
+            lock (_gate)
+            {
+#if SHARED_FOLDER_PEER
+                if (TryEntry(parameter, true, out var peer) && peer.kind == "peer_action" && IsAdjustment(peer))
+                    return SharedSdk.RemoteImage(peer.image_hash);
+#endif
+                return TryEntry(parameter, true, out var e) && IsAdjustment(e) && ResolveAction(e.action_id) is PluginDynamicAdjustment action && action.TryGetAdjustmentImage(e.action_parameter, size, out var image) ? image : null;
+            }
+        }
+        public override string GetAdjustmentValue(string parameter)
+        {
+            lock (_gate)
+            {
+#if SHARED_FOLDER_PEER
+                if (TryEntry(parameter, true, out var peer) && peer.kind == "peer_action" && IsAdjustment(peer)) return peer.value;
+#endif
+                return TryEntry(parameter, true, out var e) && IsAdjustment(e) && ResolveAction(e.action_id) is PluginDynamicAdjustment action && action.TryGetAdjustmentValue(e.action_parameter, out var value) ? value.GetValueString() : null;
+            }
+        }
+        public override PluginAdjustmentValue GetAdjustmentValueData(string parameter)
+        {
+            lock (_gate)
+            {
+#if SHARED_FOLDER_PEER
+                if (TryEntry(parameter, true, out var peer) && peer.kind == "peer_action" && IsAdjustment(peer))
+                    return new PluginAdjustmentValue { ValueString = peer.value };
+#endif
+                return TryEntry(parameter, true, out var e) && IsAdjustment(e) && ResolveAction(e.action_id) is PluginDynamicAdjustment action && action.TryGetAdjustmentValue(e.action_parameter, out var value) ? value : null;
+            }
+        }
+    }
+}

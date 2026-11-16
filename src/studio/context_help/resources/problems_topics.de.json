@@ -1,0 +1,24 @@
+[
+  {
+    "topic_id": "problems.empty",
+    "title": "Leere Problemliste",
+    "summary": "Eine leere Liste kann fehlende Prüfergebnisse, keine Meldungen oder ausgefilterte Meldungen bedeuten.",
+    "description": "Der Leerzustand und die Zähler unterscheiden diese Fälle. „Filter zurücksetzen“ zeigt ausgefilterte Meldungen wieder. Eine leere Liste ist keine umfassende Produktfreigabe.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "problems.filters",
+      "problems.diagnostic"
+    ]
+  },
+  {
+    "topic_id": "problems.sort",
+    "title": "Meldungen sortieren",
+    "summary": "Ein Klick auf einen Spaltenkopf sortiert die sichtbaren Meldungen.",
+    "description": "Die Sortierung und das Ändern der Spaltenbreiten betreffen nur die Ansicht. Die Meldungen und das Projekt bleiben unverändert.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "problems.diagnostic",
+      "problems.filters"
+    ]
+  }
+]

@@ -1,0 +1,83 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text.Json;
+using Loupedeck;
+
+internal static class Probe
+{
+    private static string Hash(BitmapImage image) => image == null ? null
+        : Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(image.ToArray(BitmapImageFormat.Png))).ToLowerInvariant();
+
+    private const BindingFlags Instance = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+    public static int Main(string[] args)
+    {
+        var assemblyPath = Path.Combine(Path.GetDirectoryName(args[0]), "$ASSEMBLY$.dll");
+        var assembly = Assembly.LoadFrom(assemblyPath);
+        var types = assembly.GetTypes();
+        var plugin = (Plugin)Activator.CreateInstance(types.Single(t => t.IsSubclassOf(typeof(Plugin))));
+        typeof(Plugin).GetFields(Instance).Single(f => f.FieldType == typeof(Assembly)).SetValue(plugin, assembly);
+        typeof(Plugin).GetProperty("AssemblyFilePath", Instance).SetValue(plugin, assemblyPath);
+        var actions = new Dictionary<string, PluginDynamicAction>();
+        var sdkActions = (Dictionary<string, PluginAction>)typeof(Plugin).GetFields(Instance)
+            .Single(f => f.FieldType == typeof(Dictionary<string, PluginAction>)).GetValue(plugin);
+        foreach (var type in types.Where(t => t.IsSubclassOf(typeof(PluginDynamicAction))))
+        {
+            var field = type.GetField("ComponentId");
+            if (field == null) continue;
+            var action = (PluginDynamicAction)Activator.CreateInstance(type);
+            typeof(PluginDynamicAction).GetProperty("Plugin", Instance).SetValue(action, plugin);
+            var id = (string)field.GetValue(null);
+            actions[id] = action;
+            sdkActions[id] = action;
+        }
+        var folder = (PluginDynamicFolder)Activator.CreateInstance(types.Single(t => t.Name.StartsWith("Folder_FolderMain")));
+        typeof(PluginDynamicFolder).GetMethod("Init", Instance).Invoke(folder, new object[] {
+            plugin, new Action<string, string, DeviceControlType>((a,b,c) => {}),
+            new Action<string, string, string>((a,b,c) => {}), new Action<string, string, string>((a,b,c) => {}),
+            new Action<string, string, int>((a,b,c) => throw new Exception("Unexpected generic invoke")) });
+        var bridge = types.Single(t => t.Name == "Bridge");
+        plugin.Load();
+        folder.Load();
+        try
+        {
+            string line;
+            while ((line = Console.ReadLine()) != null && line != "stop")
+            {
+                try
+                {
+                    var p = line.Split('|');
+                    object result;
+                    switch (p[0])
+                    {
+                        case "inspect":
+                            var names = folder.GetButtonPressActionNames(DeviceType.Loupedeck70).ToArray();
+                            var encoders = folder.GetEncoderRotateActionNames(DeviceType.Loupedeck70).ToArray();
+                            result = new {
+                                pid=Environment.ProcessId, ready=(bool)bridge.GetProperty("Ready").GetValue(null),
+                                labels=names.Select(n => folder.GetCommandDisplayName(n, PluginImageSize.Width90)).ToArray(),
+                                names, encoders, resets=folder.GetEncoderPressActionNames(DeviceType.Loupedeck70).ToArray(), values=encoders.Select(n => folder.GetAdjustmentValue(n)).ToArray(),
+                                images=names.Select(n => Hash(folder.GetCommandImage(n, PluginImageSize.Width90))).ToArray(),
+                                remote_images=types.SingleOrDefault(t => t.Name == "SharedSdk")?.GetProperty("RemoteImageUpdates")?.GetValue(null),
+                                node=folder.GetType().GetProperty("CurrentNode")?.GetValue(folder),
+                                page=folder.GetType().GetProperty("CurrentPage")?.GetValue(folder)
+                            };
+                            break;
+                        case "run": folder.RunCommand(p[1]); result = true; break;
+                        case "adjust": folder.ApplyAdjustment(p[1], int.Parse(p[2])); result = true; break;
+                        case "direct": result = actions[p[1]].TryRunCommand(p.Length > 2 ? p[2] : null); break;
+                        case "hashpng": result = Hash(BitmapImage.FromArray(File.ReadAllBytes(p[1]))); break;
+                        default: throw new ArgumentException("Unknown probe command");
+                    }
+                    Console.WriteLine("JSON:" + JsonSerializer.Serialize(result));
+                }
+                catch (Exception error) { Console.WriteLine("JSON:" + JsonSerializer.Serialize(new {error=error.ToString()})); }
+            }
+        }
+        finally { folder.Unload(); plugin.Unload(); }
+        return 0;
+    }
+}

@@ -1,0 +1,18 @@
+# DeepSeek-Forschungsauftrag – AP-FOLDER-RESEARCH-001: Native DynamicFolder-Navigation und Einstieg
+
+**Forschungsroot:** `P:\LokaleProjekte\logi_actions_sdk\logi-actions-sdk-rec`. **Studio nur lesen:** `P:\LokaleProjekte\logi_actions_sdk\PluginStudioArchitecture`. **Akte ausschließlich:** `P:\LokaleProjekte\logi_actions_sdk\logi-actions-sdk-rec\work\runs\RUN-20261106-FOLDERRESEARCH-01\`. Lies zuerst Forschungsroot-`AGENTS.md` und die bestehende Forschungsakte `P:\LokaleProjekte\logi_actions_sdk\PluginStudioArchitecture\work\research\20261106-dynamicfolder-sdk-bestandsaufnahme.md`. Kein Code ändern, keine Geräte- oder Dienstoperationen, keine anderen Agenten starten.
+
+## Ziel
+Beseitige so viele wie möglich der **konkreten SDK-Unsicherheiten** für das laufende Codex-AP-FOLDER-001, ohne dessen Implementierung zu blockieren.
+
+1. **MX Creative Keypad (Loupedeck70):** Welche tatsächlichen Hardware-Seitentasten (insbesondere die vom Benutzer erwähnten zwei zusätzlichen Tasten) sind für `PluginDynamicFolder`-Paging zuständig? Wie werden sie vom Logitech Plugin Service beim DynamicFolder-Navigationsmodus `ButtonArea`/`EncoderArea`/`None` behandelt? Gibt es gesicherte DeviceType-/Capability-/NavigationPage-Belege? Unterscheide manuelle Profil-Pages von SDK-DynamicFolder-Pages.
+2. **SDK-Pagination:** Belege exakte öffentliche Methoden, Signaturen und Events für `GetButtonPressActionNames`, `ButtonActionNamesChanged`, `NavigateLeftActionName`, `NavigateRightActionName`, `NavigateUpActionName`, `GetNavigationArea`; wer paginiert, wer rendert, wer erzeugt Back, werden Slots reserviert? Versionsabweichungen herausarbeiten.
+3. **Ein echter DynamicFolder pro Plugin:** Gibt es Einschränkungen oder Vorteile? Lässt sich seine Actionliste/Ansicht zur Laufzeit vollständig wechseln? Gibt es ein SDK-belegtes Verfahren, über eine **einzige** Öffneraktion direkt einen wählbaren Unterordner als Startknoten zu initialisieren? Eindeutig trennen von mehreren DynamicFolder-Klassen mit unterschiedlichen Einstiegsansichten und normalen parametrisierten Commands ohne SDK-Open-Methode.
+4. **Action-Type-Matrix:** Welche Arten von **eigenen** Commands, Adjustments, Multistates und ActionEditorCommands dürfen als DynamicFolder-Tasten-/Encoder-Actions auftreten? Gibt es einen dokumentierten Cross-Plugin-Invoke für externe SDK-/Profilaktionen? Nicht durch Annahmen ergänzen.
+5. **Projektbeleg:** Sichtprüfung von `src/adapters/logitech/product.py::_folder` gegenüber bestätigten SDK-Verträgen, ohne Quellcode zu ändern; offen lassen, wo Runtime-Refresh aktuell fehlt.
+
+## Belegpflicht
+**Primär:** offizielle SDK-Doku, SDK-LLM-Komplettreferenz `P:\LokaleProjekte\logi_actions_sdk\PluginStudioArchitecture\references\logitech-sdk\logi-actions-sdk-llms-full.md`, lokale `PluginApi.dll`/Decompilation nur lesend und unter Beachtung bestehender Projektregeln, offizielle Logitech-Beispiele. Historisches Loupedeck nicht mit aktuellem Logitech gleichsetzen. Für jede Behauptung genaue URL/Abschnitt oder Datei/Methode/Version, Belegklasse `SDK_DOKUMENTIERT`/`DLL_BEOBACHTET`/`LAB_NACHGEWIESEN`/`UNGEKLÄRT`. Keine Hardware-Prüfung als PASS deklarieren, wenn nicht wirklich durchgeführt. Nur kostenlose Mittel, keine Herstelleranfragen.
+
+## Ausgabe
+Erstelle `01_original_prompt.md`, `02_verlauf.md`, `03_ergebnisse.md`, `04_abschlussbericht.md` und `outputs/frageantwort-matrix.md` unter dem Run-Pfad. Die Matrix beantwortet alle fünf Fragen, nennt konkrete Konsequenzen für Codex AP-FOLDER-001 und markiert die ohne Hardware offenen Punkte präzise. Verwende Status COMPLETE für vollständig und wahrheitsgemäß beantwortete Forschungsaufgaben auch wenn einzelne Hardwarefragen UNGEKLÄRT bleiben; keine erfundenen Gewissheiten. Keine Änderungen im Studio-Root.

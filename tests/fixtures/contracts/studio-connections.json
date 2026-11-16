@@ -1,0 +1,553 @@
+[
+  {
+    "id": "V-01",
+    "sender": "Session.native_project()/revision",
+    "receiver": "Coordinator.refresh → Explorer.set_project",
+    "payload": "NativeProject; revision:str",
+    "checks": "Aktuelle defensive Sessionprojektion",
+    "effect": "Nur Baumansicht; stille Setter",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v01_session_to_explorer",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-02",
+    "sender": "Session.native_project()",
+    "receiver": "Coordinator.refresh → Catalog.set_project",
+    "payload": "NativeProject",
+    "checks": "Aktuelle vier native SDK-Typen; native IDs",
+    "effect": "Nur Katalogsnapshot",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v02_session_to_catalog",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-03",
+    "sender": "Explorer.nodeSelected(str,str)",
+    "receiver": "Coordinator.select_node",
+    "payload": "kind,native_id",
+    "checks": "_exists im aktuellen Projekt; _syncing-Guard",
+    "effect": "Hostauswahl; kein Commit",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v03_explorer_selection",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-04",
+    "sender": "Explorer.nodeActivated(str,str)",
+    "receiver": "Coordinator.activate_node",
+    "payload": "kind,native_id",
+    "checks": "Entity existiert; aktuelle Auswahl",
+    "effect": "Details aktualisieren; kein SDK-Run",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v04_explorer_activation",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-05",
+    "sender": "Catalog.actionSelected(object)",
+    "receiver": "Coordinator.select_offer",
+    "payload": "ActionOffer",
+    "checks": "offer_for(id,parameter) existiert aktuell",
+    "effect": "Konkrete Parameterauswahl im Host",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v05_catalog_parameter_selection",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-06",
+    "sender": "Catalog.actionEditRequested(str)",
+    "receiver": "Coordinator.request_edit",
+    "payload": "action_id",
+    "checks": "Aktuelle Action-ID",
+    "effect": "select_node; editRequested; noch kein Commit",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v06_catalog_edit_request",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-07",
+    "sender": "Catalog.createActionRequested",
+    "receiver": "Künftiger ActionInspector",
+    "payload": "—",
+    "checks": "Kein Erstellungsvertrag; Button hostseitig gesperrt",
+    "effect": "Keine aktive Verbindung",
+    "status": "AUFGESCHOBEN",
+    "test": "—",
+    "code": []
+  },
+  {
+    "id": "V-08",
+    "sender": "Coordinator.selectionChanged()",
+    "receiver": "Coordinator._selection_help → HelpCoordinator.set_context",
+    "payload": "HelpContext; native ID/Parameter als Fakten",
+    "checks": "Aktuelle Auswahl; Pin wird respektiert",
+    "effect": "Nur Hilfekontext",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v08_selection_help_context",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-09",
+    "sender": "HelpCoordinator.helpChanged(object)",
+    "receiver": "ContextHelpWidget.set_help",
+    "payload": "HelpDisplayState",
+    "checks": "Registry-Auflösung; passive Anzeige",
+    "effect": "Hilfetext; keine neuen Intents",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v09_help_display",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-10",
+    "sender": "ContextHelpWidget.pinRequested(bool)",
+    "receiver": "HelpCoordinator.set_pinned",
+    "payload": "bool",
+    "checks": "Expliziter Benutzerintent",
+    "effect": "Flüchtiger Pin",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v10_pin",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-11",
+    "sender": "ContextHelpWidget.relatedTopicRequested(str)",
+    "receiver": "Coordinator.related_help → HelpCoordinator.request_help",
+    "payload": "topic_id → HelpContext",
+    "checks": "Registry.get(topic) muss existieren",
+    "effect": "Explizite Hilfe; darf Pin übergehen",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v11_related_topic",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-12",
+    "sender": "Coordinator.publish_diagnostics/report_error",
+    "receiver": "ProblemsPanel.set_source_diagnostics",
+    "payload": "source; Diagnostic[]; revision",
+    "checks": "project_token UND base_revision müssen aktuell sein",
+    "effect": "Nur Quellsnapshot; Parsertexte bekommen Pfad /",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v12_diagnostics_sources_and_correlation",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-13",
+    "sender": "ProblemsPanel.diagnosticSelected(object)",
+    "receiver": "Coordinator.diagnostic_selected",
+    "payload": "Original Diagnostic oder None",
+    "checks": "Identische Instanz noch in aktiven Quellen",
+    "effect": "Hilfe; keine Entity-Navigation",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v13_problem_selection_help",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-14",
+    "sender": "ProblemsPanel.diagnosticActivated(object)",
+    "receiver": "Coordinator.diagnostic_activated",
+    "payload": "Original Diagnostic",
+    "checks": "Identische Instanz aktuell; keine nachgewiesene Pfadabbildung",
+    "effect": "Explizite Diagnosehilfe erklärt fehlende Navigation",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v14_problem_activation_no_guessed_navigation",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-15",
+    "sender": "Shell.rename_selected: akzeptierter QInputDialog",
+    "receiver": "Coordinator.rename_action → Session.snapshot/replace",
+    "payload": "action_id; display_name; base_revision",
+    "checks": "Revision, ID, Rohsnapshot; normativer Parser vor Commit",
+    "effect": "Genau display_name; maximal ein Commit",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v15_display_name_exactly_one_commit",
+    "code": [
+      "src/studio/native_shell/window.py",
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-16",
+    "sender": "Shell.undo_action.triggered",
+    "receiver": "Coordinator.undo → Session.undo",
+    "payload": "keine Fachpayload",
+    "checks": "Aktuelle Session; Session validiert History",
+    "effect": "History, neue Revision, Ansichtsrefresh",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_native_studio_shell.py::test_v16_history_save_reload",
+    "code": [
+      "src/studio/native_shell/window.py",
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-17",
+    "sender": "studio.app.main --native / Standard",
+    "receiver": "NativeStudioShell / StudioWindow",
+    "payload": "CLI-Flag und optionaler Pfad",
+    "checks": "Explizite Route; Session verweigert 0.1-draft",
+    "effect": "Native oder Legacy öffnen; keine Migration",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_native_studio_shell.py::test_v17_explicit_entry_legacy_default",
+    "code": [
+      "src/studio/app.py",
+      "src/studio/native_shell/window.py"
+    ]
+  },
+  {
+    "id": "V-18",
+    "sender": "SDK Frame-Adapter",
+    "receiver": "Preview.set_frame",
+    "payload": "—",
+    "checks": "Kein belegter KeypadFrame/Capability-Adapter",
+    "effect": "Keine aktive Verbindung",
+    "status": "AUFGESCHOBEN",
+    "test": "—",
+    "code": []
+  },
+  {
+    "id": "V-19",
+    "sender": "Preview.editRequested",
+    "receiver": "Host Placement-Commit",
+    "payload": "—",
+    "checks": "Kein abgenommener Placement-Writer",
+    "effect": "Keine aktive Verbindung",
+    "status": "AUFGESCHOBEN",
+    "test": "—",
+    "code": []
+  },
+  {
+    "id": "V-20",
+    "sender": "Preview.symbolEditRequested / NativeIctCoordinator",
+    "receiver": "ICT-/Asset-Writer",
+    "payload": "—",
+    "checks": "Separate JSON-/Multi-File-Writerhoheit ungeklärt",
+    "effect": "Keine aktive Verbindung",
+    "status": "AUFGESCHOBEN",
+    "test": "—",
+    "code": []
+  },
+  {
+    "id": "V-21",
+    "sender": "Host History",
+    "receiver": "Preview.set_history_available",
+    "payload": "—",
+    "checks": "Kein aktiver Frame / Edit-Modus",
+    "effect": "Keine aktive Verbindung",
+    "status": "AUFGESCHOBEN",
+    "test": "—",
+    "code": []
+  },
+  {
+    "id": "V-22",
+    "sender": "Catalog.catalog_tree.itemSelectionChanged",
+    "receiver": "Coordinator._catalog_selection",
+    "payload": "Catalog.selected_key(): (id,parameter) oder None",
+    "checks": "Aktuelle ID; _syncing-Guard",
+    "effect": "Auch Parameter-Elternknoten als Definition; kein erfundenes Offer",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v22_catalog_definition_selection",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-23",
+    "sender": "Explorer.search_edit.textChanged",
+    "receiver": "Coordinator._filtered",
+    "payload": "str (nur Trigger)",
+    "checks": "Nicht sichtbare aktuelle Auswahl",
+    "effect": "Hostauswahl still leeren",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v23_filters_invalidate_hidden_selection",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-24",
+    "sender": "Coordinator.changed()",
+    "receiver": "Shell._refresh_status",
+    "payload": "Aktuelle Sessionabfragen",
+    "checks": "Nur aktuell geöffnete Session",
+    "effect": "Dirty, Titel, Toolbar-History, Dateipfad",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_native_studio_shell.py::test_v24_session_status",
+    "code": [
+      "src/studio/native_shell/window.py",
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-25",
+    "sender": "Coordinator.selectionChanged()",
+    "receiver": "Shell._show_selection",
+    "payload": "Hostauswahl; snapshot()",
+    "checks": "Native Entity-ID im aktuellen Snapshot",
+    "effect": "Nur read-only JSON-Details",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_native_studio_shell.py::test_v25_selection_details",
+    "code": [
+      "src/studio/native_shell/window.py",
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-26",
+    "sender": "Shell.open_action.triggered",
+    "receiver": "Shell.choose_project → open_project → Coordinator.open_project",
+    "payload": "Expliziter QFileDialog-Pfad",
+    "checks": "Dirty-Guard; load validiert vor Sessionersatz",
+    "effect": "Projekt laden oder alte Session behalten",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_native_studio_shell.py::test_v26_open_dialog_route",
+    "code": [
+      "src/studio/native_shell/window.py",
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-27",
+    "sender": "Catalog.new_action_button EnabledChange / Shell-Konstruktion",
+    "receiver": "Coordinator.eventFilter / Shell Capability-Hinweis",
+    "payload": "Qt EnabledChange; fehlender Frame",
+    "checks": "Kein Create-/ICT-/Frame-Vertrag",
+    "effect": "Create dauerhaft deaktiviert; Preview/ICT sichtbar gesperrt; kein Keypad instanziiert",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_native_studio_shell.py::test_v27_capabilities_unavailable_no_writes",
+    "code": [
+      "src/studio/native_shell/window.py",
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-28",
+    "sender": "Explorer-/Catalog-/Problems-Kontrollen FocusIn",
+    "receiver": "Shell.eventFilter → HelpCoordinator.set_context",
+    "payload": "HelpContext",
+    "checks": "Fenstereigene Kontrollen; Pin respektieren",
+    "effect": "Nur kontextbezogene Hilfe",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_native_studio_shell.py::test_v28_focus_context",
+    "code": [
+      "src/studio/native_shell/window.py",
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-29",
+    "sender": "Shell.help_action F1",
+    "receiver": "Shell.request_help → HelpCoordinator.request_help",
+    "payload": "Aktueller Fokus/ID/Parameter → HelpContext",
+    "checks": "Explizite Fensteraktion; aktuelle Hostdaten",
+    "effect": "Hilfe-Tab öffnen; Pin explizit übergehen",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_native_studio_shell.py::test_v29_f1_overrides_pin",
+    "code": [
+      "src/studio/native_shell/window.py",
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-30",
+    "sender": "Coordinator.open_project nach gültigem load",
+    "receiver": "Coordinator.reset_context → HelpCoordinator.set_pinned/set_context",
+    "payload": "False; None",
+    "checks": "Erst nach erfolgreichem Sessionersatz",
+    "effect": "Alten Pin und Hilfefakten entfernen",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v30_project_switch_resets_context",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-31",
+    "sender": "Coordinator.editRequested(str)",
+    "receiver": "Shell.rename_selected",
+    "payload": "Native action_id",
+    "checks": "Auswahl-ID aktuell; Dialog erfasst Revision vor Eingabe",
+    "effect": "Begrenzter Anzeigenamendialog",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_native_studio_shell.py::test_v31_catalog_edit_to_dialog",
+    "code": [
+      "src/studio/native_shell/window.py",
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-32",
+    "sender": "Shell.reload_action.triggered",
+    "receiver": "Shell.reload_project → open_project",
+    "payload": "Ursprünglicher Sessionpfad",
+    "checks": "Save/Discard/Cancel; load vor Ersatz",
+    "effect": "Erneutes Laden; Fehler erhält Session",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_native_studio_shell.py::test_v32_reload",
+    "code": [
+      "src/studio/native_shell/window.py",
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-33",
+    "sender": "Shell.closeEvent",
+    "receiver": "Shell.confirm_unsaved → save_project oder Event.ignore",
+    "payload": "Save / Discard / Cancel",
+    "checks": "Dirty-Session; Save-Fehler bleibt blockierend",
+    "effect": "Nur bestätigtes Schließen; kein stiller Datenverlust",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_native_studio_shell.py::test_v33_close_dirty_cancel_save_discard_conflict",
+    "code": [
+      "src/studio/native_shell/window.py",
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-34",
+    "sender": "Catalog.search_edit.textChanged",
+    "receiver": "Coordinator._filtered",
+    "payload": "str (nur Trigger)",
+    "checks": "Versteckte Katalogauswahl; _syncing-Guard",
+    "effect": "Hostauswahl leeren; kein Commit",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v34_catalog_search_invalidates_host",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-35",
+    "sender": "Catalog.type_combo.currentIndexChanged",
+    "receiver": "Coordinator._filtered",
+    "payload": "int (nur Trigger)",
+    "checks": "Nicht sichtbare aktuelle Auswahl",
+    "effect": "Hostauswahl leeren; kein Commit",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v35_catalog_type_invalidates_host",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-36",
+    "sender": "Shell.redo_action.triggered",
+    "receiver": "Coordinator.redo → Session.redo",
+    "payload": "keine Fachpayload",
+    "checks": "Aktuelle Session; validierte History",
+    "effect": "Redo und defensive Ansichtsprojektion",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_native_studio_shell.py::test_v36_redo_route",
+    "code": [
+      "src/studio/native_shell/window.py",
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-37",
+    "sender": "Shell.save_action.triggered",
+    "receiver": "Shell.save_project → Coordinator.save → Session.save",
+    "payload": "Ursprünglicher Pfad aus Session",
+    "checks": "Exakte externe Bytebaseline; Fehler bleibt sichtbar",
+    "effect": "Expliziter atomarer JSON-Save; keine Assets",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_native_studio_shell.py::test_v37_save_route",
+    "code": [
+      "src/studio/native_shell/window.py",
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-38",
+    "sender": "Shell.rename_action.triggered",
+    "receiver": "Shell.rename_selected",
+    "payload": "keine Fachpayload",
+    "checks": "Auswahl muss NativeAction auflösen",
+    "effect": "Anzeigenamendialog; kein vollständiger Inspector",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_native_studio_shell.py::test_v38_rename_toolbar_route",
+    "code": [
+      "src/studio/native_shell/window.py",
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-39",
+    "sender": "Coordinator.open_project/reset_context",
+    "receiver": "ProblemsPanel.clear/reset_filters",
+    "payload": "keine",
+    "checks": "Nur erfolgreicher Projektwechsel",
+    "effect": "Alle alten Kanäle/Filter löschen; neuer nativer Prüfsnapshot",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v39_project_switch_clears_problem_sources_and_filters",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-40",
+    "sender": "Coordinator._select/refresh → _mirror",
+    "receiver": "Explorer.set_filter/set_selection",
+    "payload": "(kind,native_id)",
+    "checks": "Existenz; _syncing; explizite Auswahl macht Ziel sichtbar",
+    "effect": "Nur stille Ansicht; keine Signalechos",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v40_host_to_explorer_silent",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-41",
+    "sender": "Coordinator._select/refresh → _mirror",
+    "receiver": "Catalog.set_filter/set_type_filter/set_selected_action",
+    "payload": "(action_id,action_parameter)",
+    "checks": "Native Action oder Entry→Action; keine automatische Parameterauswahl",
+    "effect": "Nur stille Ansicht; kein Offer für Parameter-Eltern",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v41_host_to_catalog_silent",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  },
+  {
+    "id": "V-42",
+    "sender": "Explorer.tree.itemSelectionChanged",
+    "receiver": "Coordinator._explorer_selection",
+    "payload": "Aktueller Qt-Knoten; keine Entity-ID bei Gruppen",
+    "checks": "Nur echte user_input und kein _syncing",
+    "effect": "Alte Hostauswahl bei Gruppenknoten löschen",
+    "status": "IMPLEMENTIERT",
+    "test": "tests/test_studio_coordinator.py::test_v42_explorer_group_clears_host_selection",
+    "code": [
+      "src/studio/native_shell/coordinator.py"
+    ]
+  }
+]

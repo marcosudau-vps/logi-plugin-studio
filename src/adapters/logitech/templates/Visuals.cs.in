@@ -1,0 +1,116 @@
+namespace $NAMESPACE$
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Text.Json;
+    using Loupedeck;
+
+    internal static class Visuals
+    {
+        private static readonly JsonElement Project = Bridge.Parse(Encoding.UTF8.GetBytes(Spec.Project));
+        private static readonly JsonElement Assets = Bridge.Parse(Encoding.UTF8.GetBytes(Spec.Assets));
+
+        public static JsonElement Placement(string placementId) =>
+            Project.GetProperty("views").EnumerateArray()
+                .SelectMany(v => v.GetProperty("placements").EnumerateArray())
+                .First(p => p.GetProperty("id").GetString() == placementId);
+
+        public static string DefaultPlacement(string componentId) =>
+            Project.GetProperty("views").EnumerateArray()
+                .SelectMany(v => v.GetProperty("placements").EnumerateArray())
+                .Where(p => p.GetProperty("component").GetString() == componentId)
+                .Select(p => p.GetProperty("id").GetString()).OrderBy(p => p, StringComparer.Ordinal).FirstOrDefault();
+
+        private static (JsonElement Variant, string Quality) Variant(string placementId)
+        {
+            if (placementId == null) return (default, Bridge.Ready ? "fresh" : "unknown");
+            var placement = Placement(placementId);
+            if (!placement.TryGetProperty("presentation", out var reference))
+                return (default, Bridge.Ready ? "fresh" : "unknown");
+            string presentationId = reference.GetString();
+            var presentation = Project.GetProperty("presentations").EnumerateArray()
+                .First(p => p.GetProperty("id").GetString() == presentationId);
+            var variants = presentation.GetProperty("variants");
+            string key = variants.EnumerateObject().Select(p => p.Name).OrderBy(p => p, StringComparer.Ordinal).First();
+            string quality = Bridge.Ready ? "fresh" : "unknown";
+            var binding = Project.GetProperty("bindings").EnumerateArray()
+                .Where(b => b.GetProperty("kind").GetString() == "state" &&
+                            b.GetProperty("target").GetProperty("owner_kind").GetString() == "presentation" &&
+                            b.GetProperty("target").GetProperty("owner_id").GetString() == presentationId)
+                .ToArray();
+            if (binding.Length == 1)
+            {
+                string stateId = binding[0].GetProperty("source").GetProperty("owner_id").GetString();
+                var definition = Project.GetProperty("states").EnumerateArray()
+                    .First(s => s.GetProperty("id").GetString() == stateId);
+                string scope = definition.GetProperty("scope").GetString();
+                string slot = stateId + (scope == "project" ? "@runtime" : scope == "component"
+                    ? "@component:" + placement.GetProperty("component").GetString() : "@placement:" + placementId);
+                var state = Bridge.State(slot);
+                quality = state.GetProperty("quality").GetString();
+                var value = state.GetProperty("has_value").GetBoolean() ? state.GetProperty("value") :
+                    state.GetProperty("has_fallback").GetBoolean() ? state.GetProperty("fallback") : default;
+                if (value.ValueKind == JsonValueKind.String && variants.TryGetProperty(value.GetString(), out _))
+                    key = value.GetString();
+            }
+            return (variants.GetProperty(key), quality);
+        }
+
+        public static string Text(string componentId, string placementId)
+        {
+            var (variant, _) = Variant(placementId);
+            if (variant.ValueKind == JsonValueKind.Object && variant.TryGetProperty("text", out var text))
+                return text.GetString();
+            return Project.GetProperty("components").EnumerateArray()
+                .First(c => c.GetProperty("id").GetString() == componentId)
+                .GetProperty("config").GetProperty("display_name").GetString();
+        }
+
+        private static BitmapColor Color(string value) =>
+            new BitmapColor(Convert.ToByte(value.Substring(1, 2), 16),
+                            Convert.ToByte(value.Substring(3, 2), 16),
+                            Convert.ToByte(value.Substring(5, 2), 16));
+
+        internal static (int X, int Y, int Width, int Height) ImageBounds(int width, int height, int size, string fit)
+        {
+            if (fit == "stretch") return (0, 0, size, size);
+            double scale = Math.Min((double)size / width, (double)size / height);
+            int w = Math.Max(1, (int)(width * scale)), h = Math.Max(1, (int)(height * scale));
+            return ((size - w) / 2, (size - h) / 2, w, h);
+        }
+
+        public static BitmapImage Render(string componentId, string placementId, PluginImageSize imageSize)
+        {
+            var (variant, quality) = Variant(placementId);
+            int size = imageSize == PluginImageSize.Width90 ? 80 :
+                       imageSize == PluginImageSize.Width60 ? 50 : 116;
+            string background = "#243449", foreground = "#ffffff";
+            if (variant.ValueKind == JsonValueKind.Object)
+            {
+                if (variant.TryGetProperty("background", out var b)) background = b.GetString();
+                if (variant.TryGetProperty("foreground", out var f)) foreground = f.GetString();
+            }
+            using var bitmap = new BitmapBuilder(size, size);
+            bitmap.Clear(Color(background));
+            if (variant.ValueKind == JsonValueKind.Object && variant.TryGetProperty("image", out var assetId))
+            {
+                using var image = BitmapImage.FromBase64String(Assets.GetProperty(assetId.GetString()).GetString());
+                string fit = variant.TryGetProperty("image_fit", out var mode) ? mode.GetString() : "stretch";
+                var bounds = ImageBounds(image.Width, image.Height, size, fit);
+                bitmap.DrawImage(image, bounds.X, bounds.Y, bounds.Width, bounds.Height, default(BitmapRotation));
+            }
+            int fontSize = variant.ValueKind == JsonValueKind.Object && variant.TryGetProperty("font_size", out var font)
+                ? Math.Max(1, (font.GetInt32() * size + 58) / 116) : Math.Max(10, size / 8);
+            bitmap.DrawText(Text(componentId, placementId), 3, 8, size - 6, size - 28,
+                            Color(foreground), fontSize);
+            if (!Bridge.Ready || quality != "fresh")
+            {
+                bitmap.FillRectangle(0, size - 18, size, 18, Color("#5b4630"));
+                bitmap.DrawText(quality.ToUpperInvariant(), 2, size - 18, size - 4, 18, BitmapColor.White, 10);
+            }
+            return bitmap.ToImage();
+        }
+    }
+}

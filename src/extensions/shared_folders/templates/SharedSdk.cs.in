@@ -1,0 +1,312 @@
+namespace $NAMESPACE$
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Linq;
+    using System.Security.Cryptography;
+    using System.Text.Json;
+    using System.Threading;
+    using Loupedeck;
+    using Microsoft.Win32;
+
+    // The embedded Shared host is owned by this plugin load (stdin EOF also
+    // stops it if the SDK process terminates without calling Unload). Start,
+    // interpreter resolution and the integrity check of the plugin-local host
+    // runtime are shared with native plugins in HostChild (AP-POLISH-001).
+    internal static class SharedChild
+    {
+        public static void Start(string assemblyPath) => HostChild.Start(assemblyPath, "shared-folder-host.pyz");
+
+        public static void Stop() => HostChild.Stop();
+    }
+
+    internal static class SharedSdk
+    {
+        private const string Control = "@shared-folder";
+        // Remote presentation only: owner PNG bytes, content addressed, bounded.
+        private const int ImageLimit = 24576;
+        private const int ImageCacheEntries = 64;
+        private static readonly object ImageGate = new();
+        private static readonly Dictionary<string, byte[]> RemoteImages = new();
+        private static readonly Queue<string> RemoteOrder = new();
+        public static long RemoteImageUpdates { get; private set; }
+        private static readonly object Gate = new();
+        private static readonly AsyncLocal<bool> OwnerCall = new();
+        private static readonly Queue<(string Ticket, bool Accepted)> Acks = new();
+        private static readonly HashSet<string> Invoked = new();
+        private static readonly Dictionary<(string, string), string> Sent = new();
+        private static (string Id, string Parameter)[] _watched = Array.Empty<(string, string)>();
+        private static string _generation, _runtime, _announced;
+        private static Timer _timer;
+        private static long _captureAfter;
+        private static Plugin _plugin;
+        private static Func<string, PluginDynamicAction> _resolve;
+
+        public static void Start(Plugin plugin, Func<string, PluginDynamicAction> resolver = null)
+        {
+            lock (Gate)
+            {
+                _plugin = plugin;
+                _resolve = resolver;
+                _generation = Guid.NewGuid().ToString("N");
+                Bridge.SnapshotReceived += Snapshot;
+                Bridge.JournalEventReceived += Event;
+                Bridge.Changed += Refresh;
+                FolderCall.Changed += Refresh;
+                _timer = new Timer(Pump, null, 0, 200);
+            }
+        }
+
+        public static void Stop()
+        {
+            lock (Gate)
+            {
+                _timer?.Dispose();
+                _timer = null;
+                Bridge.SnapshotReceived -= Snapshot;
+                Bridge.JournalEventReceived -= Event;
+                Bridge.Changed -= Refresh;
+                FolderCall.Changed -= Refresh;
+                _plugin = null;
+                _resolve = null;
+                _runtime = _announced = null;
+                Invoked.Clear();
+                Acks.Clear();
+                Sent.Clear();
+                _watched = Array.Empty<(string, string)>();
+            }
+        }
+
+        private static PluginDynamicAction Resolve(string id)
+        {
+            if (_resolve != null) return _resolve(id);
+            return FolderRuntimeHub.Actions.TryGetValue(id, out var spec)
+                ? _plugin?.GetActions().OfType<PluginDynamicAction>().FirstOrDefault(a => a.GetType().FullName == spec.type)
+                : null;
+        }
+
+        public static bool Dispatch(string component, string placement = null, string actionParameter = null,
+                                    string operation = "command", int? adjustmentDiff = null,
+                                    Dictionary<string, object> editorValues = null)
+            // The host submits the correlated command after SDK acceptance.
+            => OwnerCall.Value || Bridge.Dispatch(component, placement, actionParameter, operation, adjustmentDiff, editorValues);
+
+        private static bool Send(string kind, Dictionary<string, object> data)
+        {
+            data["kind"] = kind;
+            return Bridge.Dispatch(Control, operation: "action_editor", editorValues: data);
+        }
+
+        private static Dictionary<string, object> Scope(string id, string parameter)
+            => new() { ["kind"] = "action", ["resource"] = id, ["parameter"] = parameter };
+
+        private static void Refresh() => Interlocked.Exchange(ref _captureAfter, 0);
+
+        private static void Watch(JsonElement list)
+        {
+            _watched = list.EnumerateArray().Select(row =>
+                (row.GetProperty("resource").GetString(), row.GetProperty("parameter").GetString())).ToArray();
+            foreach (var scope in Sent.Keys.Except(_watched).ToArray()) Sent.Remove(scope);
+            Refresh();
+        }
+
+        private static void Snapshot(string runtime, JsonElement data)
+        {
+            lock (Gate)
+            {
+                if (_plugin == null) return;
+                if (_runtime != runtime)
+                {
+                    _runtime = runtime;
+                    Invoked.Clear();
+                    Acks.Clear();
+                }
+                _announced = null;
+                Sent.Clear();
+                Refresh();
+                if (data.TryGetProperty("shared_watch", out var watches)) Watch(watches);
+            }
+        }
+
+        public static BitmapImage RemoteImage(string hash)
+        {
+            if (hash == null) return null;
+            byte[] png;
+            lock (ImageGate)
+                if (!RemoteImages.TryGetValue(hash, out png)) return null;
+            return BitmapImage.TryCreateFromArray(png, out var image) ? image : null;
+        }
+
+        private static void Image(JsonElement row)
+        {
+            // Validate before caching: exact hash, PNG signature, size bound.
+            var hash = row.GetProperty("hash").GetString();
+            var encoded = row.GetProperty("data").GetString();
+            if (!Bridge.IsHex(hash, 64) || encoded == null || encoded.Length > (ImageLimit + 2) / 3 * 4) return;
+            byte[] png;
+            try { png = Convert.FromBase64String(encoded); }
+            catch (FormatException) { Bridge.Log("SHARED_IMAGE_REJECTED", "base64"); return; }
+            if (png.Length > ImageLimit || png.Length < 8 || png[0] != 0x89 || png[1] != 0x50
+                || Convert.ToHexStringLower(SHA256.HashData(png)) != hash)
+            {
+                Bridge.Log("SHARED_IMAGE_REJECTED", "content");
+                return;
+            }
+            lock (ImageGate)
+            {
+                if (RemoteImages.ContainsKey(hash)) return;
+                RemoteImages[hash] = png;
+                RemoteOrder.Enqueue(hash);
+                while (RemoteOrder.Count > ImageCacheEntries) RemoteImages.Remove(RemoteOrder.Dequeue());
+                RemoteImageUpdates++;
+            }
+            FolderCall.Notify();
+        }
+
+        private static void Event(string runtime, JsonElement data)
+        {
+            var port = data.GetProperty("port").GetString();
+            if (port == "peer.image")
+            {
+                try { if (runtime == _runtime) Image(data.GetProperty("report")); }
+                catch (Exception error) { Bridge.Log("SHARED_IMAGE_REJECTED", error.GetType().Name); }
+                return;
+            }
+            if (port != "peer.watch" && port != "peer.invoke" && port != "peer.result") return;
+            var row = data.GetProperty("report");
+            lock (Gate)
+            {
+                if (_plugin == null || runtime != _runtime) return;
+                if (port == "peer.watch") { Watch(row); return; }
+                if (port == "peer.result")
+                {
+                    Bridge.Log("SHARED_INVOKE_RESULT", row.GetProperty("status").GetString());
+                    return;
+                }
+                var ticket = row.GetProperty("ticket").GetString();
+                if (Invoked.Count >= 4096 || Acks.Count >= 32 || !Invoked.Add(ticket)) return;
+                bool accepted = false;
+                if (row.GetProperty("expires").GetInt64() >= DateTimeOffset.UtcNow.ToUnixTimeMilliseconds())
+                {
+                    var scope = row.GetProperty("scope");
+                    try
+                    {
+                        var action = Resolve(scope.GetProperty("resource").GetString());
+                        var parameter = scope.GetProperty("parameter").GetString();
+                        OwnerCall.Value = true;
+                        accepted = row.GetProperty("operation").GetString() == "adjustment"
+                            ? action is PluginDynamicAdjustment adjustment &&
+                                adjustment.TryApplyAdjustment(parameter, row.GetProperty("diff").GetInt32())
+                            : action != null && action.TryRunCommand(parameter);
+                    }
+                    catch (Exception error) { Bridge.Log("SHARED_SDK_INVOKE_FAILED", error.GetType().Name); }
+                    finally { OwnerCall.Value = false; }
+                }
+                Acks.Enqueue((ticket, accepted));
+            }
+        }
+
+        private static void Pump(object unused)
+        {
+            if (!Monitor.TryEnter(Gate)) return;
+            try
+            {
+                if (_plugin == null || _runtime == null || !Bridge.Ready) return;
+                if (_announced != _runtime)
+                {
+                    if (!Send("ready", new() { ["generation"] = _generation })) return;
+                    _announced = _runtime;
+                }
+                while (Acks.TryPeek(out var ack))
+                {
+                    if (!Send("ack", new() { ["ticket"] = ack.Ticket, ["accepted"] = ack.Accepted })) return;
+                    Acks.Dequeue();
+                }
+                // Capture only scopes with standing subscriptions. The SDK image
+                // is hashed at the owner; subscribers never call its getter.
+                var captureAfter = Interlocked.Read(ref _captureAfter);
+                if (Environment.TickCount64 < captureAfter) return;
+                foreach (var scope in _watched)
+                {
+                    var view = Capture(scope.Id, scope.Parameter);
+                    var encoded = JsonSerializer.Serialize(view);
+                    if (Sent.TryGetValue(scope, out var previous) && previous == encoded) continue;
+                    if (!Send("view", new() { ["scope"] = Scope(scope.Id, scope.Parameter), ["view"] = view })) return;
+                    Sent[scope] = encoded;
+                    return;
+                }
+                Interlocked.CompareExchange(ref _captureAfter, Environment.TickCount64 + 2000, captureAfter);
+            }
+            catch (Exception error) { Bridge.Log("SHARED_SDK_VIEW_FAILED", error.GetType().Name); }
+            finally { Monitor.Exit(Gate); }
+        }
+
+        // The service draws package actionicons itself; the owner reads its OWN
+        // package icon so consumers can show the same picture.
+        private static BitmapImage PackageIcon(string fullName)
+        {
+            try
+            {
+                var bin = Path.GetDirectoryName(typeof(SharedSdk).Assembly.Location);
+                var root = bin == null ? null : Path.GetDirectoryName(bin);
+                if (root == null || fullName == null) return null;
+                var png = Path.Combine(root, "actionicons", fullName + ".png");
+                if (File.Exists(png) && new FileInfo(png).Length <= ImageLimit)
+                    return BitmapImage.TryCreateFromArray(File.ReadAllBytes(png), out var raster) ? raster : null;
+                var svg = Path.Combine(root, "actionicons", fullName + ".svg");
+                if (File.Exists(svg) && new FileInfo(svg).Length <= 262144)
+                    return BitmapImage.TryCreateFromSvg(File.ReadAllText(svg), out var vector) ? vector : null;
+            }
+            catch (Exception error) { Bridge.Log("SHARED_PACKAGE_ICON_UNAVAILABLE", error.GetType().Name); }
+            return null;
+        }
+
+        private static Dictionary<string, object> Capture(string id, string parameter)
+        {
+            var action = Resolve(id);
+            var size = PluginImageSize.Width90;
+            string label = id, value = null, hash = null, imageData = null;
+            int? state = null;
+            BitmapImage image = null;
+            if (action is PluginDynamicAdjustment adjustment)
+            {
+                label = adjustment.TryGetAdjustmentDisplayName(parameter, size) ?? id;
+                if (adjustment.TryGetAdjustmentValue(parameter, out var data)) value = data.GetValueString();
+
+            }
+            else if (action != null)
+            {
+                var text = SdkLabels.ForEntry(action, parameter, size);
+                if (text != null) label = text;
+                if (action is PluginMultistateDynamicCommand multi && multi.TryGetCurrentStateIndex(parameter, out var index))
+                    state = index;
+
+            }
+            try
+            {
+                if (action is PluginDynamicAdjustment a) a.TryGetAdjustmentImage(parameter, size, out image);
+                else action?.TryGetCommandImage(parameter, size, out image);
+                if (image == null && action != null) image = PackageIcon(action.GetType().FullName);
+                if (image != null)
+                {
+                    var png = image.ToArray(BitmapImageFormat.Png);
+                    hash = Convert.ToHexStringLower(SHA256.HashData(png));
+                    // Larger images keep their identity; consumers fall back to the label.
+                    if (png.Length <= ImageLimit) imageData = Convert.ToBase64String(png);
+                    else Bridge.Log("SHARED_IMAGE_TOO_LARGE", png.Length.ToString());
+                }
+            }
+            catch (Exception error) { Bridge.Log("SHARED_IMAGE_HASH_UNAVAILABLE", error.GetType().Name); }
+            return new() { ["label"] = label.Length > 1024 ? label[..1024] : label,
+                           ["available"] = action?.IsEnabled == true, ["value"] = value?.Length > 1024 ? value[..1024] : value,
+                           ["state"] = state, ["image_hash"] = hash, ["image"] = imageData };
+        }
+
+        internal static bool Forward(FolderEntry e, string operation, int? diff)
+            => e.operations.Contains(operation) && Send("forward", new() {
+                ["placement"] = e.id, ["peer"] = e.peer, ["instance"] = e.instance,
+                ["scope"] = Scope(e.action_id, e.action_parameter), ["operation"] = operation, ["diff"] = diff });
+    }
+}

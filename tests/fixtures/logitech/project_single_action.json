@@ -1,0 +1,23 @@
+{
+  "schema_version": "0.1-draft",
+  "project": {
+    "id": "fixture.single_action",
+    "display_name": "Fixture mit genau einer Aktion"
+  },
+  "dependencies": [
+    {"type": "core.command_action", "version": "1.0.0"}
+  ],
+  "components": [
+    {
+      "id": "action.primary",
+      "type": "core.command_action",
+      "version": "1.0.0",
+      "config": {"display_name": "Einzige Aktion"}
+    }
+  ],
+  "states": [],
+  "bindings": [],
+  "presentations": [],
+  "assets": [],
+  "views": []
+}

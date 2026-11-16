@@ -1,0 +1,472 @@
+[
+  [
+    "explorer.tree",
+    "explorer.tree/nativeProjectExplorerTree",
+    "FocusIn; Gruppe; Auswahlverlust",
+    "studio.help",
+    "explorer",
+    "keine",
+    "FEHLT",
+    "test_explorer_groups_and_loss"
+  ],
+  [
+    "explorer.search",
+    "explorer.search_edit/nativeProjectExplorerSearch",
+    "FocusIn; textChanged",
+    "Auswahl-Fallback",
+    "explorer.search",
+    "Suchlänge",
+    "FEHLT",
+    "test_explorer_search"
+  ],
+  [
+    "explorer.reset",
+    "explorer.reset_button (explizites Qt-Objekt)",
+    "FocusIn; Klick",
+    "keine",
+    "explorer.search",
+    "Suchlänge",
+    "FEHLT",
+    "test_explorer_reset"
+  ],
+  [
+    "explorer.plugin",
+    "explorer.tree/plugin",
+    "Maus; FocusIn",
+    "studio.help",
+    "explorer.plugin",
+    "native Plugin-ID",
+    "FEHLT",
+    "test_explorer_entities"
+  ],
+  [
+    "explorer.action",
+    "explorer.tree/action",
+    "Maus; FocusIn",
+    "action.definition",
+    "action.definition",
+    "native ID",
+    "OK",
+    "test_explorer_entities"
+  ],
+  [
+    "explorer.handler",
+    "explorer.tree/handler",
+    "Maus; FocusIn",
+    "studio.help",
+    "explorer.handler",
+    "native Handler-ID",
+    "FEHLT",
+    "test_explorer_entities"
+  ],
+  [
+    "explorer.folder",
+    "explorer.tree/folder",
+    "Maus; FocusIn",
+    "studio.help",
+    "explorer.folder",
+    "native Folder-ID",
+    "FEHLT",
+    "test_explorer_entities"
+  ],
+  [
+    "explorer.entry",
+    "explorer.tree/folder_entry",
+    "Maus; FocusIn",
+    "action.definition",
+    "explorer.folder_entry",
+    "Placement-ID; referenzierte Action-ID",
+    "FEHLT",
+    "test_explorer_entities"
+  ],
+  [
+    "catalog.tree",
+    "catalog.catalog_tree/actionCatalogTree",
+    "FocusIn; Gruppenauswahl; leer",
+    "Auswahl-Fallback",
+    "catalog",
+    "sichtbare Angebote",
+    "FEHLT",
+    "test_catalog_definition_and_loss"
+  ],
+  [
+    "catalog.definition",
+    "catalog.catalog_tree/Definition",
+    "Maus; FocusIn",
+    "action.definition",
+    "action.definition",
+    "native ID",
+    "OK",
+    "test_catalog_definition_and_loss"
+  ],
+  [
+    "catalog.parameter",
+    "catalog.catalog_tree/Parameter",
+    "Maus; FocusIn",
+    "catalog.parameter",
+    "catalog.parameter",
+    "native ID; exakter Parametername",
+    "OK",
+    "test_catalog_parameter"
+  ],
+  [
+    "catalog.search",
+    "catalog.search_edit/actionCatalogSearch",
+    "FocusIn; textChanged",
+    "catalog.search",
+    "catalog.search",
+    "Suchlänge; sichtbare Angebote",
+    "OK",
+    "test_catalog_search"
+  ],
+  [
+    "catalog.type",
+    "catalog.type_combo/actionCatalogTypeFilter",
+    "FocusIn; currentIndexChanged",
+    "keine",
+    "catalog.type_filter",
+    "geprüfter SDK-Typ; sichtbare Angebote",
+    "FEHLT",
+    "test_catalog_type"
+  ],
+  [
+    "catalog.sort",
+    "catalog.sort_button/actionCatalogSort",
+    "FocusIn; toggled",
+    "keine",
+    "catalog.sort",
+    "Reihenfolge",
+    "FEHLT",
+    "test_catalog_sort"
+  ],
+  [
+    "catalog.edit",
+    "catalog.edit_button/actionCatalogEdit",
+    "FocusIn; Dialog",
+    "keine",
+    "catalog.edit",
+    "native Action-ID; verfügbar",
+    "FEHLT",
+    "test_catalog_edit"
+  ],
+  [
+    "catalog.new",
+    "catalog.new_action_button/actionCatalogNew",
+    "ToolTip (deaktiviert)",
+    "irreführender Editor-Tooltip",
+    "catalog.create_unavailable",
+    "Sperrgrund",
+    "FEHLT",
+    "test_disabled_capabilities"
+  ],
+  [
+    "catalog.reset",
+    "catalog.reset_filter_button (explizites Qt-Objekt)",
+    "FocusIn; Klick",
+    "keine",
+    "catalog.search",
+    "Suchlänge; sichtbare Angebote",
+    "FEHLT",
+    "test_catalog_reset"
+  ],
+  [
+    "problems.search",
+    "problems.search_field/problemsSearch",
+    "FocusIn; textChanged",
+    "problems",
+    "problems.filters",
+    "Suchlänge; sichtbare Meldungen",
+    "FEHLT",
+    "test_problems_search"
+  ],
+  [
+    "problems.table",
+    "problems.problems_table/problemsTable",
+    "FocusIn; Auswahl; Enter",
+    "problems/proble​ms.diagnostic",
+    "problems.diagnostic oder problems.empty",
+    "geprüfter Code; Schweregrad; kein Pfad",
+    "FEHLT",
+    "test_problems_diagnostic"
+  ],
+  [
+    "problems.details",
+    "problems.detail_view/problemsDetail",
+    "FocusIn; F1",
+    "keine",
+    "problems.diagnostic",
+    "geprüfter Code; Schweregrad",
+    "FEHLT",
+    "test_problems_details"
+  ],
+  [
+    "problems.empty",
+    "problems.empty_page/problemsEmptyPage",
+    "F1; leer/ausgefiltert",
+    "problems",
+    "problems.empty",
+    "Leerzustand; Zähler",
+    "FEHLT",
+    "test_problems_empty"
+  ],
+  [
+    "problems.reset",
+    "problems.empty_reset/problemsEmptyReset",
+    "FocusIn; Klick",
+    "keine",
+    "problems.filters",
+    "Schweregrad; sichtbare Meldungen",
+    "FEHLT",
+    "test_problems_reset"
+  ],
+  [
+    "problems.header",
+    "problems.problems_table.horizontalHeader() (explizit)",
+    "Klick Sortierung; F1",
+    "keine",
+    "problems.sort",
+    "keine",
+    "FEHLT",
+    "test_problems_header"
+  ],
+  [
+    "problems.copy",
+    "problemsContextMenu; Strg+C",
+    "F1; Kopieren/Navigation",
+    "keine",
+    "problems.diagnostic",
+    "keine Rohpfade/Logtexte",
+    "FEHLT",
+    "test_problems_menu"
+  ],
+  [
+    "shell.open",
+    "window.open_action / Toolbar-Qt-Objekt",
+    "FocusIn; F1; Öffnendialog",
+    "Auswahl-Fallback",
+    "native_shell.open",
+    "Projekt geöffnet",
+    "FEHLT",
+    "test_toolbar_open"
+  ],
+  [
+    "shell.save",
+    "window.save_action / Toolbar-Qt-Objekt",
+    "FocusIn; F1",
+    "Auswahl-Fallback",
+    "native_shell.save",
+    "verfügbar; dirty",
+    "FEHLT",
+    "test_toolbar_save"
+  ],
+  [
+    "shell.undo",
+    "window.undo_action / Toolbar-Qt-Objekt",
+    "FocusIn; ToolTip; F1",
+    "Auswahl-Fallback",
+    "native_shell.undo",
+    "verfügbar",
+    "FEHLT",
+    "test_toolbar_undo"
+  ],
+  [
+    "shell.redo",
+    "window.redo_action / Toolbar-Qt-Objekt",
+    "FocusIn; ToolTip; F1",
+    "Auswahl-Fallback",
+    "native_shell.redo",
+    "verfügbar",
+    "FEHLT",
+    "test_toolbar_redo"
+  ],
+  [
+    "shell.rename",
+    "window.rename_action / Toolbar-Qt-Objekt",
+    "FocusIn; F1; QInputDialog",
+    "Auswahl-Fallback",
+    "native_shell.rename",
+    "verfügbar; native ID",
+    "FEHLT",
+    "test_toolbar_rename"
+  ],
+  [
+    "shell.reload",
+    "window.reload_action / Toolbar-Qt-Objekt",
+    "FocusIn; F1",
+    "Auswahl-Fallback",
+    "native_shell.reload",
+    "verfügbar",
+    "FEHLT",
+    "test_toolbar_reload"
+  ],
+  [
+    "shell.f1",
+    "window.help_action/F1",
+    "FocusIn; Shortcut",
+    "partieller Fokus-Fallback",
+    "studio.help / tatsächlicher Fokus",
+    "nur aktueller Kontext",
+    "FEHLT",
+    "test_f1_pin_and_focus"
+  ],
+  [
+    "shell.details",
+    "nativeSelectionDetails",
+    "FocusIn; F1",
+    "Auswahl-Fallback",
+    "native_shell.details",
+    "native ID; read-only",
+    "FEHLT",
+    "test_shell_details"
+  ],
+  [
+    "shell.tabs",
+    "window.tabs.tabBar() (explizit)",
+    "FocusIn; currentChanged",
+    "Auswahl-Fallback",
+    "native_shell.tabs",
+    "aktueller Tabindex",
+    "FEHLT",
+    "test_shell_tabs"
+  ],
+  [
+    "shell.dialog",
+    "fenstereigene QInputDialog/QFileDialog/QMessageBox",
+    "FocusIn; F1; Abbruch",
+    "unzuverlässiger Hauptfenster-Fallback",
+    "native_shell.rename/open/unsaved",
+    "keine Eingabetexte/Pfade",
+    "FEHLT",
+    "test_owned_dialogs"
+  ],
+  [
+    "help.pin",
+    "helpPin",
+    "FocusIn erhält Artikel; F1 erklärt Pin; Klick",
+    "Pin vorhanden; Fokus ohne Erklärung",
+    "help.pin",
+    "Pin-Status",
+    "FEHLT",
+    "test_help_pin"
+  ],
+  [
+    "help.details",
+    "helpDetailsToggle",
+    "FocusIn erhält Artikel; F1; Klick",
+    "Details vorhanden; Fokus ohne Erklärung",
+    "help.details",
+    "keine",
+    "FEHLT",
+    "test_help_details"
+  ],
+  [
+    "help.related",
+    "helpRelated.<registrierte ID>",
+    "FocusIn erhält Artikel; F1; Klick",
+    "registrierter Klick vorhanden",
+    "help.related",
+    "nur registrierte Ziel-ID",
+    "FEHLT",
+    "test_help_related"
+  ],
+  [
+    "help.scroll",
+    "helpScroll / Scrollbars",
+    "FocusIn erhält Artikel; F1",
+    "keine",
+    "studio.help",
+    "keine",
+    "FEHLT",
+    "test_help_scroll"
+  ],
+  [
+    "unknown",
+    "unbekanntes fenstereigenes QWidget/Topic",
+    "FocusIn; F1",
+    "alte Auswahl bzw. neutral",
+    "studio.help / Registry-Fallback",
+    "keine",
+    "FEHLT",
+    "test_unknown_and_fallback"
+  ],
+  [
+    "switch",
+    "Coordinator.open_project/reset_context",
+    "Projektwechsel bei Pin/Diagnose",
+    "Reset vorhanden",
+    "studio.help ohne alte Fakten",
+    "keine Altwerte",
+    "OK",
+    "test_project_switch"
+  ],
+  [
+    "keypad",
+    "KeypadPreviewWidget/keypad.*",
+    "kein produktives Control",
+    "vorbereitete Topics",
+    "unverändert vorbereitet",
+    "keine Frame-/Slot-Fakten",
+    "NICHT_AKTIV",
+    "test_disabled_capabilities"
+  ],
+  [
+    "ict",
+    "window.ict_action / symbol.ict",
+    "deaktivierter Hinweis",
+    "vorbereitetes Topic; Tooltip",
+    "native_shell.ict_unavailable",
+    "Sperrgrund",
+    "NICHT_AKTIV",
+    "test_disabled_capabilities"
+  ],
+  [
+    "splitters",
+    "window.splitter; problems.body_splitter",
+    "Größe ändern",
+    "keine",
+    "kein Fachkontext",
+    "keine",
+    "BEWUSST_OHNE",
+    "test_layout_does_not_write"
+  ],
+  [
+    "problems.severity.ALL",
+    "problemsSeverityAll",
+    "FocusIn; toggled",
+    "keine",
+    "problems.filters",
+    "Schweregrad; sichtbare Meldungen",
+    "FEHLT",
+    "test_problems_severity"
+  ],
+  [
+    "problems.severity.ERROR",
+    "problemsSeverityError",
+    "FocusIn; toggled",
+    "keine",
+    "problems.filters",
+    "Schweregrad; sichtbare Meldungen",
+    "FEHLT",
+    "test_problems_severity"
+  ],
+  [
+    "problems.severity.WARNING",
+    "problemsSeverityWarning",
+    "FocusIn; toggled",
+    "keine",
+    "problems.filters",
+    "Schweregrad; sichtbare Meldungen",
+    "FEHLT",
+    "test_problems_severity"
+  ],
+  [
+    "problems.severity.OTHER",
+    "problemsSeverityOther",
+    "FocusIn; toggled",
+    "keine",
+    "problems.filters",
+    "Schweregrad; sichtbare Meldungen",
+    "FEHLT",
+    "test_problems_severity"
+  ]
+]

@@ -1,0 +1,39 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.env
+.env.*
+**/studio.connection.json*
+**/bin/
+**/obj/
+*.log
+*.zip
+*.7z
+*.dll
+*.exe
+*.pdb
+**/private/
+**/secrets/
+**/credentials/
+**/backups/
+work/**/build/
+work/**/generated/
+work/**/delivery/
+work/**/process-check/
+work/**/native-process/
+work/**/legacy-process/
+work/**/hardware-test/
+work/product-readiness/HW-01/*-hardware-test/
+
+# --- Öffentliches Repository (seit 16.11.2026) ---
+# Hersteller-Dokumentation von Logitech bleibt lokal und wird nicht weiterverteilt.
+references/logitech-sdk/PluginApi.xml
+references/logitech-sdk/logi-actions-sdk-llms-full.md
+# Historische Arbeitsakten (Evidenz, Protokolle, Geräte- und Rechnerdaten) bleiben lokal.
+# Versioniert werden nur Planung, Vorlagen und die Arbeitsakten ab AP-GUIDE-001.
+/work/*
+!/work/README.md
+!/work/templates/
+!/work/planning/
+!/work/guided-workflow/

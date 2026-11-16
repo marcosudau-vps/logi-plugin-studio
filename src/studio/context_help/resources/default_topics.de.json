@@ -1,0 +1,172 @@
+[
+  {
+    "topic_id": "studio.help",
+    "title": "Kontexthilfe verwenden",
+    "summary": "Hier findest du eine kurze Erklärung zum ausgewählten Bereich oder Feld.",
+    "description": "Mit „Anheften“ bleibt das Thema beim Wechsel der Auswahl sichtbar. F1 oder ein verwandtes Thema öffnet ausdrücklich eine andere Erklärung.",
+    "example": "Wähle eine Taste in der Vorschau. Hefte die Erklärung an und wechsle anschließend in den Aktionskatalog.",
+    "technical_details": "Hilfe-IDs adressieren Dokumentation. Die aktuelle Auswahl kann der Host als getrennte Fakten übergeben.",
+    "related_topics": [
+      "keypad.overview",
+      "catalog",
+      "problems"
+    ]
+  },
+  {
+    "topic_id": "keypad",
+    "title": "Tastenvorschau",
+    "summary": "Die Vorschau zeigt die Tasten der aktuell gewählten Seite.",
+    "description": "Wähle eine Taste aus, um ihre Belegung im Studio zu prüfen."
+  },
+  {
+    "topic_id": "keypad.overview",
+    "title": "Eine Seite im Überblick",
+    "summary": "Die Tastenvorschau zeigt eine Seite mit ihren freien, belegten und gegebenenfalls für Navigation vorgesehenen Tasten.",
+    "description": "Die konkrete Ansicht hängt von Gerät und vom angezeigten Seitenkontext ab.",
+    "example": "Wähle eine belegte Taste, um zu sehen, welche Aktion ihr zugeordnet ist.",
+    "technical_details": "Das Studio liefert der Vorschau einen aufgelösten Seitenstand. Die Navigation richtet sich nach den übergebenen Gerätefähigkeiten.",
+    "related_topics": [
+      "keypad.slot.occupied",
+      "keypad.pagination"
+    ]
+  },
+  {
+    "topic_id": "keypad.slot",
+    "title": "Tasten und ihre Belegung",
+    "summary": "Eine Taste ist eine Position in der aktuellen Vorschau. Ihr Inhalt hängt von der Belegung der Seite ab.",
+    "description": "Die Auswahl einer Taste zeigt ihren Kontext im Studio.",
+    "example": "Eine freie Taste kann in einer bearbeitbaren Ansicht als Ziel für eine Aktion dienen.",
+    "related_topics": [
+      "keypad.slot.empty",
+      "keypad.slot.occupied"
+    ]
+  },
+  {
+    "topic_id": "keypad.slot.empty",
+    "title": "Freie Taste",
+    "summary": "Dieser Position ist in der angezeigten Vorschau keine Aktion zugeordnet.",
+    "description": "Im Bearbeitungsmodus kann der Host die Taste als Ablageziel freigeben.",
+    "example": "Ziehe eine Aktion aus dem Aktionskatalog auf eine freigegebene freie Taste.",
+    "technical_details": "Die Übernahme einer angefragten Zuordnung erfolgt im Host.",
+    "related_topics": [
+      "keypad.dragdrop",
+      "catalog"
+    ]
+  },
+  {
+    "topic_id": "keypad.slot.occupied",
+    "title": "Belegte Taste",
+    "summary": "Dieser Taste ist auf der angezeigten Seite eine Aktion zugeordnet.",
+    "description": "Dieselbe Aktion kann auf mehreren Tasten oder Seiten erscheinen. Wähle eine Taste aus, um ihre konkrete Belegung zu sehen.",
+    "example": "„Mikrofon ein/aus“ kann auf Seite 2 an Taste 5 und zusätzlich auf einer anderen Seite liegen.",
+    "technical_details": "action_id referenziert die Aktionsdefinition. placement_id bezeichnet eine konkrete Platzierung. action_parameter liefert den Parameterwert einer Aktionsreferenz.",
+    "related_topics": [
+      "action.definition",
+      "catalog.parameter",
+      "symbol.ict"
+    ]
+  },
+  {
+    "topic_id": "keypad.dragdrop",
+    "title": "Aktion auf eine Taste ziehen",
+    "summary": "Ziehe eine Aktion aus dem Katalog auf eine freigegebene Taste in der Vorschau.",
+    "description": "Das Ziel muss im Bearbeitungsmodus Änderungen zulassen.",
+    "example": "Wähle eine Aktion im Katalog und ziehe sie auf eine freie Taste.",
+    "technical_details": "Die Drag-Referenz enthält die Aktion und gegebenenfalls ihren Parameter. Die Zuordnung prüft und übernimmt der Host.",
+    "related_topics": [
+      "catalog",
+      "keypad.slot.empty"
+    ]
+  },
+  {
+    "topic_id": "keypad.pagination",
+    "title": "Zwischen Seiten wechseln",
+    "summary": "Die Seitenauswahl wechselt den in der Tastenvorschau dargestellten Ausschnitt.",
+    "description": "Verfügbare Seiten und Navigation hängen vom angezeigten Kontext ab.",
+    "example": "Wechsle zur nächsten Seite, um dortige Tastenbelegungen zu sehen.",
+    "technical_details": "Seitenindex und Seitenanzahl liefert der Host.",
+    "related_topics": [
+      "keypad.overview"
+    ]
+  },
+  {
+    "topic_id": "catalog",
+    "title": "Aktionskatalog",
+    "summary": "Der Katalog zeigt die für diesen Studio-Kontext bereitgestellten Aktionen.",
+    "description": "Wähle eine Aktion aus oder ziehe sie auf eine freigegebene Taste."
+  },
+  {
+    "topic_id": "catalog.search",
+    "title": "Aktionen suchen",
+    "summary": "Suche nach dem Namen oder der Kennung einer Aktion.",
+    "description": "Die Suche grenzt die angezeigte Liste ein.",
+    "example": "Gib „Mikrofon“ ein, um passende Einträge in der Liste zu finden.",
+    "related_topics": [
+      "catalog",
+      "catalog.parameter"
+    ]
+  },
+  {
+    "topic_id": "catalog.parameter",
+    "title": "Parameter einer Aktion",
+    "summary": "Ein Aktionsparameter gibt einer Aktionsreferenz einen Wert mit, den die Aktion auswerten kann.",
+    "description": "Welche Werte sinnvoll sind, hängt von der jeweiligen Aktion ab.",
+    "example": "Eine Aktion zur Audioauswahl kann einen Gerätenamen als Parameter erwarten.",
+    "technical_details": "action_parameter und placement_id haben getrennte Aufgaben. placement_id kennzeichnet die Platzierung.",
+    "related_topics": [
+      "action.definition",
+      "keypad.slot.occupied"
+    ]
+  },
+  {
+    "topic_id": "problems",
+    "title": "Problemliste",
+    "summary": "Hier siehst du Meldungen aus Prüfungen und weiteren vom Studio bereitgestellten Quellen.",
+    "description": "Wähle eine Meldung, um ihren vollständigen Text zu lesen."
+  },
+  {
+    "topic_id": "problems.diagnostic",
+    "title": "Eine Meldung verstehen",
+    "summary": "Lies den Meldungstext und prüfe die angegebene Stelle, falls die Quelle eine Position geliefert hat.",
+    "description": "Fehlercode und Quelle helfen, gleichlautende Meldungen zuzuordnen.",
+    "example": "Wähle eine Meldung zur fehlenden Referenz und prüfe das genannte Objekt.",
+    "technical_details": "Meldungen können einen Schweregrad, einen Code und einen Pfad mitbringen. Der Host entscheidet über die Navigation.",
+    "related_topics": [
+      "problems",
+      "problems.filters"
+    ]
+  },
+  {
+    "topic_id": "problems.filters",
+    "title": "Probleme filtern",
+    "summary": "Grenze die sichtbaren Meldungen nach Schweregrad oder über die Suche ein.",
+    "description": "Die Filter beeinflussen die sichtbare Liste.",
+    "example": "Zeige Warnungen an und suche anschließend nach einem Fehlercode.",
+    "related_topics": [
+      "problems.diagnostic"
+    ]
+  },
+  {
+    "topic_id": "symbol.ict",
+    "title": "Symbolvorlage bearbeiten",
+    "summary": "Eine .ict-Datei beschreibt eine native Symbolvorlage mit Hintergrund und optionalen Bild- und Textelementen.",
+    "description": "Für „Bild bearbeiten“ ist der bestehende SymbolDesigner vorgesehen.",
+    "example": "Ändere den Text einer Vorlage und prüfe die Darstellung in der Vorschau.",
+    "technical_details": "Eine gerenderte Vorschau ist die Ausgabe der Vorlage. Die Vorlage enthält weiterhin die bearbeitbaren Elemente.",
+    "related_topics": [
+      "keypad.slot.occupied"
+    ]
+  },
+  {
+    "topic_id": "action.definition",
+    "title": "Was ist eine Aktion?",
+    "summary": "Eine Aktionsdefinition beschreibt eine vom Logitech Actions SDK bereitgestellte oder referenzierte Funktion.",
+    "description": "Ein Tastendruck kann eine Aktion auslösen. Eine Platzierung verknüpft die Aktion mit einer konkreten Position.",
+    "example": "Zwei Tasten können dieselbe Mikrofonaktion auslösen. Eine Bildaktualisierung ändert die Anzeige der vorhandenen Aktion.",
+    "technical_details": "Parameter und native Zustände richten sich nach der SDK-Aktionsklasse. Die Platzierung wird separat verwaltet.",
+    "related_topics": [
+      "catalog.parameter",
+      "keypad.slot.occupied"
+    ]
+  }
+]

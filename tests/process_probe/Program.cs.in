@@ -1,0 +1,87 @@
+namespace $NAMESPACE$
+{
+    using System;
+    using System.Text.Json;
+    using System.Threading.Tasks;
+
+    internal static class Program
+    {
+        public static async Task Main(string[] args)
+        {
+            Bridge.Start(args[0]);
+            try
+            {
+                string line;
+                while ((line = await Console.In.ReadLineAsync()) != null)
+                {
+                    if (line == "stop") break;
+                    if (line.StartsWith("dispatch "))
+                        Console.WriteLine("JSON:" + JsonSerializer.Serialize(new { accepted = Bridge.Dispatch(line.Substring(9)) }));
+                    else if (line.StartsWith("dispatch-parameter ", StringComparison.Ordinal))
+                    {
+                        var parts = line.Substring("dispatch-parameter ".Length).Split('|', 2);
+                        Console.WriteLine("JSON:" + JsonSerializer.Serialize(new {
+                            accepted = Bridge.Dispatch(parts[0], actionParameter: parts.Length == 2 ? parts[1] : null) }));
+                    }
+                    else if (line.StartsWith("adjustment ", StringComparison.Ordinal))
+                    {
+                        var parts = line.Substring("adjustment ".Length).Split('|', 3);
+                        Console.WriteLine("JSON:" + JsonSerializer.Serialize(new {
+                            accepted = Bridge.Dispatch(parts[0], actionParameter: parts[1],
+                                operation: "adjustment", adjustmentDiff: Int32.Parse(parts[2])) }));
+                    }
+                    else if (line.StartsWith("editor ", StringComparison.Ordinal))
+                    {
+                        var parts = line.Substring("editor ".Length).Split('|', 2);
+                        var values = new System.Collections.Generic.Dictionary<String, Object> { ["Text"] = parts[1] };
+                        Console.WriteLine("JSON:" + JsonSerializer.Serialize(new {
+                            accepted = Bridge.Dispatch(parts[0], operation: "action_editor", editorValues: values) }));
+                    }
+                    else if (line == "inspect")
+                        Console.WriteLine("JSON:" + Bridge.Inspect());
+                    else if (line.StartsWith("connection-path ", StringComparison.Ordinal))
+                    {
+                        var assemblyPath = line.Substring("connection-path ".Length);
+                        string path = Bridge.ConnectionPathForAssembly(assemblyPath == "[empty]" ? "" : assemblyPath);
+                        Console.WriteLine("JSON:" + JsonSerializer.Serialize(new { path }));
+                    }
+#if VISUALS_PROBE
+                    else if (line.StartsWith("visual ", StringComparison.Ordinal))
+                    {
+                        var parts = line.Split(' ');
+                        int size = parts.Length == 4 ? Int32.Parse(parts[3]) : 116;
+                        var imageSize = size == 50 ? Loupedeck.PluginImageSize.Width60 :
+                            size == 80 ? Loupedeck.PluginImageSize.Width90 : Loupedeck.PluginImageSize.Width116;
+                        using var image = Visuals.Render(parts[1], parts[2], imageSize);
+                        Console.WriteLine("JSON:" + JsonSerializer.Serialize(new {
+                            text = Visuals.Text(parts[1], parts[2]), width = image.Width, height = image.Height }));
+                    }
+                    else if (line.StartsWith("geometry ", StringComparison.Ordinal))
+                    {
+                        var parts = line.Split(' ');
+                        var bounds = Visuals.ImageBounds(Int32.Parse(parts[1]), Int32.Parse(parts[2]), Int32.Parse(parts[3]), parts[4]);
+                        Console.WriteLine("JSON:" + JsonSerializer.Serialize(new {
+                            x = bounds.X, y = bounds.Y, width = bounds.Width, height = bounds.Height }));
+                    }
+#endif
+                    else if (line.StartsWith("schema "))
+                    {
+                        var test = Bridge.Parse(System.Text.Encoding.UTF8.GetBytes(line.Substring(7)));
+                        bool valid = true;
+                        try
+                        {
+                            typeof(Bridge).GetMethod("ValidateSchema",
+                                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
+                                .Invoke(null, new object[] { test.GetProperty("value"), test.GetProperty("schema") });
+                        }
+                        catch (System.Reflection.TargetInvocationException) { valid = false; }
+                        Console.WriteLine("JSON:" + JsonSerializer.Serialize(new { valid }));
+                    }
+                    else
+                        Console.WriteLine("JSON:" + JsonSerializer.Serialize(new { error = "Unknown probe command" }));
+                }
+            }
+            finally { await Bridge.StopAsync(); }
+        }
+    }
+}

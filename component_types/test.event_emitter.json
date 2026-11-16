@@ -1,0 +1,14 @@
+{
+  "type_id": "test.event_emitter",
+  "version": "1.0.0",
+  "test_only": true,
+  "config_schema": {
+    "type": "object",
+    "required": ["display_name"],
+    "properties": {"display_name": {"type": "string"}},
+    "additionalProperties": false
+  },
+  "ports": [
+    {"id": "fired", "direction": "out", "kind": "event", "payload_schema": {"type": "object", "properties": {}, "additionalProperties": false}}
+  ]
+}

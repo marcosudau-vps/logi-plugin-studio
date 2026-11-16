@@ -1,0 +1,230 @@
+namespace $NAMESPACE$
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Security.Cryptography;
+    using System.Text.Json;
+    using System.Text.RegularExpressions;
+    using Microsoft.Win32;
+
+    // Starts THIS plugin's own Python host (an embedded zipapp) and owns its
+    // lifetime: stdin EOF ends the host when the plugin unloads or its process
+    // dies. Interpreter resolution never needs the Studio installation:
+    //   1. the plugin-local Studio host runtime recorded in bin/studio.host-runtime.json
+    //      (relative directory, every file SHA-256 checked, no unlisted files);
+    //   2. LOGI_SHARED_PYTHON (developer override, absolute path);
+    //   3. a legacy absolute runner record (packages built before 1.0);
+    //   4. a registered CPython 3.12-3.14.
+    // A plugin-local runtime that fails its integrity check is never replaced by
+    // a fallback: the host is not started and the reason is logged.
+    internal static class HostChild
+    {
+        public const string RecordName = "studio.host-runtime.json";
+        private const long RecordLimit = 262144;
+        private static readonly Regex RuntimeDirectory = new Regex("^hostruntime-[0-9a-f]{16}$", RegexOptions.CultureInvariant);
+        private static readonly object Gate = new object();
+        private static Process _process;
+        private static string _bundle;
+
+        public static string RuntimeKind { get; private set; } = "none";
+
+        private static bool SafeRelative(string relative)
+        {
+            if (String.IsNullOrEmpty(relative) || relative.Length > 260 || relative.Contains(':') || relative.Contains('\\')
+                || relative.StartsWith("/") || Path.IsPathRooted(relative))
+                return false;
+            foreach (var part in relative.Split('/'))
+                if (part.Length == 0 || part == "." || part == "..")
+                    return false;
+            return true;
+        }
+
+        private static string Sha256(string path)
+        {
+            using var stream = File.OpenRead(path);
+            using var sha = SHA256.Create();
+            return Convert.ToHexString(sha.ComputeHash(stream)).ToLowerInvariant();
+        }
+
+        // Returns the verified runner, or null with ``error`` set (fail closed).
+        internal static string PluginLocalRuntime(string binDirectory, JsonElement record, out string error)
+        {
+            error = null;
+            if (!record.TryGetProperty("directory", out var dirValue) || dirValue.ValueKind != JsonValueKind.String)
+            { error = "RUNTIME_NOT_EMBEDDED"; return null; }
+            var directory = dirValue.GetString();
+            var executable = record.GetProperty("executable").GetString();
+            if (!RuntimeDirectory.IsMatch(directory ?? "") || !SafeRelative(executable))
+            { error = "RUNTIME_RECORD_UNSAFE"; return null; }
+            var root = Path.GetFullPath(Path.Combine(binDirectory, directory)) + Path.DirectorySeparatorChar;
+            if (!Directory.Exists(root)) { error = "RUNTIME_DIRECTORY_MISSING"; return null; }
+            var listed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var entry in record.GetProperty("files").EnumerateObject())
+            {
+                var relative = entry.Name;
+                if (!SafeRelative(relative) || entry.Value.ValueKind != JsonValueKind.String)
+                { error = "RUNTIME_RECORD_UNSAFE"; return null; }
+                var full = Path.GetFullPath(Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar)));
+                if (!full.StartsWith(root, StringComparison.OrdinalIgnoreCase) || !File.Exists(full))
+                { error = "RUNTIME_FILE_MISSING"; return null; }
+                if (!String.Equals(Sha256(full), entry.Value.GetString(), StringComparison.Ordinal))
+                { error = "RUNTIME_FILE_MODIFIED"; return null; }
+                listed.Add(full);
+            }
+            // No planted DLLs or modules beside the verified runtime.
+            foreach (var file in Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories))
+                if (!listed.Contains(Path.GetFullPath(file)))
+                { error = "RUNTIME_UNLISTED_FILE"; return null; }
+            var runner = Path.GetFullPath(Path.Combine(root, executable.Replace('/', Path.DirectorySeparatorChar)));
+            if (!listed.Contains(runner)) { error = "RUNTIME_RECORD_UNSAFE"; return null; }
+            return runner;
+        }
+
+        internal static string Interpreter(string assemblyPath)
+        {
+            var bin = Path.GetDirectoryName(assemblyPath) ?? "";
+            string legacy = null;
+            var recordPath = Path.Combine(bin, RecordName);
+            if (File.Exists(recordPath))
+            {
+                try
+                {
+                    if (new FileInfo(recordPath).Length > RecordLimit)
+                        throw new InvalidDataException("record too large");
+                    using var json = JsonDocument.Parse(File.ReadAllText(recordPath));
+                    var format = json.RootElement.GetProperty("format").GetString();
+                    if (format == "studio-host-runtime-2")
+                    {
+                        var runner = PluginLocalRuntime(bin, json.RootElement, out var error);
+                        if (runner != null) { RuntimeKind = "plugin-local"; return runner; }
+                        if (error != "RUNTIME_NOT_EMBEDDED")
+                        {
+                            Bridge.Log("HOST_RUNTIME_INTEGRITY_FAILED", error);
+                            RuntimeKind = "refused";
+                            return null;
+                        }
+                    }
+                    else if (format == "studio-host-runtime-1"
+                             && json.RootElement.GetProperty("executable").GetString() is string old
+                             && Path.IsPathFullyQualified(old) && File.Exists(old))
+                        legacy = old;
+                }
+                catch (Exception error)
+                {
+                    Bridge.Log("HOST_RUNTIME_RECORD_INVALID", error.GetType().Name);
+                    RuntimeKind = "refused";
+                    return null;
+                }
+            }
+            var configured = Environment.GetEnvironmentVariable("LOGI_SHARED_PYTHON");
+            if (!String.IsNullOrEmpty(configured) && Path.IsPathFullyQualified(configured) && File.Exists(configured))
+            { RuntimeKind = "environment"; return configured; }
+            if (legacy != null) { RuntimeKind = "legacy-absolute"; return legacy; }
+            if (!OperatingSystem.IsWindows()) return null;
+            foreach (var registry in new[] { Registry.CurrentUser, Registry.LocalMachine })
+                foreach (var version in new[] { "3.12", "3.13", "3.14" })
+                    using (var key = registry.OpenSubKey($@"Software\Python\PythonCore\{version}\InstallPath"))
+                        if (key?.GetValue("ExecutablePath") is string path && Path.IsPathFullyQualified(path) && File.Exists(path))
+                        { RuntimeKind = "registered-python"; return path; }
+            return null;
+        }
+
+        public static void Start(string assemblyPath, string resource)
+        {
+            lock (Gate)
+            {
+                if (_process != null)
+                {
+                    if (!_process.HasExited) return;
+                    StopLocked();
+                }
+                try
+                {
+                    var runner = Interpreter(assemblyPath);
+                    if (runner == null)
+                        throw new InvalidOperationException("Host runtime is unavailable (" + RuntimeKind + ")");
+                    var connection = Bridge.ConnectionPathForAssembly(assemblyPath);
+                    if (connection == null || !File.Exists(connection))
+                        throw new InvalidOperationException("Connection settings are unavailable");
+                    _bundle = Path.Combine(Path.GetTempPath(), "logi-host-" + Guid.NewGuid().ToString("N") + ".pyz");
+                    using (var stream = typeof(HostChild).Assembly.GetManifestResourceStream(resource))
+                    {
+                        if (stream == null) throw new InvalidOperationException("Embedded host bundle is missing");
+                        using var file = new FileStream(_bundle, FileMode.CreateNew, FileAccess.Write);
+                        stream.CopyTo(file);
+                    }
+                    // stdout/stderr never inherit the plugin process' handles: they
+                    // are drained here (stderr, bounded, into the plugin log).
+                    var info = new ProcessStartInfo(runner) {
+                        UseShellExecute = false, CreateNoWindow = true, RedirectStandardInput = true,
+                        RedirectStandardOutput = true, RedirectStandardError = true,
+                        WorkingDirectory = Path.GetDirectoryName(connection)
+                    };
+                    foreach (var name in new[] { "PYTHONPATH", "PYTHONHOME", "PYTHONSTARTUP", "PYTHONUSERBASE" })
+                        info.Environment.Remove(name);
+                    info.Environment["LOGI_HOST_STDIN_LIFETIME"] = "1";
+                    info.Environment["LOGI_HOST_LOG"] = "plugin";
+                    info.Environment["PYTHONIOENCODING"] = "utf-8";
+                    foreach (var arg in new[] { "-I", "-B", _bundle, connection })
+                        info.ArgumentList.Add(arg);
+                    var process = Process.Start(info);
+                    var forwarded = 0;
+                    process.OutputDataReceived += (_, e) => { };
+                    process.ErrorDataReceived += (_, e) =>
+                    {
+                        if (e.Data != null && System.Threading.Interlocked.Increment(ref forwarded) <= 200)
+                            Bridge.Log("HOST_STDERR", e.Data);
+                    };
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+                    _process = process;
+                    Bridge.Log("HOST_STARTED", RuntimeKind);
+                }
+                catch (Exception error)
+                {
+                    Bridge.Log("HOST_START_FAILED", error.GetType().Name + ": " + error.Message);
+                    StopLocked();
+                }
+            }
+        }
+
+        public static void Stop()
+        {
+            lock (Gate) StopLocked();
+        }
+
+        private static void StopLocked()
+        {
+            try
+            {
+                if (_process != null)
+                {
+                    _process.StandardInput.Close();
+                    if (!_process.WaitForExit(6500))
+                    {
+                        Bridge.Log("HOST_STOP_TIMEOUT");
+                        _process.Kill(entireProcessTree: true);
+                        _process.WaitForExit(1500);
+                    }
+                    if (_process.HasExited && _process.ExitCode != 0)
+                        Bridge.Log("HOST_EXIT_FAILED", _process.ExitCode.ToString());
+                }
+            }
+            catch (Exception error) { Bridge.Log("HOST_STOP_FAILED", error.GetType().Name); }
+            finally
+            {
+                _process?.Dispose();
+                _process = null;
+                if (_bundle != null)
+                {
+                    try { File.Delete(_bundle); }
+                    catch (IOException) { }
+                    catch (UnauthorizedAccessException) { }
+                    _bundle = null;
+                }
+            }
+        }
+    }
+}

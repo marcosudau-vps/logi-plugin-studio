@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logi Plugin Studio · Projekt-Cockpit</title>
+<style>
+:root{font-family:Inter,"Segoe UI",system-ui,sans-serif;color-scheme:dark;--bg:#0b101a;--panel:#141d2a;--border:#2b3949;--txt:#edf3fb;--muted:#a5b3c5;--cyan:#6fdcd1;--green:#81ddb1;--orange:#fac783}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font-size:14px}
+main{max-width:1220px;margin:auto;padding:30px clamp(14px,3vw,34px) 60px}
+header{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:25px}
+.eyebrow{letter-spacing:.19em;font-size:10px;font-weight:750;color:var(--cyan);text-transform:uppercase}
+h1{font-size:clamp(25px,4vw,37px);font-weight:760;letter-spacing:-.05em;margin:7px 0 8px}
+.subtitle{color:var(--muted);font-size:13px;margin:0;max-width:590px;line-height:1.55}
+button{background:#1a3440;color:#c0faf0;border:1px solid #285961;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer;font:inherit}
+button:hover{background:#22505b}.sync{color:var(--muted);font-size:11px;text-align:right;line-height:1.6}
+.dot{display:inline-block;border-radius:50%;width:8px;height:8px;background:var(--green);margin-right:6px;box-shadow:0 0 0 4px #81ddb11c}
+.hero{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:22px}
+.metric{background:linear-gradient(145deg,#172532,#131b28);border:1px solid var(--border);border-radius:14px;padding:17px}
+.metric .number{font-size:31px;font-weight:800;letter-spacing:-.04em;margin:4px 0}.metric .label{font-size:11px;color:var(--muted)}
+.panel{background:#111a26;border:1px solid var(--border);border-radius:16px;padding:19px;margin-bottom:18px}
+.sectiontitle{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:17px}
+h2{font-size:15px;margin:0;font-weight:750;letter-spacing:-.02em}.small{font-size:11px;color:var(--muted)}
+.phase-list{display:grid;gap:9px}.phase{display:grid;grid-template-columns:45px 1fr auto;gap:14px;align-items:center;padding:12px 14px;border:1px solid #293649;border-radius:12px;background:#172231;cursor:pointer}
+.phase:hover{border-color:#507c80}.phase.active{border-color:#50afa2;background:#123036}.phase-id{font-size:12px;color:var(--cyan);font-weight:800}
+.phase h3{font-size:13px;margin:0 0 3px}.phase p{color:var(--muted);font-size:11px;margin:0;line-height:1.4}
+.pill{border-radius:20px;padding:5px 9px;font-size:10px;font-weight:750;white-space:nowrap;background:#283341;color:#becbe0}
+.pill.done{color:var(--green);background:#173d35}.pill.active,.pill.running{color:var(--cyan);background:#184043}
+.pill.ready{color:var(--orange);background:#4a3524}.pill.review{color:#eec48f;background:#4a3524}
+.pill.blocked{color:#ff9eaa;background:#4d232b}
+.layout{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start}
+.task{border:1px solid #293748;border-radius:12px;background:#172231;margin-top:10px;padding:15px}
+.tasktop{display:flex;gap:12px;align-items:center;justify-content:space-between}
+.task h3{margin:0 0 5px;font-size:13px}.task .taskid{color:var(--cyan);font-size:11px;font-weight:750;margin-bottom:6px}
+.task p{color:var(--muted);font-size:11px;line-height:1.5;margin:8px 0 5px}
+.task .source{font-size:10px;color:#8295aa}
+a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
+.details{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;margin-top:10px}
+.notice{padding:11px 14px;border:1px solid #755634;background:#30261e;border-radius:10px;color:#ffda9e;font-size:12px;margin-bottom:9px;line-height:1.5}
+.run{padding:10px 0;border-bottom:1px solid #263345;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.run:last-child{border-bottom:none}.run strong{font-size:11px;font-weight:650}.run a{font-size:11px}
+.muted{color:var(--muted)}footer{font-size:11px;color:#8295aa;line-height:1.6;margin-top:20px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.panel{padding:14px}.hero{gap:8px}.metric{padding:13px}.metric .number{font-size:25px}}
+@media(max-width:480px){main{padding-top:18px}.phase{gap:9px;grid-template-columns:28px 1fr auto;padding:10px}.phase p{font-size:10px}.pill{padding:5px 7px}.hero .metric .label{font-size:10px}}
+</style></head>
+<body><main>
+<header><div><div class="eyebrow">Logitech Actions SDK · Entwicklung</div><h1>Projekt-Cockpit</h1>
+<p class="subtitle">Die gemeinsame Roadmap für Core, Runtime, Logitech-Adapter und das produktive PySide6-Plugin-Studio.</p></div>
+<div style="display:flex;align-items:center;gap:16px">
+  <div class="sync"><div><span class="dot"></span><span id="connection">Lokale Projektdateien</span></div>
+  <div id="updated">Lade Status …</div></div>
+  <button id="refresh">Aktualisieren</button>
+</div></header>
+<div class="hero">
+ <div class="metric"><div class="label">Abgeschlossene Hauptphasen</div><div id="phasesdone" class="number">–</div><div class="small">P0 bis P4</div></div>
+ <div class="metric"><div class="label">Abgenommene Core-APs</div><div id="tasksdone" class="number">–</div><div class="small">AP-CORE-001 bis 004</div></div>
+ <div class="metric"><div class="label">Aktueller Schwerpunkt</div><div class="number" style="font-size:25px;color:var(--cyan)">P3</div><div class="small">Logitech-Adapter und Build</div></div>
+</div>
+<div id="notices"></div>
+<section class="panel"><div class="sectiontitle"><h2>Agenten-Rückkanal</h2><span class="small">Ergebnis-Inbox aus dem lokalen Projekt</span></div><div id="handoffs"><span class="small">Noch keine Rückmeldungen</span></div></section>
+<div class="layout">
+<section class="panel"><div class="sectiontitle"><h2>Entwicklungsphasen</h2><span class="small">Phase anklicken zum Filtern</span></div>
+<div class="phase-list" id="phases"></div></section>
+<div>
+<section class="panel"><div class="sectiontitle"><h2 id="tasktitle">Arbeitspakete</h2><a id="resetfilter" href="#">Alle</a></div><div id="tasks"></div></section>
+<section class="panel"><div class="sectiontitle"><h2>Letzte Agentenläufe</h2><span class="small">Aus work/runs/</span></div>
+<div id="runs"></div></section>
+</div></div>
+<footer><strong>So bleibt die Seite aktuell:</strong> Sie prüft alle 12 Sekunden die Arbeitsakten und Projektdateien auf diesem PC. Neue Läufe erscheinen automatisch, sobald der Agent sie dort anlegt. Unabhängige Abnahmen und Architekturentscheidungen aus dem Chat erscheinen erst nach ihrer Dokumentation im Projekt; bereits bestätigte Abnahmen sind derzeit ausdrücklich vermerkt. Keine Verbindung zu GitHub oder ChatGPT nötig.<br>
+Projektpfad: <span id="projectpath"></span></footer>
+</main>
+<script>
+(function(){
+let selected=null,last=null;
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function label(s){return ({done:"Abgenommen",active:"In Arbeit",ready:"Startbereit",planned:"Geplant",later:"Später",running:"Lauf aktiv",review:"Review bereit",approved:"Abgenommen",blocked:"Blockiert"})[s]||s;}
+function pill(s){return '<span class="pill '+esc(s)+'">'+esc(label(s))+'</span>';}
+function link(p,txt){return p?'<a href="/doc?path='+encodeURIComponent(p)+'" target="_blank" rel="noopener">'+esc(txt)+'</a>':"";}
+function phaseMarkup(p){return '<div class="phase '+(selected===p.id?'active':'')+'" data-phase="'+esc(p.id)+'" role="button" tabindex="0" aria-label="Arbeitspakete '+esc(p.id)+' ansehen">'+
+'<span class="phase-id">'+esc(p.id)+'</span><div><h3>'+esc(p.title)+'</h3><p>'+esc(p.description)+'</p></div>'+pill(p.state)+'</div>';}
+function display(d){
+last=d;document.getElementById('connection').textContent='Lokaler Live-Status';
+document.getElementById('updated').textContent='Geprüft: '+new Date(d.generated).toLocaleTimeString('de-DE');
+document.getElementById('phasesdone').textContent=d.phases.filter(p=>p.state==='done'&&p.id!=='P5').length+'/5';
+document.getElementById('tasksdone').textContent=d.tasks.filter(t=>t.phase==='P1'||t.phase==='P2').filter(t=>t.state==='done').length+'/4';
+document.getElementById('projectpath').textContent=d.root;
+document.getElementById('notices').innerHTML=d.alerts.map(x=>'<div class="notice">'+esc(x)+'</div>').join('');
+document.getElementById('handoffs').innerHTML=d.handoffs&&d.handoffs.length?d.handoffs.slice().reverse().map(x=>
+'<div class="run"><div><strong>'+esc(x.run_id)+'</strong> '+pill(x.status==='APPROVED'?'done':x.status==='REVIEW_READY'?'review':'blocked')+
+'<div class="small">'+(x.verified?'Ergebnisarchiv geprüft':'Kein freigegebenes ZIP')+'</div></div><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">'+
+link(x.report,'Bericht')+'<button data-review="'+esc(x.run_id)+'">Review-Anfrage kopieren</button></div></div>').join(''):
+'<p class="small">Noch keine automatische Rückmeldung. Der Agent kann tools/agent_bridge/zurueck.py aufrufen.</p>';
+document.querySelectorAll('[data-review]').forEach(btn=>btn.addEventListener('click',async()=>{
+const id=btn.dataset.review;
+const msg='Bitte prüfe '+id+' im lokalen Projektverzeichnis '+d.root+' über Desktop Commander unabhängig. Lies work/agent_bridge/results/'+id+'.json, prüfe das eingereichte ZIP, führe alle Tests aus und erstelle bei Bedarf den vollständigen Nachbesserungsauftrag.';
+try{await navigator.clipboard.writeText(msg);btn.textContent='Kopiert – in ChatGPT einfügen';}
+catch(e){btn.textContent='Zwischenablage nicht verfügbar';}
+}));
+document.getElementById('phases').innerHTML=d.phases.map(phaseMarkup).join('');
+document.querySelectorAll('[data-phase]').forEach(el=>{const change=()=>{selected=(selected===el.dataset.phase?null:el.dataset.phase);display(last)};
+ el.addEventListener('click',change);el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();change()}})});
+let tasks=d.tasks.filter(t=>!selected||t.phase===selected);
+document.getElementById('tasktitle').textContent=selected?selected+' · Arbeitspakete':'Arbeitspakete';
+document.getElementById('tasks').innerHTML=tasks.length?tasks.map(t=>'<article class="task"><div class="taskid">'+esc(t.id)+'</div>'+
+'<div class="tasktop"><h3>'+esc(t.title)+'</h3>'+pill(t.state)+'</div>'+
+'<p>'+esc(t.description)+'</p><div class="source">Quelle: '+esc(t.source)+'</div><div class="details">'+
+link(t.prompt,'Agentenauftrag')+' '+(t.latest_run?link(t.latest_run.file,t.latest_run.name):'')+'</div></article>').join(''):'<p class="muted">Für diese Phase sind noch keine einzelnen APs angelegt.</p>';
+document.getElementById('runs').innerHTML=d.runs.length?d.runs.slice().reverse().map(r=>'<div class="run"><div><strong>'+esc(r.name)+'</strong><div class="small">'+esc(label(r.state))+'</div></div>'+link(r.file,'Bericht')+'</div>').join(''):'<p class="muted">Noch keine Läufe vorhanden.</p>';
+}
+async function reload(){
+try{let r=await fetch('/api/status',{cache:'no-store'});if(!r.ok)throw Error(r.status);display(await r.json());}
+catch(e){document.getElementById('connection').textContent='Server nicht erreichbar';document.querySelector('.dot').style.background='#ff9eaa';}
+}
+document.getElementById('refresh').addEventListener('click',reload);
+document.getElementById('resetfilter').addEventListener('click',e=>{e.preventDefault();selected=null;if(last)display(last)});
+reload();setInterval(reload,12000);
+})();
+</script></body></html>

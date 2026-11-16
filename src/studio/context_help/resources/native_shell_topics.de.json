@@ -1,0 +1,152 @@
+[
+  {
+    "topic_id": "native_shell.open",
+    "title": "Natives Projekt öffnen",
+    "summary": "Öffne eine vorhandene Projektdatei im Format logitech-native-1.",
+    "description": "Der Host lädt und prüft das Ziel vor dem Sessionwechsel. Bei ungespeicherten Änderungen wählst du Speichern, Verwerfen oder Abbrechen. Ein ungültiges Ziel ersetzt die aktuelle Session nicht.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "native_shell.unsaved",
+      "explorer"
+    ]
+  },
+  {
+    "topic_id": "native_shell.save",
+    "title": "Projekt speichern",
+    "summary": "Speichern schreibt das geöffnete Autorenprojekt über seine native Session.",
+    "description": "Ohne Projekt ist Speichern gesperrt. Externe Dateiänderungen werden als Konflikt gemeldet. Die Hilfe speichert nichts; es gibt hier kein Save-As und keinen Profil- oder Assetwriter.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "native_shell.undo",
+      "problems.diagnostic"
+    ]
+  },
+  {
+    "topic_id": "native_shell.undo",
+    "title": "Rückgängig",
+    "summary": "Rückgängig nimmt die letzte Änderung der aktuellen Session zurück.",
+    "description": "Ohne rückgängig machbare Änderung ist die Schaltfläche gesperrt. Nur eine ausdrückliche Speicheraktion schreibt den Sessionstand auf die Datei.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "native_shell.redo",
+      "native_shell.save"
+    ]
+  },
+  {
+    "topic_id": "native_shell.redo",
+    "title": "Wiederholen",
+    "summary": "Wiederholen stellt eine zuvor zurückgenommene Sessionänderung wieder her.",
+    "description": "Ohne wiederholbare Änderung ist die Schaltfläche gesperrt. Die Hilfe erzeugt keinen Historyeintrag.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "native_shell.undo"
+    ]
+  },
+  {
+    "topic_id": "native_shell.rename",
+    "title": "Nativen Anzeigenamen ändern",
+    "summary": "Der Dialog bearbeitet ausschließlich den Anzeigenamen der ausgewählten nativen Aktion.",
+    "description": "Die native Action-ID bleibt erhalten. Ohne auflösbare Aktion ist die Funktion gesperrt. Abbrechen ändert nichts; eine veraltete Dialogrevision wird ohne Überschreiben abgewiesen.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "catalog.edit",
+      "native_shell.save"
+    ]
+  },
+  {
+    "topic_id": "native_shell.reload",
+    "title": "Projekt neu laden",
+    "summary": "Neu laden liest die ursprünglich geöffnete Projektdatei erneut.",
+    "description": "Ohne Projektpfad ist die Funktion gesperrt. Ungespeicherte Änderungen benötigen eine ausdrückliche Entscheidung. Ein erfolgreicher Wechsel entfernt alte Auswahl, Diagnosequellen, Pin und Hilfefakten.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "native_shell.unsaved",
+      "native_shell.open"
+    ]
+  },
+  {
+    "topic_id": "native_shell.unsaved",
+    "title": "Ungespeicherte Änderungen",
+    "summary": "Entscheide vor dem Fortfahren über die Änderungen der aktuellen Session.",
+    "description": "Speichern schreibt über die Session. Verwerfen lässt den weiteren Vorgang ohne vorheriges Speichern zu. Abbrechen behält die aktuelle Arbeit. Bei einem Speicherfehler bleibt der Vorgang blockiert.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "native_shell.save"
+    ]
+  },
+  {
+    "topic_id": "native_shell.details",
+    "title": "Native Details – nur lesend",
+    "summary": "Die Detailansicht zeigt den aktuellen Datensatz der Hostauswahl.",
+    "description": "Diese JSON-Ansicht ist kein Editor. Zum Ändern eines Aktionsanzeigenamens verwende „Anzeigename“ oder „Bearbeiten“. Ohne Auswahl gibt es keinen Datensatz.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "native_shell.rename",
+      "explorer"
+    ]
+  },
+  {
+    "topic_id": "native_shell.tabs",
+    "title": "Ansichtsbereiche wechseln",
+    "summary": "Die Tabs zeigen Details, den gesperrten Keypad-Hinweis, Probleme oder die eine Hilfeansicht.",
+    "description": "F1 öffnet die Hilfe für das tatsächlich fokussierte Bedienelement. Ein Tabwechsel führt keine SDK-Funktion aus.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "studio.help",
+      "native_shell.keypad_unavailable",
+      "problems"
+    ]
+  },
+  {
+    "topic_id": "native_shell.keypad_unavailable",
+    "title": "Keypad-Vorschau – nicht verfügbar",
+    "summary": "Die native Vorschau bleibt gesperrt: ein belegter SDK-Frame und NavigationCapability fehlen.",
+    "description": "Es werden keine Tasten, Seiten oder Placementdaten erfunden. Der eigenständig vorhandene Keypad-Baustein wird in dieser Shell nicht instanziiert.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "native_shell.ict_unavailable"
+    ]
+  },
+  {
+    "topic_id": "native_shell.ict_unavailable",
+    "title": "ICT-Bearbeitung – gesperrt",
+    "summary": "Die ICT-Bearbeitung bleibt gesperrt, bis JSON- und Asset-Writer sicher koordiniert sind.",
+    "description": "Diese Shell startet keinen SymbolDesigner und schreibt keine ICT-Dateien. Das vorbereitete allgemeine Thema symbol.ict ist keine Freischaltung.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "native_shell.keypad_unavailable"
+    ]
+  },
+  {
+    "topic_id": "help.pin",
+    "title": "Hilfe anheften oder lösen",
+    "summary": "Anheften hält den Artikel bei normalen Fokus- und Auswahlwechseln fest.",
+    "description": "F1 und ein registriertes verwandtes Thema öffnen ausdrücklich einen anderen Kontext auch bei Pin. Lösen erlaubt künftige automatische Wechsel; es springt nicht zu einem alten Fokus zurück.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "studio.help",
+      "help.related"
+    ]
+  },
+  {
+    "topic_id": "help.details",
+    "title": "Technische Details einblenden",
+    "summary": "Die Schaltfläche klappt ergänzende technische Erläuterungen des aktuellen Artikels auf oder zu.",
+    "description": "Sie erscheint nur bei einem Thema mit technischen Details. Der Fokus innerhalb der Hilfe erhält den Artikel. Der Inhalt wird als Klartext angezeigt.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "studio.help"
+    ]
+  },
+  {
+    "topic_id": "help.related",
+    "title": "Verwandte Themen öffnen",
+    "summary": "Ein verwandtes Thema öffnet ausdrücklich einen anderen registrierten Hilfeartikel.",
+    "description": "Nur in der Registry vorhandene Ziele sind zugelassen. Unbekannte oder ungültige IDs lösen keine Navigation aus. Auch eine angeheftete Hilfe darf ausdrücklich wechseln.",
+    "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
+    "related_topics": [
+      "help.pin",
+      "studio.help"
+    ]
+  }
+]

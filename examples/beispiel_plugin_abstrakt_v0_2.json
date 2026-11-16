@@ -1,0 +1,70 @@
+{
+  "schema_version": "0.2-draft",
+  "project": {
+    "id": "sample.generic",
+    "display_name": "Abstraktes Beispielplugin"
+  },
+  "dependencies": [
+    {"type": "core.command_action", "version": "1.0.0"},
+    {"type": "core.host_handler", "version": "1.0.0"}
+  ],
+  "components": [
+    {
+      "id": "action.primary",
+      "type": "core.command_action",
+      "config": {"display_name": "Aktion 1"}
+    },
+    {
+      "id": "handler.primary",
+      "type": "core.host_handler",
+      "config": {"callback_id": "handler.primary"}
+    }
+  ],
+  "states": [
+    {
+      "id": "state.primary",
+      "value_schema": {"type": "string", "enum": ["variant_0", "variant_1"]},
+      "authority": "host",
+      "scope": "project",
+      "persistence": "external",
+      "fallback": "variant_0"
+    }
+  ],
+  "bindings": [
+    {
+      "id": "binding.command",
+      "source": "component:action.primary/activated",
+      "target": "component:handler.primary/invoke",
+      "kind": "command"
+    },
+    {
+      "id": "binding.visual_state",
+      "source": "state:state.primary/value",
+      "target": "presentation:visual.primary/selector",
+      "kind": "state"
+    }
+  ],
+  "presentations": [
+    {
+      "id": "visual.primary",
+      "variants": {
+        "variant_0": {"text": "Variante 0", "background": "#424242"},
+        "variant_1": {"text": "Variante 1", "background": "#2E7D32"}
+      }
+    }
+  ],
+  "views": [
+    {
+      "id": "view.main",
+      "type": "folder",
+      "placements": [
+        {
+          "id": "placement.primary",
+          "component": "action.primary",
+          "presentation": "visual.primary",
+          "position": 0
+        }
+      ]
+    }
+  ]
+}

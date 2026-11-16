@@ -1,0 +1,409 @@
+{
+  "date": "2026-11-03",
+  "kind": "documentation-only",
+  "edits": [
+    {
+      "path": "CHANGELOG.md",
+      "reasons": [
+        "Änderungshistorie um neue Architekturrevision ergänzt"
+      ],
+      "sha256_before": "d26b89bebd2ad29cfb71a084589cdc788c6515a12562e142fbedd0848883e10c",
+      "sha256_after": "380ccdc63506e4dcb4354adae65a23944d444951c2b532f0587ef79ad1fbcd6a",
+      "bytes_before": 5947,
+      "bytes_after": 6250
+    },
+    {
+      "path": "README.md",
+      "reasons": [
+        "Neue SDK-native Architekturleitlinie am Einstieg verankert",
+        "Bestehendes Projektmodell als IST/Kompatibilität statt Zielmodell erläutert"
+      ],
+      "sha256_before": "61ab0eab2022bc58b4b7dc77da721f3ae0bc8b027739336251d5948c7aab2136",
+      "sha256_after": "2f8df18c46ca2ed3409e426fd901a64cfd309783088a1533738ea5382368a1ee",
+      "bytes_before": 7273,
+      "bytes_after": 7893
+    },
+    {
+      "path": "STATUS.md",
+      "reasons": [
+        "Statusdatei ergänzt um neuen, nicht implementierten Architekturstand",
+        "Aktuellen Architektur- und Umsetzungsstatus präzise ergänzt"
+      ],
+      "sha256_before": "565bc89b9bdd64538455b6e8050c1e1f27f5e5a5eb808aee5e7ddb25e7bd8d5b",
+      "sha256_after": "ce49382c573daeb96657a75564643baee065c054d704f59b117e68b8be4fa60f",
+      "bytes_before": 11354,
+      "bytes_after": 12587
+    },
+    {
+      "path": "component_types/README.md",
+      "reasons": [
+        "Typkatalog nicht mehr als neue fachliche SDK-Quelle dargestellt"
+      ],
+      "sha256_before": "10e1f2345ffbdc21a4fe1efa6aaa3a4c2d2f59d0e7e3f16cd01a861471359a85",
+      "sha256_after": "cf1efb4b2ca43655ef82f53800d1676e9e55fbed7f00fcec6039d42faf7c94cf",
+      "bytes_before": 505,
+      "bytes_after": 862
+    },
+    {
+      "path": "docs/01_Systemidee.md",
+      "reasons": [
+        "Systemidee neu ausgerichtet",
+        "Frühere Core-Ausrichtung nicht mehr als neue SDK-Zielregel präsentiert",
+        "Explizites aktuelles Zielbild ergänzt"
+      ],
+      "sha256_before": "5b9858503a135601f33ecf1c145bcfbfbb1fd10b0005a90b335426be3b906fc5",
+      "sha256_after": "82727047262327d6012c0d8ab716de5dc99d22bac84a109061426fb6c17688be",
+      "bytes_before": 5689,
+      "bytes_after": 6784
+    },
+    {
+      "path": "docs/02_Ebenen_und_Verantwortung.md",
+      "reasons": [
+        "Schichtdiagramm als IST statt SDK-neutrale Sollvorgabe eingeordnet",
+        "Schichtenverantwortung native-first erläutert"
+      ],
+      "sha256_before": "c311dabc4d8f3804f3a9df080524141216d3927594a9e32176530e2193c3c62b",
+      "sha256_after": "2f4e69f1325255afd765be27a4e99946d23836954fb60e751c60f50e05c9c2a0",
+      "bytes_before": 7863,
+      "bytes_after": 8771
+    },
+    {
+      "path": "docs/03_Metamodell.md",
+      "reasons": [
+        "Metamodell als Legacy-IST mit SDK-native Zielrichtung eingeordnet",
+        "Entscheidenden Kernvertrag auf neue native-first Zielregel umgestellt",
+        "Veraltete Scope-Aussage gegen freigegebene RT-ADR-002 korrigiert",
+        "SDK-Typabbildung als offene Lücke festgehalten"
+      ],
+      "sha256_before": "88cd87d8e55537f1518937d8e67ea947489593ea5f76706893473ec6638edd01",
+      "sha256_after": "81cf275818f01c8b1bc6fadf2458177c3a3e573e239af94a6f8678dfa900e1b5",
+      "bytes_before": 13387,
+      "bytes_after": 14845
+    },
+    {
+      "path": "docs/04_Begriffslexikon.md",
+      "reasons": [
+        "Begriffslexikon native Begriffe als führend definiert",
+        "SDK-nahe Terminologie ergänzt"
+      ],
+      "sha256_before": "8252806b9c4f82633436d72b2c74be3b09ae5a45685b829aa41c2730863861fd",
+      "sha256_after": "ecae2faad1e488159702669460fee606075b8d2e39d58eb72c1fbf368299959a",
+      "bytes_before": 10004,
+      "bytes_after": 11705
+    },
+    {
+      "path": "docs/05_Vom_Projekt_zum_Plugin.md",
+      "reasons": [
+        "Buildprozess nicht mehr als native Soll-Semantik missverstehen",
+        "Dokumenttitel als Bestandsprozess markiert"
+      ],
+      "sha256_before": "023e4f38825a7b6ff1547dd7c94b7ae14bc8061e2a1a14c19a1651b80d44b34b",
+      "sha256_after": "41ef60b90479f887babb797bd3167d3537479823964aa86efdd25e2815ba132c",
+      "bytes_before": 7955,
+      "bytes_after": 8373
+    },
+    {
+      "path": "docs/06_Kommunikation_und_Zustaende.md",
+      "reasons": [
+        "Host-/Runtime-States von nativen Multistate-States abgegrenzt"
+      ],
+      "sha256_before": "e4bd9ca98d4a10ca4b55e64cc48d905915ab0e5d8dae2f230278b92c4b091009",
+      "sha256_after": "9f3e267321c63fc5db7b2555b15f76713eb00fc3bd28ad3f6d4ca2d5d770214d",
+      "bytes_before": 8718,
+      "bytes_after": 9095
+    },
+    {
+      "path": "docs/07_Studio_Bibliothek_und_Adapter.md",
+      "reasons": [
+        "Studio-/Bibliothekskonzept als bestehender Vorschlag mit neuer Priorität eingeordnet",
+        "Direkt widersprechenden Satz in SDK-Kapitel ersetzt",
+        "Eigenen Binding-Graph nicht als universell führend dargestellt"
+      ],
+      "sha256_before": "1ebaed75378e16605cf3af6e468c891892c50ef7a42cac8cd6fc2ebf094b1459",
+      "sha256_after": "3c9308efee2b4e98c87831f40c61a885471fff758180b8988254e758ac8440c7",
+      "bytes_before": 6716,
+      "bytes_after": 7458
+    },
+    {
+      "path": "docs/08_Entscheidungsregister.md",
+      "reasons": [
+        "Neue normative Priorität am Entscheidungsregister angegeben",
+        "AR-007 als durch spätere ADR überholte Zielregel markiert",
+        "Runtime-T6-Darstellung im Register präzisiert",
+        "Neue verbindliche ADR samt Geltungsgrenzen eingetragen",
+        "Statuswert SUPERSEDED auf bestehenden Registerstatus normalisiert"
+      ],
+      "sha256_before": "82c187053e8188a771f580dca77c198c1ea08818eda9176666f97882b43c843e",
+      "sha256_after": "8f6a3493015aaf393c91b837db63a06c4eb383ec1d874d0f32a1efb4d051cc9a",
+      "bytes_before": 12003,
+      "bytes_after": 13518
+    },
+    {
+      "path": "docs/11_P0_Praezisierungen.md",
+      "reasons": [
+        "Historisches P0-Review vor Fehlinterpretation geschützt"
+      ],
+      "sha256_before": "da6d5393e7c2b2f81168b2e0e0df33a38cab2e102d75519c3b61365e3f5f0902",
+      "sha256_after": "4750b4eb9ada0acf706a9175df6e489d08c7f58f9b53b4673a1297d357015b40",
+      "bytes_before": 8929,
+      "bytes_after": 9250
+    },
+    {
+      "path": "docs/12_P0_Freigabe_2026-10-30.md",
+      "reasons": [
+        "Historische P0-Freigabe zeitlich gegen neue ADR eingeordnet"
+      ],
+      "sha256_before": "ed919ad9694e1b150bab9f89b221d4fd7be85b9c46f3257ee7757c19b8a1bf6f",
+      "sha256_after": "6faef3f6a2158aea1bd538114e97a7b1f36a4c7007a737e5ad530e5278b21a8a",
+      "bytes_before": 4212,
+      "bytes_after": 4523
+    },
+    {
+      "path": "docs/README.md",
+      "reasons": [
+        "Geltungsvorrang SDK-nativ dokumentiert",
+        "Dokumentationsindex korrigiert",
+        "SDK-Mapping und Änderungsregister verlinkt"
+      ],
+      "sha256_before": "f1c8a665019c1184253ca394f21a70c28326ee75080d0cc5278f3f8c95407ef5",
+      "sha256_after": "fa7fdf884b09eb7a7a3e1bbb10e896efa7f8e0231868e90dd3735d58f83c1e1f",
+      "bytes_before": 2081,
+      "bytes_after": 2947
+    },
+    {
+      "path": "docs/decisions/P0-ADR-002.md",
+      "reasons": [
+        "P0-ADR-002 als bestandsgültigen, nicht zwangsläufig zukunftsführenden Vertrag markiert"
+      ],
+      "sha256_before": "85fd284aec0e5b1bbfede0031414c2dfc3c36d5d20ff1ea76e7034621c18aedf",
+      "sha256_after": "51677fa1e810c3024151473a458f95a8b7a17e020daeb366751f4c03d53291a8",
+      "bytes_before": 1419,
+      "bytes_after": 1865
+    },
+    {
+      "path": "docs/decisions/PRODUCT-ADR-001.md",
+      "reasons": [
+        "Produkt-ADR für SDK-native Zielrichtung eingeordnet"
+      ],
+      "sha256_before": "8a5fdd9364362dfa4565750e347222952f79103b4c5a1a9a42deb8ffeeb86ebe",
+      "sha256_after": "31a5b22e7845a86268b0f089c5cc079a20ae00ca848d77efcb3d891cc9bdb086",
+      "bytes_before": 4344,
+      "bytes_after": 4601
+    },
+    {
+      "path": "docs/decisions/README.md",
+      "reasons": [
+        "Neue ADR gegenüber älteren freigegebenen Entscheidungen eingeordnet",
+        "ARCH-ADR-001 in ADR-Index eingetragen"
+      ],
+      "sha256_before": "464d7cd307ecda24b66f6413f5d2773f049a8290c4b2f61e3212fbc5809d7399",
+      "sha256_after": "644ea333024be53edcc31494771161d128783048cbbeec52530ae61de6d8045d",
+      "bytes_before": 3083,
+      "bytes_after": 3964
+    },
+    {
+      "path": "docs/decisions/RT-ADR-002.md",
+      "reasons": [
+        "Python StateStore und native SDK-States klar abgegrenzt"
+      ],
+      "sha256_before": "c1e5a7b13fa22cc580e7517760337c89e9b27fb426ff23d81df35b8d39874b41",
+      "sha256_after": "734d3ac6433f841aca473286f15ece4b435cb23e992ef54125dbd5e69ff71125",
+      "bytes_before": 3684,
+      "bytes_after": 4022
+    },
+    {
+      "path": "docs/decisions/RT-ADR-006.md",
+      "reasons": [
+        "Normativen Widerspruch RT-ADR-006 gegen spätere ADR direkt am Original geklärt"
+      ],
+      "sha256_before": "a99cfdd07e79c5876737953f72ad2aa96515cdca6c4bc70b2ea8e411224ef15c",
+      "sha256_after": "5dd0d23b0370976e72ac98ab30a8b4f6da9f1c6354b62d90ff9120922f337be8",
+      "bytes_before": 2525,
+      "bytes_after": 2963
+    },
+    {
+      "path": "docs/specifications/README.md",
+      "reasons": [
+        "SDK-Mapping im Spezifikationsindex prominent verlinkt"
+      ],
+      "sha256_before": "427a631702c2985a41e5d979d30246dc221a4aa2228cd665c099779bed1da9d2",
+      "sha256_after": "3f50ab73b5df3fa42623120612f3a6d1d646d5e51f4151fc77a10be1ec2b985a",
+      "bytes_before": 911,
+      "bytes_after": 1183
+    },
+    {
+      "path": "schemas/README.md",
+      "reasons": [
+        "Schemas als IST und Migration als offen markiert"
+      ],
+      "sha256_before": "eef13edd78e38d74ffc136957ac10e6d6f21e99b4d698ef2682664e4d0e977a0",
+      "sha256_after": "834e6fa88320619cefc2fde4f9ba4691e5501105bf92098a440bf7fc4874eb29",
+      "bytes_before": 651,
+      "bytes_after": 986
+    },
+    {
+      "path": "src/README.md",
+      "reasons": [
+        "Code-Index zwischen IST und neuer Zielarchitektur unterschieden"
+      ],
+      "sha256_before": "c80431e1cd0456514183f9becbdc150aea99bea981447b70ab8707fceb643638",
+      "sha256_after": "1a4349324d5f76f1c71710990a170ae08ff583febcfb769efdad9ed17dd6f61e",
+      "bytes_before": 1315,
+      "bytes_after": 1689
+    },
+    {
+      "path": "src/adapters/logitech/README.md",
+      "reasons": [
+        "Generator-README zeigt SDK-Lücken, keine implizite Vollständigkeit"
+      ],
+      "sha256_before": "e505bf0ec1aef7f9923da3630fad1dedd27125faced76755164e9c8057dc48c8",
+      "sha256_after": "fc12f527228124a1dcbdf4bf9b2969af0fa7a851d7301f0510d7d0fdb9a322e3",
+      "bytes_before": 6461,
+      "bytes_after": 6935
+    },
+    {
+      "path": "src/core/README.md",
+      "reasons": [
+        "SDK-fachneutraler Core als IST, nicht Soll, dokumentiert"
+      ],
+      "sha256_before": "3f7dce645e29884160d7f2b2e7e8da760f9ff361eef33ba9c41f667a2c913e42",
+      "sha256_after": "bd5b6f4677eb349c2868703e8689ab1457f79a33d72941c07ad7e216bfb3f303",
+      "bytes_before": 2786,
+      "bytes_after": 3155
+    },
+    {
+      "path": "src/library/README.md",
+      "reasons": [
+        "Autorenmodell als Legacy-Kompatibilität eingeordnet"
+      ],
+      "sha256_before": "6dc87be0c065acfdf4ad8c083e54098965ce4e529cd12ace4f522b5282a1ada6",
+      "sha256_after": "64532c156bd054354397349b54cce22130cc40c67bf2ae3eeada69b4da12fa8e",
+      "bytes_before": 1177,
+      "bytes_after": 1468
+    },
+    {
+      "path": "src/runtime/README.md",
+      "reasons": [
+        "Runtime-Schicht zu nativem Multistate abgegrenzt"
+      ],
+      "sha256_before": "89163280519a2c8c28349f5d10ede5492f097a55ed725149651df6db8563574f",
+      "sha256_after": "1f3827d401260cdb330729215b5674d4c583aa47e0d99fa9a50e8d906126b953",
+      "bytes_before": 10227,
+      "bytes_after": 10594
+    },
+    {
+      "path": "work/README.md",
+      "reasons": [
+        "Historische Arbeitsakten von aktueller Architektur getrennt"
+      ],
+      "sha256_before": "d0590c986b69415545a518748fbe8417dc3657212a3eae4cb8ff44c76e422243",
+      "sha256_after": "7dd18f1f2339db19e89410f4f293887c4f60fcc08247d1e4d3bed89c5b178312",
+      "bytes_before": 2434,
+      "bytes_after": 2770
+    },
+    {
+      "path": "work/planning/Logitech_Plugin_Studio_Produktreife_Fahrplan_v01.md",
+      "reasons": [
+        "Produktreife-Fahrplan auf führende SDK-Semantik ausgerichtet",
+        "Frühere maskierte Markdown-Backticks für korrekte Vorschau bereinigt"
+      ],
+      "sha256_before": "a18e71e6b8b2525767b13b4c7cf667a64973d8c526ada3560bd74852fde48268",
+      "sha256_after": "e93dd24f016b78e8d3bb97c1bc8ea8ac653e518d63124261af32fdf441575dd7",
+      "bytes_before": 52345,
+      "bytes_after": 52719
+    },
+    {
+      "path": "work/planning/README.md",
+      "reasons": [
+        "Planungsindex mit SDK-nativer Leitentscheidung aktualisiert",
+        "Falschen aktuellen nächsten AP-CORE-001-Auftrag korrigiert"
+      ],
+      "sha256_before": "8276569f10f9693fae317ebd50919fc9848f9c436e0ec63d6c32cd83ce68bfda",
+      "sha256_after": "a6d163081eb0ba7b34d12f175320d756776d8a00d25b90cf44514c58f9fad30a",
+      "bytes_before": 409,
+      "bytes_after": 877
+    },
+    {
+      "path": "work/planning/gemeinsame-symbol-und-state-darstellung-v01.md",
+      "reasons": [
+        "Abgeleiteten Renderingwert statt neuen Pflicht-Fachkerns geklärt",
+        "Maskierte Markdown-Backticks aus früherem Entwurf repariert"
+      ],
+      "sha256_before": "7021c9450246a3d1c67f7102f6d661ddae0bd5f76bb0fda7431e2f23422d32b5",
+      "sha256_after": "e3dcb80e4bb4b3f192c9336adab9aa7d3c0999929852c72d51b23e5c26aae8db",
+      "bytes_before": 9941,
+      "bytes_after": 10348
+    },
+    {
+      "path": "work/planning/keypad-preview-eingabeschema-v01.md",
+      "reasons": [
+        "Keypad DTO nativem SDK untergeordnet",
+        "ActionOffer berücksichtigt bislang fehlenden SDK-actionParameter",
+        "SlotData um möglichen nativen actionParameter ergänzt",
+        "EditRequest erhält nativen actionParameter statt Informationsverlust",
+        "Kein implizites selbstverwaltetes Multistate-Modell im Keypad",
+        "Versioniertes Drag-MIME-Beispiel um action_parameter ergänzt"
+      ],
+      "sha256_before": "f8d8bc90100ee7d0cb633564a32919ec30189c660ce908fe0951086e263cdc75",
+      "sha256_after": "661ed950260f88300c385c469bed307035cc45a105aa2956ccfe2e7901e2815e",
+      "bytes_before": 13421,
+      "bytes_after": 14805
+    },
+    {
+      "path": "work/planning/keypad-preview-widget-technischer-entwurf-v01.md",
+      "reasons": [
+        "Betriebsartenwiderspruch in altem Keypad-Entwurf deutlich geklärt",
+        "Veralteten Default-Bearbeitungsmodus klar gekennzeichnet",
+        "Testmodus als künftige übergeordnete App-Funktion statt Widget-Modus markiert",
+        "Frühere maskierte Markdown-Backticks für korrekte Vorschau bereinigt"
+      ],
+      "sha256_before": "339c3700134110b0044b8cea87bf70a59503cee9c5da76d91eafce85e6f80791",
+      "sha256_after": "8d1d94bc6a32581344c7a0dde33eb43e8364c3c6be2ed220cf64c09c05b6424d",
+      "bytes_before": 30052,
+      "bytes_after": 30403
+    },
+    {
+      "path": "work/planning/roadmap.md",
+      "reasons": [
+        "Historische generische Roadmap als zeitlich überholt gekennzeichnet",
+        "Alte Einleitung nicht als heutige Entwicklungsstrategie stehen gelassen"
+      ],
+      "sha256_before": "72a4331e84abcb0d63b0214fc915a61356fdad62913d0c18cbcc5f89f5b22557",
+      "sha256_after": "e0a4540b495e024e81e4e4b281dc1e8c512132ccb5fafd7d5d802ec30438e654",
+      "bytes_before": 9618,
+      "bytes_after": 10255
+    },
+    {
+      "path": "work/planning/studio-bedienkonzept-entwurf-v01.md",
+      "reasons": [
+        "UX-Entwurf nicht als modellführende Quelle gelassen",
+        "Frühere maskierte Markdown-Backticks für korrekte Vorschau bereinigt"
+      ],
+      "sha256_before": "d18ba20d975467ba7a3404331550c42d015b70407f883de9dab1400bccdfea19",
+      "sha256_after": "4a48fc074331cf74f91ab3d64c287116df83ea21cfdbad8fbb7913d8dacf8682",
+      "bytes_before": 93311,
+      "bytes_after": 93659
+    },
+    {
+      "path": "work/planning/widget-schnittstellen-grundentwurf-v01.md",
+      "reasons": [
+        "Widget-Schnittstellen vor Implementierung unter SDK-nativen Vorbehalt gestellt"
+      ],
+      "sha256_before": "c94ffcc491bd5ff303dd916d1187ef7b6516d16c58a564960f0cbc7e96db239f",
+      "sha256_after": "aae92b92dd7fe145f118f90d99bb46d1adaaf7488310fab051c9038cd553363b",
+      "bytes_before": 35054,
+      "bytes_after": 35633
+    },
+    {
+      "path": "work/product-readiness/INDEX.md",
+      "reasons": [
+        "Produktreife-Register um ADR und offene Migration ergänzt"
+      ],
+      "sha256_before": "570ab0fc77b08d78052c546975c6a40cd3d81a725f000cb0b428f644e338899a",
+      "sha256_after": "00f50fe8e29033e6def407867b07a4899667448e851633efe0d1b14db33c8797",
+      "bytes_before": 2972,
+      "bytes_after": 3321
+    }
+  ],
+  "backup_archive": "native-first-snapshot-20261103.zip"
+}

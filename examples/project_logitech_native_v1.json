@@ -1,0 +1,66 @@
+{
+  "schema_version": "logitech-native-1",
+  "plugin": {
+    "id": "sample.native",
+    "display_name": "SDK-natives Beispiel"
+  },
+  "handlers": [
+    {"id": "handler.main", "callback_id": "handler.main"}
+  ],
+  "actions": [
+    {
+      "id": "action.command",
+      "sdk_type": "PluginDynamicCommand",
+      "display_name": "Parametrisierter Befehl",
+      "description": "Der SDK-actionParameter bleibt bis zum Python-Handler erhalten.",
+      "group_name": "Native",
+      "handler": "handler.main",
+      "parameters": [
+        {"name": "first", "display_name": "Erste Variante", "group_name": "Varianten"},
+        {"name": "second", "display_name": "Zweite Variante", "group_name": "Varianten"}
+      ]
+    },
+    {
+      "id": "action.multistate",
+      "sdk_type": "PluginMultistateDynamicCommand",
+      "display_name": "Nativer Schalter",
+      "handler": "handler.main",
+      "state_change": "toggle",
+      "states": [
+        {"index": 0, "name": "off", "display_name": "Aus", "description": "Ausgeschaltet"},
+        {"index": 1, "name": "on", "display_name": "An", "description": "Eingeschaltet"}
+      ]
+    },
+    {
+      "id": "action.adjustment",
+      "sdk_type": "PluginDynamicAdjustment",
+      "display_name": "Native Einstellung",
+      "handler": "handler.main",
+      "adjustment": {"has_reset": true, "minimum": 0, "maximum": 100, "default": 50, "format": "{0}%"}
+    },
+    {
+      "id": "action.editor",
+      "sdk_type": "ActionEditorCommand",
+      "display_name": "Konfigurierbarer Befehl",
+      "handler": "handler.main",
+      "editor_controls": [
+        {"type": "textbox", "name": "Text", "label": "Text"},
+        {"type": "checkbox", "name": "Enabled", "label": "Aktiv", "default": true}
+      ]
+    }
+  ],
+  "folders": [
+    {
+      "id": "folder.main",
+      "display_name": "Native Startseite",
+      "navigation": "ButtonArea",
+      "device_navigation": {"Loupedeck70": "None"},
+      "entries": [
+        {"id": "placement.command", "action": "action.command", "position": 0},
+        {"id": "placement.multistate", "action": "action.multistate", "position": 1},
+        {"id": "placement.adjustment", "action": "action.adjustment", "position": 2},
+        {"id": "placement.editor", "action": "action.editor", "position": 3}
+      ]
+    }
+  ]
+}

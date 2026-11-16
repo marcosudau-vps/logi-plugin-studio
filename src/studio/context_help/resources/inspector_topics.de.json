@@ -1,0 +1,273 @@
+[
+  {
+    "topic_id": "inspector.overview",
+    "title": "SDK-nativer Aktionsinspektor",
+    "summary": "Erstelle und bearbeite native SDK-Aktionsdefinitionen im Formular.",
+    "description": "Änderungen sind zunächst ein flüchtiger Formularentwurf. Übernehmen prüft das vollständige Autorenprojekt; Speichern schreibt anschließend die Datei.",
+    "example": "Anzeigename und Beschreibung ändern, danach Übernehmen wählen.",
+    "technical_details": "Normative Referenz: src/adapters/logitech/native.py, parse_native_project. NativeProjectSession bleibt einziger Projektwriter.",
+    "related_topics": [
+      "inspector.apply",
+      "inspector.parameters"
+    ]
+  },
+  {
+    "topic_id": "inspector.identity",
+    "title": "Stabile SDK-Identität",
+    "summary": "Action-ID und SDK-Klasse bleiben unveränderlich.",
+    "description": "Bei vorhandenen Aktionen sind diese Werte nur lesbar. Vor dem Erstellen ist die eindeutige ID editierbar und der SDK-Typ wählbar. Folder-Platzierungen referenzieren die stabile ID.",
+    "example": "PluginDynamicCommand ist ein unterstützter SDK-Typ.",
+    "technical_details": "Normative Referenz: src/adapters/logitech/native.py, parse_native_project. NativeProjectSession bleibt einziger Projektwriter.",
+    "related_topics": [
+      "inspector.apply",
+      "inspector.overview"
+    ]
+  },
+  {
+    "topic_id": "inspector.handler",
+    "title": "Vorhandenen Handler zuordnen",
+    "summary": "Wähle eine vorhandene Handler-ID des Projekts.",
+    "description": "Der Inspector erstellt keine Handler oder Callbacks und führt sie nicht aus.",
+    "example": "handler.main aus der Auswahl verwenden.",
+    "technical_details": "Normative Referenz: src/adapters/logitech/native.py, parse_native_project. NativeProjectSession bleibt einziger Projektwriter.",
+    "related_topics": [
+      "inspector.apply",
+      "inspector.overview"
+    ]
+  },
+  {
+    "topic_id": "inspector.parameters",
+    "title": "Aktionsparameter bearbeiten",
+    "summary": "Parameterzeilen können eingefügt, geändert, entfernt und verschoben werden.",
+    "description": "Name, Anzeigename und Gruppe sind erforderlich. Namen müssen innerhalb der Aktion eindeutig bleiben. Referenzierte Symbolzuordnungen nach einer Namensänderung bewusst neu zuordnen oder entfernen.",
+    "example": "first als Name und Erste Variante als Anzeigename.",
+    "technical_details": "Normative Referenz: src/adapters/logitech/native.py, parse_native_project. NativeProjectSession bleibt einziger Projektwriter.",
+    "related_topics": [
+      "inspector.apply",
+      "inspector.overview"
+    ]
+  },
+  {
+    "topic_id": "inspector.parameter_symbols",
+    "title": "Parameter-Symbole zuordnen",
+    "summary": "Ordne einem vorhandenen Parameternamen eine relative SVG-Referenz zu.",
+    "description": "Nach Umbenennen oder Entfernen eines Parameters bleibt die alte Symbolzeile sichtbar. Ändere ihren Namen bewusst oder entferne sie. Konflikte verhindern Übernehmen; keine Datei wird geschrieben.",
+    "example": "first → assets/first.svg",
+    "technical_details": "Normative Referenz: src/adapters/logitech/native.py, parse_native_project. NativeProjectSession bleibt einziger Projektwriter.",
+    "related_topics": [
+      "inspector.apply",
+      "inspector.overview"
+    ]
+  },
+  {
+    "topic_id": "inspector.states",
+    "title": "Feste SDK-Zustände",
+    "summary": "Multistate-Aktionen benötigen mindestens zwei geordnete Zustände.",
+    "description": "Name, Anzeigename und Beschreibung bearbeiten. Die Reihenfolge bestimmt lückenlose Indizes ab 0. Bildreferenzen sind optional; LED-Farben werden nicht unterstützt.",
+    "example": "Aus und An ergeben die Indizes 0 und 1.",
+    "technical_details": "Normative Referenz: src/adapters/logitech/native.py, parse_native_project. NativeProjectSession bleibt einziger Projektwriter.",
+    "related_topics": [
+      "inspector.apply",
+      "inspector.overview"
+    ]
+  },
+  {
+    "topic_id": "inspector.state_change",
+    "title": "Zustandswechsel",
+    "summary": "Wähle none, increment, decrement oder toggle.",
+    "description": "toggle erfordert genau zwei Zustände. Bei drei Zuständen eine andere Wechselart wählen oder bewusst einen Zustand entfernen.",
+    "example": "Zwei Zustände mit toggle.",
+    "technical_details": "Normative Referenz: src/adapters/logitech/native.py, parse_native_project. NativeProjectSession bleibt einziger Projektwriter.",
+    "related_topics": [
+      "inspector.apply",
+      "inspector.overview"
+    ]
+  },
+  {
+    "topic_id": "inspector.adjustment",
+    "title": "SDK-Einstellung",
+    "summary": "Reset, Zahlenbereich, Standardwert und Format bearbeiten.",
+    "description": "Zahlen müssen endlich sein. Minimum darf Maximum nicht überschreiten; Standardwert liegt innerhalb vorhandener Grenzen. Optionale Werte können entfernt oder explizit null gesetzt werden.",
+    "example": "Minimum 0, Maximum 100, Standardwert 50, Format {0}%.",
+    "technical_details": "Normative Referenz: src/adapters/logitech/native.py, parse_native_project. NativeProjectSession bleibt einziger Projektwriter.",
+    "related_topics": [
+      "inspector.apply",
+      "inspector.overview"
+    ]
+  },
+  {
+    "topic_id": "inspector.editor_controls",
+    "title": "Native SDK-Editorfelder",
+    "summary": "Sieben verifizierte Control-Typen stehen zur Auswahl.",
+    "description": "Textbox und Textarea haben keinen Text-Default. Checkbox-Default ist boolesch. Slider und Numeric Up Down benötigen endliche Zahlen für Minimum, Maximum, positive Schrittweite und passenden Standardwert. File Selector erlaubt Filter; Directory Selector keine Filter. Entfernen inkompatibler Optionen beim Typwechsel muss ausdrücklich bestätigt werden.",
+    "example": "Slider: 0 bis 100, Schritt 1, Standardwert 50.",
+    "technical_details": "Normative Referenz: src/adapters/logitech/native.py, parse_native_project. NativeProjectSession bleibt einziger Projektwriter.",
+    "related_topics": [
+      "inspector.apply",
+      "inspector.overview"
+    ]
+  },
+  {
+    "topic_id": "inspector.assets",
+    "title": "Relative Asset-Referenzen",
+    "summary": "Gib ausschließlich portable Projektreferenzen ein.",
+    "description": "Icon: PNG oder SVG; Iconvorlage: ICT; Symbol: SVG. Nicht gesetzt entfernt das Feld, Null setzt explizit null, Wert aktiviert die Eingabe. Ein leerer Pfad ist ungültig. Es werden keine Assets erzeugt oder verändert.",
+    "example": "assets/command.svg",
+    "technical_details": "Normative Referenz: src/adapters/logitech/native.py, parse_native_project. NativeProjectSession bleibt einziger Projektwriter.",
+    "related_topics": [
+      "inspector.apply",
+      "inspector.overview"
+    ]
+  },
+  {
+    "topic_id": "inspector.apply",
+    "title": "Formular übernehmen",
+    "summary": "Übernehmen erzeugt höchstens einen geprüften Session-Historyeintrag.",
+    "description": "Alle Felder werden gemeinsam geprüft. Bei veralteter Revision oder externer Dateiänderung bleibt der Entwurf erhalten. Bewusst verwerfen und gegebenenfalls Projekt neu laden. Speichern ist ein separater Befehl.",
+    "example": "Zwei Felder ändern → Übernehmen → einmal Rückgängig.",
+    "technical_details": "Normative Referenz: src/adapters/logitech/native.py, parse_native_project. NativeProjectSession bleibt einziger Projektwriter.",
+    "related_topics": [
+      "native_shell.save",
+      "inspector.overview"
+    ]
+  },
+  {
+    "topic_id": "inspector.discard",
+    "title": "Formular verwerfen",
+    "summary": "Verwerfen setzt ausschließlich den flüchtigen Entwurf zurück.",
+    "description": "Beim Verlassen fragt das Studio nach Übernehmen, Verwerfen oder Abbrechen. Abbrechen behält die aktuellen Eingaben. Ein fehlgeschlagener Projektwechsel erhält den Entwurf.",
+    "example": "Verwerfen stellt den aktuellen Sessionstand wieder dar.",
+    "technical_details": "Normative Referenz: src/adapters/logitech/native.py, parse_native_project. NativeProjectSession bleibt einziger Projektwriter.",
+    "related_topics": [
+      "inspector.apply",
+      "inspector.overview"
+    ]
+  },
+  {
+    "topic_id": "inspector.invalid",
+    "title": "Eingabe prüfen",
+    "summary": "Ungültige Formulare können nicht übernommen werden.",
+    "description": "Die Meldung nennt Feld oder Sammlung und den nativen Prüfgrund. Prüfe Handlerreferenzen, eindeutige Namen, relative Pfade und typspezifische Werte. Die Problemliste erhält nur zur aktuellen Revision passende Diagnosen.",
+    "example": "toggle mit drei Zuständen: Wechselart oder Zustandsliste korrigieren.",
+    "technical_details": "Normative Referenz: src/adapters/logitech/native.py, parse_native_project. NativeProjectSession bleibt einziger Projektwriter.",
+    "related_topics": [
+      "inspector.apply",
+      "inspector.overview"
+    ]
+  },
+  {
+    "topic_id": "inspector.create",
+    "title": "Native Aktion erstellen",
+    "summary": "Mit + Neue Aktion einen getrennten Formularentwurf beginnen.",
+    "description": "Wähle SDK-Typ, eindeutige Action-ID, Anzeigename und einen vorhandenen Handler. Vor Übernehmen existiert die Action weder im Katalog noch im Projektbaum. Abbrechen schützt vorhandene Eingaben.",
+    "example": "Neue Aktion → Felder bearbeiten → Übernehmen → separat Speichern.",
+    "related_topics": [
+      "inspector.create_id",
+      "inspector.create_type",
+      "inspector.handler",
+      "inspector.unplaced"
+    ]
+  },
+  {
+    "topic_id": "inspector.create_id",
+    "title": "Eindeutige Action-ID",
+    "summary": "Die sichtbare ID ist vor Übernehmen editierbar.",
+    "description": "IDs beginnen mit einem Kleinbuchstaben und enthalten nur kleine Buchstaben, Ziffern und einzelne Punkt-, Bindestrich- oder Unterstrichtrenner. Die ID muss unter actions[] eindeutig sein. Der Host ändert die bestätigte ID niemals automatisch.",
+    "example": "action.mein-befehl",
+    "related_topics": [
+      "inspector.create",
+      "inspector.identity"
+    ]
+  },
+  {
+    "topic_id": "inspector.create_type",
+    "title": "Native SDK-Klasse wählen",
+    "summary": "Vier vorhandene SDK-Typen haben eigene gültige Startwerte.",
+    "description": "Command ist ein dynamischer Befehl. Multistate startet mit zwei festen Zuständen und toggle. Adjustment startet mit einem leeren Einstellungsobjekt. ActionEditor startet mit einem gültigen Textboxfeld. Beim Typwechsel werden nur die typgebundenen Startwerte ersetzt; geänderte Spezialwerte verlangen Bestätigung.",
+    "example": "PluginMultistateDynamicCommand: Aus / An.",
+    "related_topics": [
+      "inspector.states",
+      "inspector.adjustment",
+      "inspector.editor_controls"
+    ]
+  },
+  {
+    "topic_id": "inspector.unplaced",
+    "title": "Neue Action ist unplatziert",
+    "summary": "Erstellen fügt ausschließlich die Aktionsdefinition hinzu.",
+    "description": "Es entsteht kein FolderEntry und keine Gerätebelegung. Der Katalog und Projektbaum zeigen die neue Definition. Folder- und Gerätebearbeitung benötigen einen späteren eigenen Editor.",
+    "example": "Die neue Action lässt sich ohne Folder-Referenz wieder löschen.",
+    "related_topics": [
+      "inspector.create",
+      "inspector.delete"
+    ]
+  },
+  {
+    "topic_id": "inspector.delete",
+    "title": "Native Action löschen",
+    "summary": "Nur unreferenzierte Actions dürfen nach Bestätigung gelöscht werden.",
+    "description": "Der Inspector nennt die stabile ID. Der Bestätigungsdialog nennt zusätzlich den Anzeigenamen und startet mit Abbrechen als Standard. Handler bleiben erhalten; Speichern erfolgt separat. Bei FolderEntry-Auswahl gibt es keinen Löschbefehl für das Placement.",
+    "example": "Neu erstellte unplatzierte Action auswählen → Aktion löschen → ausdrücklich bestätigen.",
+    "related_topics": [
+      "inspector.delete_references",
+      "inspector.delete_last",
+      "inspector.unplaced"
+    ]
+  },
+  {
+    "topic_id": "inspector.delete_references",
+    "title": "Folder-Referenzen schützen",
+    "summary": "Eine referenzierte Action ist gegen Löschen geschützt.",
+    "description": "Die Erklärung nennt Anzahl sowie Folder- und Placement-IDs. Es erscheint keine bestätigende Löschabfrage. FolderEntries werden weder kaskadierend gelöscht noch auf andere Actions umgehängt.",
+    "example": "folder.main / placement.command referenziert action.command.",
+    "related_topics": [
+      "inspector.delete",
+      "explorer.folder_entry"
+    ]
+  },
+  {
+    "topic_id": "inspector.delete_last",
+    "title": "Letzte Action erhalten",
+    "summary": "Das native Autorenprojekt benötigt mindestens eine Action.",
+    "description": "Auch eine unplatzierte letzte Action darf nicht gelöscht werden. Der Host prüft das Parserminimum vor jeder Löschung.",
+    "example": "Eine einzelne Action bleibt im Projekt erhalten.",
+    "related_topics": [
+      "inspector.delete",
+      "inspector.create"
+    ]
+  },
+  {
+    "topic_id": "inspector.fold_sections",
+    "title": "Abschnitte und Zeilen aufklappen",
+    "summary": "Pfeiltasten-Schaltflächen öffnen Details bei Bedarf.",
+    "description": "Allgemein, Handler, Parameter, Symbole, Assets und typgebundene Bereiche sind einklappbar. Zeilen zeigen Name und Typ beziehungsweise State-Index. Auf- und Zuklappen verändert keine Daten, auch bei ungültigen Eingaben. Fehler öffnen den betroffenen Bereich. Tab und Leertaste bedienen die Schaltflächen.",
+    "example": "Parameter öffnen → Zeile öffnen → Name bearbeiten.",
+    "related_topics": [
+      "inspector.parameters",
+      "inspector.invalid"
+    ]
+  },
+  {
+    "topic_id": "inspector.stale",
+    "title": "Veralteter Formularentwurf",
+    "summary": "Eine veränderte Projektrevision sperrt Übernehmen sofort sichtbar.",
+    "description": "Das Warnband ist unabhängig vom Hinweis auf noch nicht übernommene Eingaben. Sessioncommit, Undo/Redo, Projektwechsel oder externer Dateikonflikt erhalten die Eingaben. Speichern führt kein Rebase aus. Im Entwurf bleiben bewahrt alle Werte.",
+    "example": "Toolbar-Anzeigename ändert die Session; offenes Formular zeigt die Warnung vor Apply.",
+    "related_topics": [
+      "inspector.refresh",
+      "inspector.apply"
+    ]
+  },
+  {
+    "topic_id": "inspector.refresh",
+    "title": "Entwurf verwerfen und aktualisieren",
+    "summary": "Lade bewusst die aktuelle Action-ID neu.",
+    "description": "Der Befehl verwirft die Formulareingaben und liest die aktuelle Sessionrevision derselben ID. Eine entfernte Action ergibt einen erklärten Leerzustand. Bei externem Dateikonflikt muss zusätzlich das Projekt bewusst neu geladen werden. Ein Create-Entwurf wird verworfen.",
+    "example": "Entwurf verwerfen / aktuelle Daten neu laden.",
+    "related_topics": [
+      "inspector.stale",
+      "inspector.discard",
+      "native_shell.reload"
+    ]
+  }
+]

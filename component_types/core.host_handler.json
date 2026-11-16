@@ -1,0 +1,11 @@
+{
+  "type_id": "core.host_handler",
+  "version": "1.0.0",
+  "config_schema": {
+    "type": "object",
+    "required": ["callback_id"],
+    "properties": {"callback_id": {"type": "string"}},
+    "additionalProperties": false
+  },
+  "ports": [{"id": "invoke", "direction": "in", "kind": "command", "payload_schema": {"type": "object", "properties": {}, "additionalProperties": false}}]
+}

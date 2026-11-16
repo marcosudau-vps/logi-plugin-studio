@@ -1,0 +1,129 @@
+namespace $NAMESPACE$
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
+    using Loupedeck;
+
+    internal static class NativePlacement
+    {
+        private static readonly AsyncLocal<string> Current = new();
+        internal static string Id => Current.Value;
+        internal static event Action Changed;
+        internal static void Notify() => Changed?.Invoke();
+        internal static bool Invoke(string placement, Func<bool> call)
+        {
+            var prior = Current.Value;
+            try { Current.Value = placement; return call(); }
+            finally { Current.Value = prior; }
+        }
+    }
+
+    internal static class SdkLabels
+    {
+        // A parameterised SDK command is shown by its SDK parameter display name
+        // (as in the Options+ action picker); stateful commands keep their state name.
+        public static string ForEntry(PluginDynamicAction action, string parameter, PluginImageSize size)
+        {
+            if (action == null) return null;
+            if (parameter != null && !(action is PluginMultistateDynamicCommand)
+                && action.TryGetParameters(out var parameters))
+            {
+                var label = parameters.FirstOrDefault(p => p.Name == parameter)?.DisplayName;
+                if (!String.IsNullOrEmpty(label)) return label;
+            }
+            return action.TryGetCommandDisplayName(parameter, size, out var text) ? text : null;
+        }
+    }
+
+    public abstract class StaticSdkFolder : PluginDynamicFolder
+    {
+        protected sealed record Placement(string Id, string ActionType, string Parameter, bool Adjustment, bool Reset);
+        protected abstract IReadOnlyList<Placement> Entries { get; }
+
+        public override bool Load()
+        {
+            Bridge.Changed += Repaint;
+            NativePlacement.Changed += Repaint;
+            return true;
+        }
+        public override bool Unload()
+        {
+            Bridge.Changed -= Repaint;
+            NativePlacement.Changed -= Repaint;
+            return true;
+        }
+        public override IEnumerable<string> GetButtonPressActionNames(DeviceType deviceType)
+        {
+            var names = Entries.Where(e => !e.Adjustment).Select(e => CreateCommandName(e.Id));
+            return GetNavigationArea(deviceType) == PluginDynamicFolderNavigation.None
+                ? names.Concat(new[]{NavigateUpActionName, NavigateLeftActionName, NavigateRightActionName}).ToArray()
+                : names.ToArray();
+        }
+        public override IEnumerable<string> GetEncoderRotateActionNames(DeviceType deviceType)
+            => GetNavigationArea(deviceType) == PluginDynamicFolderNavigation.EncoderArea ? Array.Empty<string>()
+                : Entries.Where(e => e.Adjustment).Select(e => CreateAdjustmentName(e.Id)).ToArray();
+        public override IEnumerable<string> GetEncoderPressActionNames(DeviceType deviceType)
+            => GetNavigationArea(deviceType) == PluginDynamicFolderNavigation.EncoderArea ? Array.Empty<string>()
+                : Entries.Where(e => e.Adjustment && e.Reset).Select(e => CreateCommandName(e.Id)).ToArray();
+
+        private Placement Find(string name, bool adjustment)
+            => Entries.FirstOrDefault(e => (!adjustment || e.Adjustment)
+                && (name == e.Id || name == (adjustment ? CreateAdjustmentName(e.Id) : CreateCommandName(e.Id))));
+        private PluginDynamicAction Action(Placement e)
+            => e == null ? null : Plugin?.GetActions().OfType<PluginDynamicAction>()
+                .FirstOrDefault(a => a.GetType().FullName == e.ActionType);
+        public override void RunCommand(string name)
+        {
+            var e = Find(name, false);
+            if (Action(e) is PluginDynamicAction a && (!e.Adjustment || e.Reset))
+                NativePlacement.Invoke(e.Id, () => a.TryRunCommand(e.Parameter));
+        }
+        public override void ApplyAdjustment(string name, int diff)
+        {
+            var e = Find(name, true);
+            if (Action(e) is PluginDynamicAdjustment a)
+                NativePlacement.Invoke(e.Id, () => a.TryApplyAdjustment(e.Parameter, diff));
+        }
+        public override string GetCommandDisplayName(string name, PluginImageSize size)
+        {
+            var e = Find(name, false);
+            return SdkLabels.ForEntry(Action(e), e?.Parameter, size);
+        }
+        public override BitmapImage GetCommandImage(string name, PluginImageSize size)
+        {
+            var e = Find(name, false);
+            return Action(e) is PluginDynamicAction a && a.TryGetCommandImage(e.Parameter, size, out var image) ? image : null;
+        }
+        public override string GetAdjustmentDisplayName(string name, PluginImageSize size)
+        {
+            var e = Find(name, true);
+            return Action(e) is PluginDynamicAdjustment a ? a.TryGetAdjustmentDisplayName(e.Parameter, size) : null;
+        }
+        public override BitmapImage GetAdjustmentImage(string name, PluginImageSize size)
+        {
+            var e = Find(name, true);
+            return Action(e) is PluginDynamicAdjustment a && a.TryGetAdjustmentImage(e.Parameter, size, out var image) ? image : null;
+        }
+        public override PluginAdjustmentValue GetAdjustmentValueData(string name)
+        {
+            var e = Find(name, true);
+            return Action(e) is PluginDynamicAdjustment a && a.TryGetAdjustmentValue(e.Parameter, out var value) ? value : null;
+        }
+        public override string GetAdjustmentValue(string name) => GetAdjustmentValueData(name)?.GetValueString();
+        private void Repaint()
+        {
+            foreach (var e in Entries)
+            {
+                if (e.Adjustment)
+                {
+                    var name = CreateAdjustmentName(e.Id);
+                    AdjustmentImageChanged(name);
+                    AdjustmentValueChanged(name);
+                }
+                else CommandImageChanged(CreateCommandName(e.Id));
+            }
+        }
+    }
+}

@@ -1,0 +1,564 @@
+namespace $NAMESPACE$
+{
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Security.Cryptography;
+    using System.Text;
+    using System.Text.Json;
+    using System.Threading;
+    using System.Threading.Tasks;
+
+    internal sealed class Connection
+    {
+        public int Port;
+        public string Secret;
+        public string InstallationId;
+
+        public static Connection Read(string path)
+        {
+            var root = Bridge.Parse(File.ReadAllBytes(path));
+            var keys = root.EnumerateObject().Select(p => p.Name).ToHashSet();
+            if (!keys.SetEquals(new[] { "protocol", "plugin_id", "project_hash", "port", "secret", "installation_id" }) ||
+                root.GetProperty("protocol").GetString() != "studio-local-1" ||
+                root.GetProperty("plugin_id").GetString() != Spec.PluginId ||
+                root.GetProperty("project_hash").GetString() != Spec.ProjectHash)
+                throw new InvalidDataException("Connection configuration does not match this plugin");
+            var value = new Connection {
+                Port = root.GetProperty("port").GetInt32(),
+                Secret = root.GetProperty("secret").GetString(),
+                InstallationId = root.GetProperty("installation_id").GetString()
+            };
+            if (value.Port < 1024 || value.Port > 65535 ||
+                !Bridge.IsHex(value.Secret, 64) || !Bridge.IsHex(value.InstallationId, 32))
+                throw new InvalidDataException("Invalid connection port or key format");
+            return value;
+        }
+    }
+
+    internal sealed class PendingCommand
+    {
+        public string Id = Guid.NewGuid().ToString("N");
+        public string Component;
+        public string Placement;
+        public string ActionParameter;
+        public string Operation;
+        public int? AdjustmentDiff;
+        public Dictionary<string, object> EditorValues;
+        public string Runtime;
+        public string Session;
+    }
+
+    internal static class Bridge
+    {
+        private static readonly object Gate = new object();
+        private static readonly Queue<PendingCommand> Commands = new Queue<PendingCommand>();
+        private static readonly Dictionary<string, JsonElement> Expected =
+            Parse(Encoding.UTF8.GetBytes(Spec.InitialStates)).EnumerateObject().ToDictionary(p => p.Name, p => p.Value.Clone());
+        private static Dictionary<string, JsonElement> _states = new Dictionary<string, JsonElement>();
+        private static CancellationTokenSource _cancel;
+        private static Task _task;
+        private static bool _ready;
+        private static string _runtime = "";
+        private static string _session = "";
+        private static string _epoch = "";
+        private static long _cursor;
+        private static string _lastResult = "";
+        public static event Action Changed;
+        // Generic authenticated transport notifications. Optional SDK extensions
+        // interpret payloads in their own modules; this bridge knows no folder model.
+        public static event Action<string, JsonElement> SnapshotReceived;
+        public static event Action<string, JsonElement> JournalEventReceived;
+        public static string RuntimeIdentity => _runtime;
+        public static bool Ready { get { lock (Gate) return _ready; } }
+
+        public static bool IsHex(string value, int length) =>
+            value != null && value.Length == length && value.All(c => (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'));
+
+        public static JsonElement Parse(byte[] bytes)
+        {
+            if (bytes.Length > 1048576) throw new InvalidDataException("Response too large");
+            using var document = JsonDocument.Parse(bytes, new JsonDocumentOptions { MaxDepth = 32 });
+            CheckJson(document.RootElement);
+            return document.RootElement.Clone();
+        }
+
+        private static void CheckJson(JsonElement value)
+        {
+            if (value.ValueKind == JsonValueKind.Object)
+            {
+                var names = new HashSet<string>();
+                foreach (var property in value.EnumerateObject())
+                {
+                    if (!names.Add(property.Name)) throw new InvalidDataException("Duplicate JSON property");
+                    CheckJson(property.Value);
+                }
+            }
+            else if (value.ValueKind == JsonValueKind.Array)
+                foreach (var child in value.EnumerateArray()) CheckJson(child);
+        }
+
+        // The Logitech loader may load plugin assemblies from bytes, making
+        // Assembly.Location empty. Plugin.AssemblyFilePath is supplied by the SDK.
+        // Keeping the connection beside the actual DLL also works for linked
+        // developer packages and later user installations.
+        public static string ConnectionPathForAssembly(string assemblyFilePath)
+        {
+            if (String.IsNullOrWhiteSpace(assemblyFilePath) ||
+                !Path.IsPathFullyQualified(assemblyFilePath))
+                return null;
+            string directory = Path.GetDirectoryName(assemblyFilePath);
+            return String.IsNullOrWhiteSpace(directory) ? null :
+                Path.Combine(directory, "studio.connection.json");
+        }
+
+        public static void StartFromPluginAssembly(string assemblyFilePath)
+        {
+            string path = ConnectionPathForAssembly(assemblyFilePath);
+            if (path == null)
+            {
+                Log("CONNECTION_PATH_UNAVAILABLE");
+                return;
+            }
+            Start(path);
+        }
+
+        public static void Start(string connectionPath = null)
+        {
+            string path = connectionPath ?? ConnectionPathForAssembly(typeof(Bridge).Assembly.Location);
+            if (String.IsNullOrWhiteSpace(path))
+            {
+                Log("CONNECTION_PATH_UNAVAILABLE");
+                return;
+            }
+            lock (Gate)
+            {
+                if (_cancel != null) return;
+                _cancel = new CancellationTokenSource();
+                var token = _cancel.Token;
+                _task = Task.Run(() => RunAsync(path, token));
+            }
+        }
+
+        public static void Stop()
+        {
+            lock (Gate) _cancel?.Cancel();
+        }
+
+        public static async Task StopAsync()
+        {
+            Task task;
+            lock (Gate) { _cancel?.Cancel(); task = _task; }
+            if (task != null) await task.ConfigureAwait(false);
+        }
+
+        public static bool Dispatch(string component, string placement = null, string actionParameter = null,
+                                    string operation = "command", int? adjustmentDiff = null,
+                                    Dictionary<string, object> editorValues = null)
+        {
+            lock (Gate)
+            {
+                if (!_ready || Commands.Count >= 64)
+                {
+                    _lastResult = "COMMAND_REJECTED_OFFLINE_OR_BUSY";
+                    return false;
+                }
+                Commands.Enqueue(new PendingCommand {
+                    Component = component, Placement = placement, ActionParameter = actionParameter,
+                    Operation = operation, AdjustmentDiff = adjustmentDiff, EditorValues = editorValues,
+                    Runtime = _runtime, Session = _session
+                });
+                return true;
+            }
+        }
+
+        public static JsonElement State(string key)
+        {
+            lock (Gate)
+                return _states.TryGetValue(key, out var value) ? value.Clone() : Expected[key].Clone();
+        }
+
+        public static string Inspect()
+        {
+            lock (Gate) return JsonSerializer.Serialize(new {
+                ready = _ready, runtime_instance_id = _runtime, session_id = _session,
+                seq = _cursor, states = _states, last_result = _lastResult
+            });
+        }
+
+        public static void Log(string code, string detail = "")
+        {
+            // SDK callbacks do not write files or perform network IO.
+            System.Diagnostics.Trace.WriteLine("[studio] " + code + " " + detail);
+            Console.Error.WriteLine("[studio] " + code + " " + detail);
+        }
+
+        private static void Notify()
+        {
+            var listeners = Changed;
+            if (listeners == null) return;
+            foreach (Action listener in listeners.GetInvocationList())
+            {
+                try { listener(); }
+                catch (Exception error) { Log("SDK_NOTIFICATION_FAILED", error.GetType().Name + ": " + error.Message); }
+            }
+        }
+
+        private static void Offline(string code)
+        {
+            lock (Gate)
+            {
+                _ready = false;
+                foreach (var key in _states.Keys.ToArray())
+                {
+                    var row = _states[key].EnumerateObject().ToDictionary(p => p.Name, p => (object)p.Value.Clone());
+                    row["quality"] = _states[key].GetProperty("has_value").GetBoolean() ? "stale" : "unknown";
+                    _states[key] = JsonSerializer.SerializeToElement(row);
+                }
+                while (Commands.Count > 0)
+                {
+                    var command = Commands.Dequeue();
+                    Log("COMMAND_NOT_SENT", command.Id);
+                }
+                _lastResult = code;
+            }
+            Notify();
+        }
+
+        private static string Mac(Connection connection, string prefix, byte[] body)
+        {
+            var leading = Encoding.ASCII.GetBytes(prefix);
+            var data = new byte[leading.Length + body.Length];
+            Buffer.BlockCopy(leading, 0, data, 0, leading.Length);
+            Buffer.BlockCopy(body, 0, data, leading.Length, body.Length);
+            return Convert.ToHexStringLower(HMACSHA256.HashData(Convert.FromHexString(connection.Secret), data));
+        }
+
+        private static async Task<JsonElement> Request(HttpClient http, Connection connection, string path,
+                                                       Dictionary<string, object> fields, CancellationToken token)
+        {
+            using var deadline = CancellationTokenSource.CreateLinkedTokenSource(token);
+            deadline.CancelAfter(TimeSpan.FromSeconds(2));
+            token = deadline.Token;
+            var message = new Dictionary<string, object>(fields) {
+                ["protocol"] = "studio-local-1", ["plugin_id"] = Spec.PluginId,
+                ["project_hash"] = Spec.ProjectHash, ["installation_id"] = connection.InstallationId,
+                ["sent_at"] = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+            };
+            var bytes = JsonSerializer.SerializeToUtf8Bytes(message);
+            if (bytes.Length > 65536) throw new InvalidDataException("Request too large");
+            string nonce = Guid.NewGuid().ToString("N");
+            using var request = new HttpRequestMessage(HttpMethod.Post, new Uri($"http://127.0.0.1:{connection.Port}" + path));
+            request.Content = new ByteArrayContent(bytes);
+            request.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+            request.Content.Headers.ContentLength = bytes.Length;
+            request.Headers.Add("X-Studio-Nonce", nonce);
+            request.Headers.Add("X-Studio-Signature", Mac(connection, path + "\n" + nonce + "\n", bytes));
+            using var response = await http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token).ConfigureAwait(false);
+            if (response.Content.Headers.ContentLength > 1048576)
+                throw new InvalidDataException("Response too large");
+            using var stream = await response.Content.ReadAsStreamAsync(token).ConfigureAwait(false);
+            using var buffer = new MemoryStream();
+            var chunk = new byte[8192];
+            int count;
+            while ((count = await stream.ReadAsync(chunk.AsMemory(), token).ConfigureAwait(false)) > 0)
+            {
+                if (buffer.Length + count > 1048576) throw new InvalidDataException("Response too large");
+                buffer.Write(chunk, 0, count);
+            }
+            var data = buffer.ToArray();
+            string supplied = response.Headers.TryGetValues("X-Studio-Signature", out var values) ? values.SingleOrDefault() : "";
+            string expected = Mac(connection, nonce + "\n", data);
+            if (!IsHex(supplied, 64) ||
+                !CryptographicOperations.FixedTimeEquals(Convert.FromHexString(supplied), Convert.FromHexString(expected)))
+                throw new InvalidDataException("HOST_UNTRUSTED: response signature failed");
+            var root = Parse(data);
+            if (root.GetProperty("protocol").GetString() != "studio-local-1" ||
+                root.GetProperty("plugin_id").GetString() != Spec.PluginId)
+                throw new InvalidDataException("HOST_UNTRUSTED: response identity failed");
+            if (!response.IsSuccessStatusCode)
+                throw new InvalidDataException(root.GetProperty("code").GetString());
+            return root;
+        }
+
+        private static Dictionary<string, object> SessionFields() =>
+            new Dictionary<string, object> { ["session_id"] = _session, ["runtime_instance_id"] = _runtime };
+
+        private static void ValidateRow(string key, JsonElement row, string epoch)
+        {
+            if (!Expected.TryGetValue(key, out var expected))
+                throw new InvalidDataException("Unknown scoped state");
+            var keys = row.EnumerateObject().Select(p => p.Name).ToHashSet();
+            if (!keys.IsSupersetOf(new[] { "state_id", "scope", "value", "has_value", "quality", "revision", "epoch", "epoch_seq" }))
+                throw new InvalidDataException("Missing state metadata");
+            if (row.GetProperty("state_id").GetString() != expected.GetProperty("state_id").GetString() ||
+                row.GetProperty("scope").GetRawText() != expected.GetProperty("scope").GetRawText() ||
+                row.GetProperty("epoch").GetString() != epoch ||
+                row.GetProperty("revision").GetInt64() < 0 || row.GetProperty("epoch_seq").GetInt64() < 0)
+                throw new InvalidDataException("Invalid state identity or revision");
+            bool hasValue = row.GetProperty("has_value").GetBoolean();
+            string quality = row.GetProperty("quality").GetString();
+            if ((!hasValue && quality != "unknown") || (hasValue && quality != "fresh" && quality != "stale"))
+                throw new InvalidDataException("Contradictory state quality");
+            if (hasValue) ValidateValue(row.GetProperty("state_id").GetString(), row.GetProperty("value"));
+        }
+
+        private static void ValidateValue(string stateId, JsonElement value)
+        {
+            var definitions = Parse(Encoding.UTF8.GetBytes(Spec.StateDefinitions));
+            var schema = definitions.GetProperty(stateId).GetProperty("value_schema");
+            ValidateSchema(value, schema);
+        }
+
+        private static void ValidateSchema(JsonElement value, JsonElement schema)
+        {
+            if (schema.TryGetProperty("enum", out var choices) &&
+                !choices.EnumerateArray().Any(v => JsonElement.DeepEquals(v, value)))
+                throw new InvalidDataException("State value outside declared enum");
+            if (schema.TryGetProperty("const", out var constant) && !JsonElement.DeepEquals(constant, value))
+                throw new InvalidDataException("State value differs from const");
+            if (schema.TryGetProperty("type", out var type))
+            {
+                string name = type.GetString();
+                bool valid = name switch {
+                    "string" => value.ValueKind == JsonValueKind.String,
+                    "boolean" => value.ValueKind == JsonValueKind.True || value.ValueKind == JsonValueKind.False,
+                    "null" => value.ValueKind == JsonValueKind.Null,
+                    "integer" => value.ValueKind == JsonValueKind.Number &&
+                        System.Text.RegularExpressions.Regex.IsMatch(value.GetRawText(), @"^-?[0-9]+$"),
+                    "number" => value.ValueKind == JsonValueKind.Number,
+                    "array" => value.ValueKind == JsonValueKind.Array,
+                    "object" => value.ValueKind == JsonValueKind.Object,
+                    _ => false
+                };
+                if (!valid) throw new InvalidDataException("State value type mismatch");
+            }
+            if (value.ValueKind == JsonValueKind.String)
+            {
+                int length = value.GetString().EnumerateRunes().Count();
+                if ((schema.TryGetProperty("minLength", out var minimum) && length < minimum.GetInt32()) ||
+                    (schema.TryGetProperty("maxLength", out var maximum) && length > maximum.GetInt32()))
+                    throw new InvalidDataException("State string length is outside its contract");
+            }
+            if (value.ValueKind == JsonValueKind.Number)
+            {
+                if ((schema.TryGetProperty("minimum", out var minimum) && CompareNumber(value, minimum) < 0) ||
+                    (schema.TryGetProperty("maximum", out var maximum) && CompareNumber(value, maximum) > 0))
+                    throw new InvalidDataException("State number is outside its contract");
+            }
+            if (value.ValueKind == JsonValueKind.Array)
+            {
+                int length = value.GetArrayLength();
+                if ((schema.TryGetProperty("minItems", out var minimum) && length < minimum.GetInt32()) ||
+                    (schema.TryGetProperty("maxItems", out var maximum) && length > maximum.GetInt32()))
+                    throw new InvalidDataException("State array length is outside its contract");
+                if (schema.TryGetProperty("items", out var itemSchema))
+                    foreach (var item in value.EnumerateArray()) ValidateSchema(item, itemSchema);
+            }
+            if (value.ValueKind == JsonValueKind.Object)
+            {
+                if (schema.TryGetProperty("required", out var required))
+                    foreach (var name in required.EnumerateArray())
+                        if (!value.TryGetProperty(name.GetString(), out _))
+                            throw new InvalidDataException("State object is missing a required field");
+                bool hasProperties = schema.TryGetProperty("properties", out var properties);
+                bool hasAdditional = schema.TryGetProperty("additionalProperties", out var additional);
+                foreach (var field in value.EnumerateObject())
+                {
+                    if (hasProperties && properties.TryGetProperty(field.Name, out var fieldSchema))
+                        ValidateSchema(field.Value, fieldSchema);
+                    else if (hasAdditional && additional.ValueKind == JsonValueKind.False)
+                        throw new InvalidDataException("State object has an unexpected field");
+                    else if (hasAdditional && additional.ValueKind == JsonValueKind.Object)
+                        ValidateSchema(field.Value, additional);
+                }
+            }
+        }
+
+        private static int CompareNumber(JsonElement left, JsonElement right)
+        {
+            string a = left.GetRawText(), b = right.GetRawText();
+            if (System.Text.RegularExpressions.Regex.IsMatch(a, @"^-?[0-9]+$") &&
+                System.Text.RegularExpressions.Regex.IsMatch(b, @"^-?[0-9]+$"))
+                return System.Numerics.BigInteger.Parse(a).CompareTo(System.Numerics.BigInteger.Parse(b));
+            double x = left.GetDouble(), y = right.GetDouble();
+            if (!double.IsFinite(x) || !double.IsFinite(y))
+                throw new InvalidDataException("Numeric comparison exceeds finite wire precision");
+            return x.CompareTo(y);
+        }
+
+        private static void ApplySnapshot(JsonElement response)
+        {
+            var snapshot = response.GetProperty("snapshot");
+            string epoch = snapshot.GetProperty("epoch").GetString();
+            if (snapshot.GetProperty("runtime_instance_id").GetString() != _runtime ||
+                snapshot.GetProperty("project_id").GetString() != Spec.PluginId || !IsHex(epoch, 32))
+                throw new InvalidDataException("Snapshot origin mismatch");
+            var candidate = snapshot.GetProperty("states").EnumerateObject().ToDictionary(p => p.Name, p => p.Value.Clone());
+            if (!candidate.Keys.ToHashSet().SetEquals(Expected.Keys))
+                throw new InvalidDataException("Snapshot is not complete");
+            foreach (var pair in candidate) ValidateRow(pair.Key, pair.Value, epoch);
+            long cursor = response.GetProperty("seq").GetInt64();
+            if (cursor < 0) throw new InvalidDataException("Invalid snapshot position");
+            // Extension validation may reject a snapshot before any state is committed.
+            SnapshotReceived?.Invoke(_runtime, response);
+            lock (Gate)
+            {
+                if (_epoch == epoch)
+                    foreach (var pair in candidate)
+                        if (_states.TryGetValue(pair.Key, out var old) &&
+                            pair.Value.GetProperty("revision").GetInt64() < old.GetProperty("revision").GetInt64())
+                            throw new InvalidDataException("Snapshot revision went backwards");
+                _states = candidate;
+                _epoch = epoch;
+                _cursor = cursor;
+                _ready = true;
+            }
+            Notify();
+        }
+
+        private static void ApplyPoll(JsonElement response)
+        {
+            if (response.GetProperty("resync").GetBoolean())
+                throw new InvalidDataException("STREAM_GAP: snapshot required");
+            bool changed = false;
+            var journalEvents = new List<JsonElement>();
+            lock (Gate)
+            {
+                long cursor = _cursor;
+                var staged = new Dictionary<string, JsonElement>(_states);
+                foreach (var entry in response.GetProperty("entries").EnumerateArray())
+                {
+                    if (entry.GetProperty("seq").GetInt64() != cursor + 1)
+                        throw new InvalidDataException("STREAM_GAP");
+                    string kind = entry.GetProperty("kind").GetString();
+                    var data = entry.GetProperty("data");
+                    if (kind == "state")
+                    {
+                        string key = data.GetProperty("scope_key").GetString();
+                        ValidateRow(key, data, _epoch);
+                        if (!staged.TryGetValue(key, out var previous) ||
+                            data.GetProperty("revision").GetInt64() != previous.GetProperty("revision").GetInt64() + 1)
+                            throw new InvalidDataException("STATE_REVISION_GAP");
+                        staged[key] = data.Clone();
+                        changed = true;
+                    }
+                    else if (kind == "command_result")
+                    {
+                        _lastResult = data.GetProperty("status").GetString();
+                        Log("COMMAND_RESULT", data.GetProperty("command_id").GetString() + " " + _lastResult);
+                    }
+                    else if (kind == "event")
+                    {
+                        // Signed host journal event: preserve the original event envelope.
+                        // No domain-specific event name or payload is interpreted here.
+                        journalEvents.Add(data.Clone());
+                    }
+                    else throw new InvalidDataException("Unknown journal event");
+                    cursor++;
+                }
+                if (response.GetProperty("seq").GetInt64() != cursor)
+                    throw new InvalidDataException("Poll cursor mismatch");
+                _states = staged;
+                _cursor = cursor;
+            }
+            foreach (var evt in journalEvents)
+                JournalEventReceived?.Invoke(_runtime, evt);
+            if (changed) Notify();
+        }
+
+        private static bool Recoverable(Exception error) =>
+            error is InvalidDataException || error is IOException || error is UnauthorizedAccessException || error is HttpRequestException ||
+            error is JsonException || error is InvalidOperationException || error is KeyNotFoundException ||
+            error is FormatException || error is ArgumentException || error is OverflowException || error is OperationCanceledException;
+
+        private static async Task RunAsync(string path, CancellationToken token)
+        {
+            using var handler = new HttpClientHandler { UseProxy = false, AllowAutoRedirect = false };
+            using var http = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(2) };
+            Connection connection = null;
+            try
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    try
+                    {
+                        connection ??= Connection.Read(path);
+                        if (!Ready)
+                        {
+                            var welcome = await Request(http, connection, "/v1/handshake",
+                                                        new Dictionary<string, object>(), token).ConfigureAwait(false);
+                            string runtime = welcome.GetProperty("runtime_instance_id").GetString();
+                            string session = welcome.GetProperty("session_id").GetString();
+                            if (!IsHex(runtime, 32) || !IsHex(session, 32))
+                                throw new InvalidDataException("Invalid runtime or session identity");
+                            lock (Gate)
+                            {
+                                if (_runtime != runtime) { _states.Clear(); _epoch = ""; _cursor = 0; }
+                                _runtime = runtime;
+                                _session = session;
+                            }
+                            var baseline = await Request(http, connection, "/v1/snapshot", SessionFields(), token).ConfigureAwait(false);
+                            ApplySnapshot(baseline);
+                            Log("HOST_READY", runtime);
+                        }
+                        PendingCommand command = null;
+                        lock (Gate) { if (Commands.Count > 0) command = Commands.Dequeue(); }
+                        if (command != null)
+                        {
+                            if (command.Runtime != _runtime || command.Session != _session)
+                                Log("COMMAND_NOT_SENT_STALE_SESSION", command.Id);
+                            else
+                            {
+                                var fields = SessionFields();
+                                fields["command_id"] = command.Id;
+                                fields["component_id"] = command.Component;
+                                fields["placement_id"] = command.Placement;
+                                fields["payload"] = new Dictionary<string, object>();
+                                fields["action_parameter"] = command.ActionParameter;
+                                fields["operation"] = command.Operation;
+                                fields["adjustment_diff"] = command.AdjustmentDiff;
+                                fields["editor_values"] = command.EditorValues;
+                                try
+                                {
+                                    var accepted = await Request(http, connection, "/v1/command", fields, token).ConfigureAwait(false);
+                                    if (accepted.GetProperty("command_id").GetString() != command.Id)
+                                        throw new InvalidDataException("Command correlation mismatch");
+                                    Log("COMMAND_ACCEPTED", command.Id + " " + accepted.GetProperty("status").GetString());
+                                }
+                                catch (Exception error) when (Recoverable(error))
+                                {
+                                    Log("COMMAND_UNKNOWN_OUTCOME_NO_RETRY", command.Id);
+                                    throw;
+                                }
+                            }
+                        }
+                        var pollFields = SessionFields();
+                        pollFields["after"] = _cursor;
+                        ApplyPoll(await Request(http, connection, "/v1/poll", pollFields, token).ConfigureAwait(false));
+                    }
+                    catch (OperationCanceledException) when (token.IsCancellationRequested) { break; }
+                    catch (Exception error) when (Recoverable(error))
+                    {
+                        Offline(error.Message);
+                        Log("HOST_DEGRADED", error.GetType().Name + ": " + error.Message);
+                    }
+                    await Task.Delay(250, token).ConfigureAwait(false);
+                }
+            }
+            catch (OperationCanceledException) when (token.IsCancellationRequested) { }
+            catch (Exception error)
+            {
+                Log("BRIDGE_FATAL", error.GetType().Name + ": " + error.Message);
+                throw;
+            }
+            finally
+            {
+                Offline("HOST_STOPPED");
+                lock (Gate) { _cancel.Dispose(); _cancel = null; }
+            }
+        }
+    }
+}

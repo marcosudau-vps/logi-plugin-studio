@@ -1,0 +1,25 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permissions": [
+    {
+      "action": "external_directory",
+      "resource": "*",
+      "effect": "ask"
+    },
+    {
+      "action": "external_directory",
+      "resource": "P:/LokaleProjekte/logi_actions_sdk/SDK-TestLab/Logi_SDK_Lab_v0.1.4/logi_sdk_lab_v014/plugin/src/*",
+      "effect": "allow"
+    },
+    {
+      "action": "read",
+      "resource": "P:/LokaleProjekte/logi_actions_sdk/SDK-TestLab/Logi_SDK_Lab_v0.1.4/logi_sdk_lab_v014/plugin/src/*",
+      "effect": "allow"
+    },
+    {
+      "action": "edit",
+      "resource": "P:/LokaleProjekte/logi_actions_sdk/SDK-TestLab/Logi_SDK_Lab_v0.1.4/logi_sdk_lab_v014/plugin/src/*",
+      "effect": "deny"
+    }
+  ]
+}

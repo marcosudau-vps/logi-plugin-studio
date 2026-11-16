@@ -1,0 +1,607 @@
+{
+  "work_package": "AP-HELP-001",
+  "status": "READY_FOR_REVIEW",
+  "date": "2026-11-06",
+  "implementation": "src/studio/native_shell/help_bindings.py",
+  "default_catalog": "16 unveränderte Topics; 26 additive Topics; global eindeutige IDs",
+  "surfaces": [
+    {
+      "id": "explorer.tree",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "explorer.tree/nativeProjectExplorerTree",
+      "trigger": "FocusIn; Gruppe; Auswahlverlust",
+      "topic_id": "explorer",
+      "owner": "explorer",
+      "dynamic_facts": "keine",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_explorer_groups_and_loss"
+    },
+    {
+      "id": "explorer.search",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "explorer.search_edit/nativeProjectExplorerSearch",
+      "trigger": "FocusIn; textChanged",
+      "topic_id": "explorer.search",
+      "owner": "explorer",
+      "dynamic_facts": "Suchlänge",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_explorer_search"
+    },
+    {
+      "id": "explorer.reset",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "explorer.reset_button (explizites Qt-Objekt)",
+      "trigger": "FocusIn; Klick",
+      "topic_id": "explorer.search",
+      "owner": "explorer",
+      "dynamic_facts": "Suchlänge",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_explorer_reset"
+    },
+    {
+      "id": "explorer.plugin",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "explorer.tree/plugin",
+      "trigger": "Maus; FocusIn",
+      "topic_id": "explorer.plugin",
+      "owner": "explorer",
+      "dynamic_facts": "native Plugin-ID",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_explorer_entities"
+    },
+    {
+      "id": "explorer.action",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "explorer.tree/action",
+      "trigger": "Maus; FocusIn",
+      "topic_id": "action.definition",
+      "owner": "catalog",
+      "dynamic_facts": "native ID",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_explorer_entities"
+    },
+    {
+      "id": "explorer.handler",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "explorer.tree/handler",
+      "trigger": "Maus; FocusIn",
+      "topic_id": "explorer.handler",
+      "owner": "explorer",
+      "dynamic_facts": "native Handler-ID",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_explorer_entities"
+    },
+    {
+      "id": "explorer.folder",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "explorer.tree/folder",
+      "trigger": "Maus; FocusIn",
+      "topic_id": "explorer.folder",
+      "owner": "explorer",
+      "dynamic_facts": "native Folder-ID",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_explorer_entities"
+    },
+    {
+      "id": "explorer.entry",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "explorer.tree/folder_entry",
+      "trigger": "Maus; FocusIn",
+      "topic_id": "explorer.folder_entry",
+      "owner": "explorer",
+      "dynamic_facts": "Placement-ID; referenzierte Action-ID",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_explorer_entities"
+    },
+    {
+      "id": "catalog.tree",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "catalog.catalog_tree/actionCatalogTree",
+      "trigger": "FocusIn; Gruppenauswahl; leer",
+      "topic_id": "catalog",
+      "owner": "catalog",
+      "dynamic_facts": "sichtbare Angebote",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_catalog_definition_and_loss"
+    },
+    {
+      "id": "catalog.definition",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "catalog.catalog_tree/Definition",
+      "trigger": "Maus; FocusIn",
+      "topic_id": "action.definition",
+      "owner": "catalog",
+      "dynamic_facts": "native ID",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_catalog_definition_and_loss"
+    },
+    {
+      "id": "catalog.parameter",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "catalog.catalog_tree/Parameter",
+      "trigger": "Maus; FocusIn",
+      "topic_id": "catalog.parameter",
+      "owner": "catalog",
+      "dynamic_facts": "native ID; exakter Parametername",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_catalog_parameter"
+    },
+    {
+      "id": "catalog.search",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "catalog.search_edit/actionCatalogSearch",
+      "trigger": "FocusIn; textChanged",
+      "topic_id": "catalog.search",
+      "owner": "catalog",
+      "dynamic_facts": "Suchlänge; sichtbare Angebote",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_catalog_search"
+    },
+    {
+      "id": "catalog.type",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "catalog.type_combo/actionCatalogTypeFilter",
+      "trigger": "FocusIn; currentIndexChanged",
+      "topic_id": "catalog.type_filter",
+      "owner": "catalog",
+      "dynamic_facts": "geprüfter SDK-Typ; sichtbare Angebote",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_catalog_type"
+    },
+    {
+      "id": "catalog.sort",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "catalog.sort_button/actionCatalogSort",
+      "trigger": "FocusIn; toggled",
+      "topic_id": "catalog.sort",
+      "owner": "catalog",
+      "dynamic_facts": "Reihenfolge",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_catalog_sort"
+    },
+    {
+      "id": "catalog.edit",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "catalog.edit_button/actionCatalogEdit",
+      "trigger": "FocusIn; Dialog",
+      "topic_id": "catalog.edit",
+      "owner": "catalog",
+      "dynamic_facts": "native Action-ID; verfügbar",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_catalog_edit"
+    },
+    {
+      "id": "catalog.new",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "catalog.new_action_button/actionCatalogNew",
+      "trigger": "ToolTip (deaktiviert)",
+      "topic_id": "catalog.create_unavailable",
+      "owner": "catalog",
+      "dynamic_facts": "Sperrgrund",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_disabled_capabilities"
+    },
+    {
+      "id": "catalog.reset",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "catalog.reset_filter_button (explizites Qt-Objekt)",
+      "trigger": "FocusIn; Klick",
+      "topic_id": "catalog.search",
+      "owner": "catalog",
+      "dynamic_facts": "Suchlänge; sichtbare Angebote",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_catalog_reset"
+    },
+    {
+      "id": "problems.search",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "problems.search_field/problemsSearch",
+      "trigger": "FocusIn; textChanged",
+      "topic_id": "problems.filters",
+      "owner": "problems",
+      "dynamic_facts": "Suchlänge; sichtbare Meldungen",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_problems_search"
+    },
+    {
+      "id": "problems.table",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "problems.problems_table/problemsTable",
+      "trigger": "FocusIn; Auswahl; Enter",
+      "topic_id": "problems.diagnostic",
+      "owner": "problems",
+      "dynamic_facts": "geprüfter Code; Schweregrad; kein Pfad",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_problems_diagnostic"
+    },
+    {
+      "id": "problems.details",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "problems.detail_view/problemsDetail",
+      "trigger": "FocusIn; F1",
+      "topic_id": "problems.diagnostic",
+      "owner": "problems",
+      "dynamic_facts": "geprüfter Code; Schweregrad",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_problems_details"
+    },
+    {
+      "id": "problems.empty",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "problems.empty_page/problemsEmptyPage",
+      "trigger": "F1; leer/ausgefiltert",
+      "topic_id": "problems.empty",
+      "owner": "problems",
+      "dynamic_facts": "Leerzustand; Zähler",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_problems_empty"
+    },
+    {
+      "id": "problems.reset",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "problems.empty_reset/problemsEmptyReset",
+      "trigger": "FocusIn; Klick",
+      "topic_id": "problems.filters",
+      "owner": "problems",
+      "dynamic_facts": "Schweregrad; sichtbare Meldungen",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_problems_reset"
+    },
+    {
+      "id": "problems.header",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "problems.problems_table.horizontalHeader() (explizit)",
+      "trigger": "Klick Sortierung; F1",
+      "topic_id": "problems.sort",
+      "owner": "problems",
+      "dynamic_facts": "keine",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_problems_header"
+    },
+    {
+      "id": "problems.copy",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "problemsContextMenu; Strg+C",
+      "trigger": "F1; Kopieren/Navigation",
+      "topic_id": "problems.diagnostic",
+      "owner": "problems",
+      "dynamic_facts": "keine Rohpfade/Logtexte",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_problems_menu"
+    },
+    {
+      "id": "shell.open",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "window.open_action / Toolbar-Qt-Objekt",
+      "trigger": "FocusIn; F1; Öffnendialog",
+      "topic_id": "native_shell.open",
+      "owner": "native_shell",
+      "dynamic_facts": "Projekt geöffnet",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_toolbar_open"
+    },
+    {
+      "id": "shell.save",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "window.save_action / Toolbar-Qt-Objekt",
+      "trigger": "FocusIn; F1",
+      "topic_id": "native_shell.save",
+      "owner": "native_shell",
+      "dynamic_facts": "verfügbar; dirty",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_toolbar_save"
+    },
+    {
+      "id": "shell.undo",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "window.undo_action / Toolbar-Qt-Objekt",
+      "trigger": "FocusIn; ToolTip; F1",
+      "topic_id": "native_shell.undo",
+      "owner": "native_shell",
+      "dynamic_facts": "verfügbar",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_toolbar_undo"
+    },
+    {
+      "id": "shell.redo",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "window.redo_action / Toolbar-Qt-Objekt",
+      "trigger": "FocusIn; ToolTip; F1",
+      "topic_id": "native_shell.redo",
+      "owner": "native_shell",
+      "dynamic_facts": "verfügbar",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_toolbar_redo"
+    },
+    {
+      "id": "shell.rename",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "window.rename_action / Toolbar-Qt-Objekt",
+      "trigger": "FocusIn; F1; QInputDialog",
+      "topic_id": "native_shell.rename",
+      "owner": "native_shell",
+      "dynamic_facts": "verfügbar; native ID",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_toolbar_rename"
+    },
+    {
+      "id": "shell.reload",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "window.reload_action / Toolbar-Qt-Objekt",
+      "trigger": "FocusIn; F1",
+      "topic_id": "native_shell.reload",
+      "owner": "native_shell",
+      "dynamic_facts": "verfügbar",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_toolbar_reload"
+    },
+    {
+      "id": "shell.f1",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "window.help_action/F1",
+      "trigger": "FocusIn; Shortcut",
+      "topic_id": "studio.help",
+      "owner": "native_shell",
+      "dynamic_facts": "nur aktueller Kontext",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_f1_pin_and_focus"
+    },
+    {
+      "id": "shell.details",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "nativeSelectionDetails",
+      "trigger": "FocusIn; F1",
+      "topic_id": "native_shell.details",
+      "owner": "native_shell",
+      "dynamic_facts": "native ID; read-only",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_shell_details"
+    },
+    {
+      "id": "shell.tabs",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "window.tabs.tabBar() (explizit)",
+      "trigger": "FocusIn; currentChanged",
+      "topic_id": "native_shell.tabs",
+      "owner": "native_shell",
+      "dynamic_facts": "aktueller Tabindex",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_shell_tabs"
+    },
+    {
+      "id": "shell.dialog",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "fenstereigene QInputDialog/QFileDialog/QMessageBox",
+      "trigger": "FocusIn; F1; Abbruch",
+      "topic_id": "native_shell.unsaved",
+      "owner": "native_shell",
+      "dynamic_facts": "keine Eingabetexte/Pfade",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_owned_dialogs",
+      "variants": [
+        "native_shell.rename",
+        "native_shell.open",
+        "native_shell.unsaved",
+        "studio.help"
+      ]
+    },
+    {
+      "id": "help.pin",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "helpPin",
+      "trigger": "FocusIn erhält Artikel; F1 erklärt Pin; Klick",
+      "topic_id": "help.pin",
+      "owner": "native_shell",
+      "dynamic_facts": "Pin-Status",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_help_pin",
+      "policy": "Normaler Fokus erhält den Artikel; F1 erklärt das fokussierte Bedienelement."
+    },
+    {
+      "id": "help.details",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "helpDetailsToggle",
+      "trigger": "FocusIn erhält Artikel; F1; Klick",
+      "topic_id": "help.details",
+      "owner": "native_shell",
+      "dynamic_facts": "keine",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_help_details",
+      "policy": "Normaler Fokus erhält den Artikel; F1 erklärt das fokussierte Bedienelement."
+    },
+    {
+      "id": "help.related",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "helpRelated.<registrierte ID>",
+      "trigger": "FocusIn erhält Artikel; F1; Klick",
+      "topic_id": "help.related",
+      "owner": "native_shell",
+      "dynamic_facts": "nur registrierte Ziel-ID",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_help_related",
+      "policy": "Normaler Fokus erhält den Artikel; F1 erklärt das fokussierte Bedienelement."
+    },
+    {
+      "id": "help.scroll",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "helpScroll / Scrollbars",
+      "trigger": "FocusIn erhält Artikel; F1",
+      "topic_id": "studio.help",
+      "owner": "native_shell",
+      "dynamic_facts": "keine",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_help_scroll",
+      "policy": "Normaler Fokus erhält den Artikel; F1 erklärt das fokussierte Bedienelement."
+    },
+    {
+      "id": "unknown",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "unbekanntes fenstereigenes QWidget/Topic",
+      "trigger": "FocusIn; F1",
+      "topic_id": "studio.help",
+      "owner": "native_shell",
+      "dynamic_facts": "keine",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_unknown_and_fallback"
+    },
+    {
+      "id": "switch",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "Coordinator.open_project/reset_context",
+      "trigger": "Projektwechsel bei Pin/Diagnose",
+      "topic_id": "studio.help",
+      "owner": "native_shell",
+      "dynamic_facts": "keine Altwerte",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_project_switch"
+    },
+    {
+      "id": "keypad",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "KeypadPreviewWidget/keypad.*",
+      "trigger": "kein produktives Control",
+      "topic_id": "keypad.overview",
+      "owner": "prepared",
+      "dynamic_facts": "keine Frame-/Slot-Fakten",
+      "status": "NICHT_AKTIV",
+      "test": "tests/test_native_help_coverage.py::test_disabled_capabilities",
+      "reason": "Kein SDK-Frame/Capability; kein Widget instanziiert; vorbereitete keypad.*-Themen."
+    },
+    {
+      "id": "ict",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "window.ict_action / symbol.ict",
+      "trigger": "deaktivierter Hinweis",
+      "topic_id": "native_shell.ict_unavailable",
+      "owner": "native_shell",
+      "dynamic_facts": "Sperrgrund",
+      "status": "NICHT_AKTIV",
+      "test": "tests/test_native_help_coverage.py::test_disabled_capabilities",
+      "reason": "Kein koordinierter Asset-/JSON-Writer; symbol.ict nur vorbereitet; Sperrhinweis aktiv."
+    },
+    {
+      "id": "splitters",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "window.splitter; problems.body_splitter",
+      "trigger": "Größe ändern",
+      "topic_id": null,
+      "owner": "native_shell",
+      "dynamic_facts": "keine",
+      "status": "BEWUSST_OHNE",
+      "test": "tests/test_native_help_coverage.py::test_layout_does_not_write",
+      "reason": "Reine Größenänderung; kein eigener fachlicher Hilfekontext."
+    },
+    {
+      "id": "problems.severity.ALL",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "problemsSeverityAll",
+      "trigger": "FocusIn; toggled",
+      "topic_id": "problems.filters",
+      "owner": "problems",
+      "dynamic_facts": "Schweregrad; sichtbare Meldungen",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_problems_severity"
+    },
+    {
+      "id": "problems.severity.ERROR",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "problemsSeverityError",
+      "trigger": "FocusIn; toggled",
+      "topic_id": "problems.filters",
+      "owner": "problems",
+      "dynamic_facts": "Schweregrad; sichtbare Meldungen",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_problems_severity"
+    },
+    {
+      "id": "problems.severity.WARNING",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "problemsSeverityWarning",
+      "trigger": "FocusIn; toggled",
+      "topic_id": "problems.filters",
+      "owner": "problems",
+      "dynamic_facts": "Schweregrad; sichtbare Meldungen",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_problems_severity"
+    },
+    {
+      "id": "problems.severity.OTHER",
+      "code": "src/studio/native_shell/help_bindings.py",
+      "control": "problemsSeverityOther",
+      "trigger": "FocusIn; toggled",
+      "topic_id": "problems.filters",
+      "owner": "problems",
+      "dynamic_facts": "Schweregrad; sichtbare Meldungen",
+      "status": "OK",
+      "test": "tests/test_native_help_coverage.py::test_problems_severity"
+    }
+  ],
+  "unresolved_gaps": [],
+  "limits": [
+    "Keine unabhängige Abnahme",
+    "Keypad/ICT bleiben nicht produktiv",
+    "Windows-Qt-Interaktionen sind keine externe HID-/Hardwareprüfung"
+  ],
+  "validation": {
+    "targeted_offscreen": {
+      "log": "coverage-final.log",
+      "count": 49,
+      "seconds": 6.16,
+      "result": "PASS"
+    },
+    "targeted_windows": {
+      "log": "windows-coverage-final.log",
+      "count": 49,
+      "seconds": 11.088,
+      "result": "PASS"
+    },
+    "full_regression": {
+      "log": "full-suite.log",
+      "count": 925,
+      "seconds": 82.93,
+      "result": "PASS"
+    },
+    "windows_gui": {
+      "log": "windows-gui/report.json",
+      "checks": 24,
+      "screenshots": [
+        "01-catalog-filter-help.png",
+        "02-explorer-folder-entry-help.png",
+        "03-problems-detail.png",
+        "04-problems-context-help.png",
+        "05-pinned-explicit-search-help.png",
+        "06-modal-help.png"
+      ],
+      "result": "PASS"
+    },
+    "lab_smoke": {
+      "log": "help-smoke.log",
+      "checks": 18,
+      "result": "PASS"
+    },
+    "protected_files": {
+      "result": "PASS",
+      "files": [
+        "src/studio/app.py",
+        "src/studio/native_session.py",
+        "src/studio/native_ict_binding.py",
+        "src/studio/native_project_explorer/widget.py",
+        "src/studio/action_catalog/widget.py",
+        "src/studio/problems_panel/widget.py",
+        "src/studio/keypad_preview/widget.py",
+        "src/studio/context_help/entries.py",
+        "src/studio/context_help/registry.py",
+        "src/studio/context_help/coordinator.py",
+        "src/studio/context_help/widget.py",
+        "src/studio/context_help/resources/default_topics.de.json",
+        "examples/project_logitech_native_v1.json"
+      ]
+    },
+    "connections": {
+      "result": "PASS",
+      "implemented": 7,
+      "invariants": 3,
+      "register": "connections.json"
+    }
+  }
+}
