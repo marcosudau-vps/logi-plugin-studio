@@ -1,0 +1,92 @@
+[
+  {
+    "topic_id": "guide.project",
+    "title": "Schritt 1: Projekt",
+    "summary": "Ein neues Plugin-Projekt anlegen oder ein vorhandenes öffnen.",
+    "description": "Ein Projekt ist eine einzelne JSON-Datei, die dein Plugin beschreibt: seine Kennung, seine Aktionen und deren Verbindung zu deinem Python-Code. Mit „Neues Projekt …“ fragt das Studio nach der Plugin-ID, dem Anzeigenamen und dem Speicherort und legt ein lauffähiges Grundgerüst mit zwei Beispielaktionen an. Die Plugin-ID ist die dauerhafte technische Kennung in Logi Options+ und sollte später nicht mehr geändert werden. Der Anzeigename ist frei wählbar. Der Schritt ist abgeschlossen, sobald ein Projekt geöffnet ist.",
+    "example": "Plugin-ID: meinname.lichtsteuerung · Anzeigename: Lichtsteuerung",
+    "technical_details": "Format logitech-native-1. Die Datei wird ausschließlich von der nativen Projektsitzung geschrieben.",
+    "related_topics": ["guide.handlers", "native_shell.open"]
+  },
+  {
+    "topic_id": "guide.handlers",
+    "title": "Schritt 2: Handler",
+    "summary": "Handler verbinden Aktionen mit deinem Python-Code.",
+    "description": "Ein Handler ist die Stelle in deinem Python-Code, die aufgerufen wird, wenn eine Taste gedrückt oder ein Regler gedreht wird. Mehrere Aktionen dürfen denselben Handler verwenden. Lege mindestens einen Handler an und ordne die Python-Handlerdatei zu. Mit „Handlerdatei aus Vorlage erzeugen“ schreibt das Studio eine Datei neben dein Projekt, die jeden Handler registriert und sofort lauffähig ist; den eigentlichen Code ergänzt du danach in einem Editor deiner Wahl. Das Studio führt die Datei nie selbst aus, sondern prüft sie nur.",
+    "example": "Handler handler.main in der Datei mein_plugin_handlers.py",
+    "technical_details": "Die Datei muss im Projektordner liegen und eine Funktion register(host) enthalten. Je Handler: host.register_handler(\"<Handler-ID>\", \"invoke\", funktion).",
+    "related_topics": ["guide.actions", "explorer.handler"]
+  },
+  {
+    "topic_id": "guide.actions",
+    "title": "Schritt 3: Aktionen",
+    "summary": "Aktionen anlegen und einstellen: Was soll eine Taste tun?",
+    "description": "Eine Aktion ist das, was der Anwender später in Logi Options+ auf eine Taste oder einen Regler legt. Wähle links im Aktionskatalog „+ Neue Aktion“, entscheide dich für einen Typ und vergib einen Namen. Im Aktionsinspektor stellst du Parameter, Zustände und den zuständigen Handler ein. „Übernehmen“ schreibt den Entwurf ins Projekt, erst „Alles speichern“ schreibt die Datei. Der Schritt ist abgeschlossen, wenn mindestens eine Aktion existiert, jede Aktion einen Handler hat und kein Entwurf mehr offen ist.",
+    "example": "Befehl „Licht an“ mit Handler handler.main; Schalter „Stumm“ mit den Zuständen Aus und An",
+    "technical_details": "Vier SDK-Typen: Befehl (PluginDynamicCommand), Schalter mit Zuständen (PluginMultistateDynamicCommand), Regler (PluginDynamicAdjustment), Aktion mit Einstelldialog (ActionEditorCommand).",
+    "related_topics": ["guide.symbols", "inspector.create", "action.definition", "guide.states"]
+  },
+  {
+    "topic_id": "guide.symbols",
+    "title": "Schritt 4: Darstellung (optional)",
+    "summary": "Eigene Symbole für die Tasten gestalten.",
+    "description": "Ohne eigenes Symbol zeigt das Gerät den Anzeigenamen der Aktion. In der Übersicht „Symbole“ siehst du je Aktion, ob ein Symbol hinterlegt ist. Wähle eine Aktion und öffne den SymbolDesigner, um Bild, Text und Farben zu gestalten. Dieser Schritt ist freiwillig; fehlende Bilddateien werden als Hinweis gemeldet und sperren nicht.",
+    "example": "Aktion „Stumm“ erhält ein Mikrofon-Symbol aus der Bibliothek.",
+    "technical_details": "Gespeichert wird eine native Symbolvorlage (.ict) neben dem Projekt; die Zuordnung steht im Projekt.",
+    "related_topics": ["guide.layout", "symbol.ict"]
+  },
+  {
+    "topic_id": "guide.layout",
+    "title": "Schritt 5: Belegung (optional)",
+    "summary": "Aktionen auf Tasten legen und in Ordnern anordnen.",
+    "description": "In der Registerkarte „Keypad“ siehst du die Tasten wie auf dem Gerät und legst Aktionen per Ziehen aus dem Aktionskatalog ab. In „Virtuelle Ordner“ baust du Unterordner, Seiten und Verknüpfungen. Dieser Schritt ist freiwillig: Aktionen lassen sich auch erst später in Logi Options+ einzeln auf Tasten legen. Platzierungen, die auf eine gelöschte Aktion zeigen, müssen entfernt werden, bevor es weitergeht.",
+    "example": "Ordner „Licht“ mit den Aktionen „An“, „Aus“ und „Dimmen“ auf einer Seite.",
+    "technical_details": "Ordner und Belegung stehen in der Datei <Projekt>.vfolders.json neben dem Projekt und werden mit „Alles speichern“ gesichert. Native SDK-Folder des Projekts werden nur angezeigt.",
+    "related_topics": ["guide.build", "folders.studio", "keypad.overview"]
+  },
+  {
+    "topic_id": "guide.build",
+    "title": "Schritt 6: Prüfen und Bauen",
+    "summary": "Fehler beheben, alles speichern und das Plugin bauen.",
+    "description": "Der Build übersetzt den gespeicherten Stand deines Projekts in ein Plugin-Paket. Vorher muss alles gespeichert und die Problemliste fehlerfrei sein. Wähle den Plugin-Typ, prüfe bei Bedarf die Voraussetzungen und starte „SDK-Plugin bauen“. Änderst du danach noch etwas am Projekt, gilt der Build als veraltet und muss wiederholt werden. Beim Bauen wird nichts installiert und nichts an Logi Options+ verändert.",
+    "example": "Plugin-Typ „Kompatibel (Standard)“ → SDK-Plugin bauen → „Build erfolgreich“",
+    "technical_details": "Benötigt werden das kostenlose .NET SDK und die PluginApi.dll einer installierten Logi-Options+-Version.",
+    "related_topics": ["guide.install", "problems"]
+  },
+  {
+    "topic_id": "guide.install",
+    "title": "Schritt 7: Installieren und Testen",
+    "summary": "Das gebaute Plugin installieren und am Gerät ausprobieren.",
+    "description": "„Plan anzeigen“ zeigt, was die Installation tun wird, ohne etwas zu ändern. „Installieren / Aktualisieren …“ kopiert dein Plugin in den eigenen Ordner des Logi Plugin Service und lädt es. Öffne danach Logi Options+, wähle dein Gerät, suche dein Plugin in der Aktionsliste und ziehe eine Aktion auf eine Taste. Drücke die Taste und bestätige das Ergebnis in der Checkliste. Das Plugin läuft danach auch bei geschlossenem Studio.",
+    "example": "Installiert → Geladen → Verbunden → Taste gedrückt → „Am Gerät getestet“ bestätigt",
+    "technical_details": "Fremde Plugins und deine Options+-Profile werden nicht verändert. Tastenbelegungen bleiben nach einer Deinstallation in Options+ sichtbar und werden dort entfernt.",
+    "related_topics": ["guide.build", "guide.maintenance"]
+  },
+  {
+    "topic_id": "guide.states",
+    "title": "Zustände: SDK-Zustand und Python-Zustand",
+    "summary": "Wer besitzt welchen Zustand einer Aktion?",
+    "description": "Ein Schalter mit Zuständen (zum Beispiel Aus und An) hat einen SDK-Zustand: Der Logi Plugin Service merkt sich, welcher Zustand gerade gilt, und zeigt Name und Bild dieses Zustands. Davon getrennt sind Werte, die dein Python-Code selbst führt, etwa die tatsächliche Lautstärke eines Programms. Die Übersicht „Zustände“ zeigt je Aktion die im Projekt festgelegten SDK-Zustände und wie sie wechseln. Laufzeitwerte deines Python-Codes sind nicht Teil des Projekts und erscheinen dort nicht.",
+    "example": "Aktion „Stumm“: Zustand 0 „Aus“, Zustand 1 „An“, Wechsel bei Tastendruck: umschalten",
+    "technical_details": "SDK-Zustände sind fest nummeriert ab 0. „Umschalten“ ist nur bei genau zwei Zuständen zulässig.",
+    "related_topics": ["guide.actions"]
+  },
+  {
+    "topic_id": "guide.maintenance",
+    "title": "Wartung",
+    "summary": "Installierte Studio-Plugins, Voraussetzungen und Protokolle prüfen.",
+    "description": "Die Wartung ist unabhängig vom geöffneten Projekt. Sie zeigt alle Plugins, die mit dem Studio installiert wurden, samt Zustand ihrer Host-Laufzeit, prüft die Voraussetzungen auf diesem Rechner und lädt ein einzelnes Plugin neu. Plugins anderer Hersteller werden angezeigt, aber nie verändert.",
+    "example": "Wartung → Installierte Plugins → Plugin wählen → „Plugin neu laden“",
+    "technical_details": "Das Neuladen verwendet das Reload-Werkzeug des Logi Plugin Service und betrifft nur das gewählte Plugin.",
+    "related_topics": ["guide.install"]
+  },
+  {
+    "topic_id": "guide.expert",
+    "title": "Geführter Ablauf und Expertenmodus",
+    "summary": "Im Expertenmodus sind alle Bereiche gleichzeitig erreichbar.",
+    "description": "Im geführten Ablauf zeigt das Studio je Schritt nur die passenden Registerkarten und Werkzeuge. Der Expertenmodus blendet alles gleichzeitig ein; die Schrittleiste zeigt den Status weiter an, sperrt aber nichts. Die Wahl wird für dich gemerkt und ändert das Projekt nicht.",
+    "example": "",
+    "technical_details": "",
+    "related_topics": ["guide.project"]
+  }
+]
