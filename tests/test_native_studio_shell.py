@@ -272,7 +272,7 @@ class ShellTests(unittest.TestCase):
             legacy.assert_called_once_with(None)
         with patch.object(QApplication, 'exec', return_value=0), patch('studio.native_shell.NativeStudioShell') as native:
             self.assertEqual(main(['--native']), 0)
-            native.assert_called_once_with(None)
+            native.assert_called_once_with(None, workflow=True)  # AP-GUIDE-001: Programmeinstieg startet geführt
 
     def test_legacy_edit_save_reload(self):
         from library.templates import callback_project

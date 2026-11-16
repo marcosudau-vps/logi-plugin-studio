@@ -22,7 +22,7 @@ from .help_bindings import NativeHelpBindings
 
 
 class NativeStudioShell(QMainWindow):
-    def __init__(self, project_path=None):
+    def __init__(self, project_path=None, *, workflow=False):
         super().__init__()
         self.setObjectName("nativeStudioShell")
         self.resize(1300, 850)
@@ -102,6 +102,11 @@ class NativeStudioShell(QMainWindow):
         self._context_timer.timeout.connect(self._observe_inspector_context)
         self._context_timer.timeout.connect(self._sync_composer)
         self._context_timer.start()
+        # AP-GUIDE-001: optionale Komfortschicht. Ohne ``workflow=True`` bleibt die Shell unverändert.
+        self.workflow = None
+        if workflow:
+            from .workflow_controller import WorkflowController
+            self.workflow = WorkflowController(self, toolbar)
         if project_path is not None:
             self.coordinator.open_project(project_path)
         self._refresh_status()
@@ -201,6 +206,18 @@ class NativeStudioShell(QMainWindow):
 
     def save_folders(self):
         return bool(self.composer and self.composer._run(self.composer.save_file))
+
+    def save_all(self):
+        """Projekt und Extension nacheinander speichern (zwei Writer, keine gemeinsame Atomarität)."""
+        session = self.coordinator.session
+        if session is None or not self.confirm_draft():
+            return False
+        if session.dirty and not self._save_session():
+            return False
+        if self.composer and self.composer.store.dirty and not self.save_folders():
+            return False
+        self._refresh_status()
+        return True
 
     def _failure(self, source, error):
         self.coordinator.report_error(source, error)
