@@ -77,7 +77,6 @@ class WorkflowRail(QWidget):
         layout.addLayout(row)
         self.checklist = QListWidget()
         self.checklist.setObjectName("workflowChecklist")
-        self.checklist.setMaximumHeight(92)
         self.checklist.setAlternatingRowColors(True)
         self.checklist.setToolTip("Checkliste dieses Schritts. Doppelklick oder Eingabetaste springt zur Stelle.")
         self.checklist.itemActivated.connect(
@@ -122,6 +121,8 @@ class WorkflowRail(QWidget):
             item.setData(Qt.ItemDataRole.UserRole, criterion.key)
             item.setToolTip(criterion.detail or criterion.text)
             self.checklist.addItem(item)
+        rows = min(max(self.checklist.count(), 1), 5)
+        self.checklist.setFixedHeight(rows * max(self.checklist.sizeHintForRow(0), 16) + 8)
 
     def active(self) -> str:
         return self._active
