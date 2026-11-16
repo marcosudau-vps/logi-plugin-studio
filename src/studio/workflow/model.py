@@ -72,6 +72,7 @@ class Facts:
     handler_file: str = ""
     handler_file_error: str = ""
     handlers_unregistered: tuple[str, ...] = ()
+    handlers_unknown: tuple[str, ...] = ()
     actions: int = 0
     actions_without_handler: tuple[str, ...] = ()
     draft_open: bool = False
@@ -141,9 +142,15 @@ def _handlers(f: Facts):
         yield Criterion("handlers.file", "Python-Handlerdatei zugeordnet", ERROR, f.handler_file_error, "handlers")
         return
     yield Criterion("handlers.file", "Python-Handlerdatei zugeordnet", DONE, f.handler_file, "handlers")
-    if f.handlers_unregistered:
+    if f.handlers_unknown:
+        yield Criterion("handlers.registered", "Alle Handler werden in der Datei registriert", ERROR,
+                        "Die Datei registriert Handler, die keine Aktion verwendet (" + _listed(f.handlers_unknown) +
+                        "). Der Plugin-Host würde so nicht starten; diese Zeilen aus der Datei entfernen.",
+                        "handlers")
+    elif f.handlers_unregistered:
         yield Criterion("handlers.registered", "Alle Handler werden in der Datei registriert", WARNING,
-                        "Nicht registriert: " + _listed(f.handlers_unregistered), "handlers")
+                        "Fehlt in der Datei: " + _listed(f.handlers_unregistered) +
+                        ". Aktionen mit diesem Handler bewirken sonst nichts.", "handlers")
     else:
         yield Criterion("handlers.registered", "Alle Handler werden in der Datei registriert", DONE, "", "handlers")
 

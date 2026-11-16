@@ -91,8 +91,23 @@ HANDLER_BLOCK = '''    def {function}(payload, context):
 '''
 
 
+def handler_snippet(handlers) -> str:
+    """Registrierungsblöcke zum Einfügen in eine bestehende Handlerdatei."""
+    return "\n".join(_blocks(handlers)).rstrip("\n")
+
+
 def handler_template(display_name: str, handlers) -> str:
-    """Sofort lauffähige Handlerdatei, die jeden Handler des Projekts registriert."""
+    """Sofort lauffähige Handlerdatei, die jeden genannten Handler registriert.
+
+    Der Host akzeptiert nur Handler, die mindestens eine Aktion verwendet; der
+    Aufrufer übergibt deshalb nur verwendete Handler.
+    """
+    blocks = _blocks(handlers)
+    body = "\n".join(blocks) if blocks else "    pass\n"
+    return HANDLER_TEMPLATE.format(name=display_name.replace('"', "'"), body=body.rstrip("\n"))
+
+
+def _blocks(handlers) -> list[str]:
     blocks, used = [], set()
     for handler in handlers:
         name = "".join(c if c.isalnum() else "_" for c in handler).strip("_").lower() or "handler"
@@ -103,5 +118,4 @@ def handler_template(display_name: str, handlers) -> str:
             name, suffix = f"{base}_{suffix}", suffix + 1
         used.add(name)
         blocks.append(HANDLER_BLOCK.format(function=name, handler=handler.replace('"', "")))
-    body = "\n".join(blocks) if blocks else "    pass\n"
-    return HANDLER_TEMPLATE.format(name=display_name.replace('"', "'"), body=body.rstrip("\n"))
+    return blocks

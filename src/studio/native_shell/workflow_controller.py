@@ -17,7 +17,9 @@ from PySide6.QtWidgets import QDockWidget, QMessageBox, QStyle, QWidget
 from core.errors import Diagnostic
 from studio.context_help import HelpContext, load_help_entries
 from studio.workflow import (ERROR, STEP_KEYS, STEPS, Facts, complete, evaluate, first_incomplete, step)
-from studio.workflow.facts import fingerprint, missing_assets, asset_references, registered_handlers
+from studio.native_session import NativeSessionError
+from studio.workflow.facts import (asset_references, fingerprint, handler_snippet, handler_template,
+                                   missing_assets, registered_handlers)
 from studio.workflow.model import BLOCKING
 from studio.workflow.start_page import StartPage
 from studio.workflow.store import WorkflowStore
@@ -60,6 +62,17 @@ class WorkflowController(QObject):
         shell.tabs.insertTab(0, self.start_page, "Start")
         self.start_page.newRequested.connect(shell.create_project)  # V-90
         self.start_page.openRequested.connect(shell.choose_project)
+        from studio.handler_inspector import HandlerInspectorWidget
+        self.handlers = shell.handler_panel = HandlerInspectorWidget()
+        shell.tabs.insertTab(1, self.handlers, "Handler")
+        self.handlers.createRequested.connect(self.create_handler)  # V-100
+        self.handlers.renameRequested.connect(self.rename_handler)
+        self.handlers.deleteRequested.connect(self.delete_handler)
+        self.handlers.templateRequested.connect(self.create_handler_file)  # V-101
+        self.handlers.chooseFileRequested.connect(shell.build_controller.choose_handler)
+        self.handlers.handlerSelected.connect(lambda key: shell.coordinator.select_node("handler", key))  # V-102
+        shell.coordinator.selectionChanged.connect(self._mirror_selection)
+        self._handlers_shown = None
         self.rail = WorkflowRail()
         dock = QDockWidget(shell)
         dock.setObjectName("workflowDock")
@@ -175,12 +188,13 @@ class WorkflowController(QObject):
             self._prereq = (time.monotonic(), value)
         return value
 
-    def _handler_facts(self, session, handlers):
+    def _handler_facts(self, session, raw):
+        """(Datei, Fehler, fehlende, unbekannte, registrierte) – nur statisch gelesen."""
         relative = self.shell.build_controller.handler.text().strip()
         if not relative:
-            return "", "", ()
+            return "", "", (), (), None
         if session.path is None:
-            return relative, "Projekt zuerst speichern.", ()
+            return relative, "Projekt zuerst speichern.", (), (), None
         file = Path(session.path).resolve().parent / relative
         try:
             stamp = (str(file), file.stat().st_mtime_ns, file.stat().st_size)
@@ -194,8 +208,12 @@ class WorkflowController(QObject):
                 result = (str(exc), None)
             self._handler_cache = (stamp, result)
         error, found = self._handler_cache[1]
-        missing = () if error or found is None else tuple(h for h in handlers if h not in found)
-        return relative, error, missing
+        if error or found is None:
+            return relative, error, (), (), None
+        used = [h["id"] for h in raw.get("handlers", ()) if any(
+            a.get("handler") == h["id"] for a in raw.get("actions", ()))]
+        return (relative, "", tuple(h for h in used if h not in found),
+                tuple(sorted(found - set(used))), found)
 
     def facts(self) -> Facts:
         s = self.shell
@@ -206,7 +224,7 @@ class WorkflowController(QObject):
         raw = session.snapshot()
         handlers = tuple(h["id"] for h in raw.get("handlers", ()))
         actions = raw.get("actions", ())
-        handler_file, handler_error, unregistered = self._handler_facts(session, handlers)
+        handler_file, handler_error, unregistered, unknown, _found = self._handler_facts(session, raw)
         project_dir = Path(session.path).resolve().parent if session.path else None
         references = asset_references(raw)
         store = c.extension_store
@@ -229,7 +247,8 @@ class WorkflowController(QObject):
         return Facts(
             has_project=True, project_saved=not session.dirty, plugin_id=raw["plugin"].get("id", ""),
             display_name=raw["plugin"].get("display_name", ""), handlers=handlers, handler_file=handler_file,
-            handler_file_error=handler_error, handlers_unregistered=unregistered, actions=len(actions),
+            handler_file_error=handler_error, handlers_unregistered=unregistered, handlers_unknown=unknown,
+            actions=len(actions),
             actions_without_handler=tuple(a["id"] for a in actions if a.get("handler") not in handlers),
             draft_open=bool(s.inspector.dirty), missing_assets=missing_assets(raw, project_dir),
             actions_with_symbol=sum(1 for key in references if key), orphan_placements=orphans,
@@ -265,6 +284,7 @@ class WorkflowController(QObject):
         self.start_page.set_project(None if session is None else (
             session.native_project().display_name, session.snapshot()["plugin"]["id"], session.path,
             len(session.snapshot().get("actions", ())), len(session.snapshot().get("handlers", ()))))
+        self._show_handlers()
         self._apply_visibility()
         self._publish()
         self.changed.emit()
@@ -459,6 +479,85 @@ class WorkflowController(QObject):
             self.store.remember(*key, hardware=self._hardware)
         self.shell.deployment_controller.set_status("hardware", "HARDWARE_PASS")
         self.refresh()
+        return True
+
+    # -- Handler -------------------------------------------------------------
+    def _show_handlers(self):
+        session = self.shell.coordinator.session
+        if session is None:
+            if self._handlers_shown is not None:
+                self._handlers_shown = None
+                self.handlers.set_project(None)
+            return
+        raw = session.snapshot()
+        file, error, unregistered, unknown, found = self._handler_facts(session, raw)
+        shown = (session.revision, self.shell.coordinator.project_token, file, error, unregistered, unknown,
+                 None if found is None else tuple(sorted(found)))
+        if shown == self._handlers_shown:
+            return
+        self._handlers_shown = shown
+        self.handlers.set_project(raw, file=file, file_error=error, registered=found, unknown=unknown,
+                                  snippet=handler_snippet(unregistered) if unregistered else "")
+
+    def _mirror_selection(self):
+        selection = self.shell.coordinator.selection
+        if selection and selection[0] == "handler":
+            self.handlers.select(selection[1])
+
+    def _handler_change(self, operation) -> bool:
+        s = self.shell
+        c = s.coordinator
+        if c.session is None or not s.confirm_draft():
+            return False
+        try:
+            operation(c.session.revision, c.project_token)
+        except NativeSessionError as exc:
+            c.report_error("handlers", exc)
+            s.statusBar().showMessage(str(exc))
+            QMessageBox.warning(s, "Handler", str(exc))
+            return False
+        s.inspector.accept_applied()
+        s._sync_inspector()
+        self.refresh()
+        return True
+
+    def create_handler(self, handler_id) -> bool:
+        c = self.shell.coordinator
+        return self._handler_change(lambda revision, token: c.apply_handler_create(
+            handler_id, base_revision=revision, project_token=token))
+
+    def rename_handler(self, old_id, new_id) -> bool:
+        c = self.shell.coordinator
+        return self._handler_change(lambda revision, token: c.rename_handler(
+            old_id, new_id, base_revision=revision, project_token=token))
+
+    def delete_handler(self, handler_id) -> bool:
+        c = self.shell.coordinator
+        return self._handler_change(lambda revision, token: c.delete_handler(
+            handler_id, base_revision=revision, project_token=token))
+
+    def create_handler_file(self) -> bool:
+        """Legt die Handlerdatei einmalig aus der Vorlage an; überschreibt nie eine vorhandene Datei."""
+        s = self.shell
+        session = s.coordinator.session
+        if session is None or session.path is None:
+            return False
+        raw = session.snapshot()
+        project = Path(session.path)
+        target = project.with_name(project.stem + "_handlers.py")
+        if not target.exists():
+            used = [h["id"] for h in raw["handlers"] if any(a.get("handler") == h["id"] for a in raw["actions"])]
+            try:
+                with target.open("x", encoding="utf-8", newline="\n") as output:
+                    output.write(handler_template(raw["plugin"].get("display_name", ""), used))
+            except OSError as exc:
+                s.coordinator.report_error("handlers", exc)
+                s.statusBar().showMessage(f"Handlerdatei konnte nicht angelegt werden: {exc}")
+                return False
+            s.statusBar().showMessage(f"Handlerdatei angelegt: {target}")
+        else:
+            s.statusBar().showMessage(f"Vorhandene Datei {target.name} zugeordnet (nicht überschrieben).")
+        s.build_controller.handler.setText(target.name)
         return True
 
     # -- Build --------------------------------------------------------------

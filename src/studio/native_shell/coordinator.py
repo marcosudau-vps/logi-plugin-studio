@@ -204,6 +204,42 @@ class StudioCoordinator(QObject):
         self._after_change()
         return revision
 
+    # -- Handler-Lebenszyklus (AP-GUIDE-001); gleicher Guard und genau ein replace wie bei Actions --
+    def _handler_commit(self, propose, selected, base_revision, project_token):
+        self._lifecycle_guard(base_revision, project_token)
+        try:
+            proposed = propose(self.session.snapshot())
+        except (ValueError, TypeError, KeyError) as exc:
+            raise NativeSessionError(str(exc)) from exc
+        revision = self.session.replace(proposed, base_revision=base_revision)
+        self.selection, self.action_parameter = (('handler', selected) if selected else None), None
+        self._after_change()
+        return revision
+
+    def apply_handler_create(self, handler_id, *, base_revision, project_token):
+        from studio.handler_inspector.lifecycle import propose_handler_create
+        return self._handler_commit(lambda raw: propose_handler_create(raw, handler_id), handler_id,
+                                    base_revision, project_token)
+
+    def rename_handler(self, old_id, new_id, *, base_revision, project_token):
+        from studio.handler_inspector.lifecycle import propose_handler_rename
+        return self._handler_commit(lambda raw: propose_handler_rename(raw, old_id, new_id), new_id,
+                                    base_revision, project_token)
+
+    def handler_delete_check(self, handler_id):
+        from studio.handler_inspector.lifecycle import check_handler_delete
+        if self.session is None:
+            raise NativeSessionError('Kein natives Projekt geöffnet.')
+        try:
+            return check_handler_delete(self.session.snapshot(), handler_id)
+        except (ValueError, TypeError, KeyError) as exc:
+            raise NativeSessionError(str(exc)) from exc
+
+    def delete_handler(self, handler_id, *, base_revision, project_token):
+        from studio.handler_inspector.lifecycle import propose_handler_delete
+        return self._handler_commit(lambda raw: propose_handler_delete(raw, handler_id), None,
+                                    base_revision, project_token)
+
     def _after_change(self):
         if self.problems:
             self.problems.clear()
