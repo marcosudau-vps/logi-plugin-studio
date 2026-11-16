@@ -256,5 +256,45 @@ class WorkflowShellTests(unittest.TestCase):
         self.assertIsNone(registered_handlers(self.dir / "fehlt.py"))
 
 
+    def test_v103_state_overview_lists_sdk_states_in_plain_words(self):
+        shell = self.shell(self.project)
+        wf = shell.workflow
+        self.write_handler(shell)
+        wf.enter("actions")
+        self.assertIn("Zustände", self.visible_tabs(shell))
+        table = wf.state_overview.table
+        self.assertEqual(table.rowCount(), 2)
+        self.assertEqual(table.item(0, 1).text(), "Befehl")
+        self.assertIn("kein Schalter", table.item(0, 2).text())
+        self.assertEqual(table.item(1, 1).text(), "Schalter mit Zuständen")
+        self.assertEqual(table.item(1, 2).text(), "0 Aus, 1 An")
+        self.assertIn("umschalten", table.item(1, 3).text())
+        table.selectRow(1)
+        self.assertEqual(shell.coordinator.selection, ("action", "action.toggle"))
+        self.assertEqual(wf.symbol_overview.selected(), "action.toggle")
+        wf.state_overview.actionActivated.emit("action.command")
+        self.assertIs(shell.tabs.currentWidget(), shell.inspector)
+
+    def test_v104_symbol_overview_reports_missing_files_and_opens_the_designer(self):
+        shell = self.shell(self.project)
+        wf = shell.workflow
+        self.write_handler(shell)
+        wf.enter("symbols")
+        self.assertIs(shell.tabs.currentWidget(), wf.symbol_overview)
+        table = wf.symbol_overview.table
+        self.assertIn("kein Symbol", table.item(0, 1).text())
+        self.assertFalse(wf.symbol_overview.edit_button.isEnabled())
+        raw = shell.coordinator.session.snapshot()
+        action = dict(raw["actions"][0], icon="bilder/fehlt.png")
+        shell.coordinator.apply_action_edit(action["id"], action, base_revision=shell.coordinator.session.revision)
+        self.assertIn("nicht gefunden: bilder/fehlt.png", table.item(0, 2).text())
+        self.assertEqual(wf.state("symbols").status, "warning")
+        self.assertTrue(wf.state("layout").reachable)  # Hinweis sperrt nicht
+        table.selectRow(0)
+        self.assertTrue(wf.symbol_overview.edit_button.isEnabled())
+        with patch.object(type(shell), "open_symbol_designer", return_value=True) as designer:
+            wf.symbol_overview.edit_button.click()
+            designer.assert_called_once_with("action.command")
+
 if __name__ == "__main__":
     unittest.main()

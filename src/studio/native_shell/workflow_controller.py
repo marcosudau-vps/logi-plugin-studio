@@ -73,6 +73,16 @@ class WorkflowController(QObject):
         self.handlers.handlerSelected.connect(lambda key: shell.coordinator.select_node("handler", key))  # V-102
         shell.coordinator.selectionChanged.connect(self._mirror_selection)
         self._handlers_shown = None
+        from studio.workflow.overviews import StateOverviewWidget, SymbolOverviewWidget
+        self.state_overview = shell.state_panel = StateOverviewWidget()
+        self.symbol_overview = shell.symbol_panel = SymbolOverviewWidget()
+        shell.tabs.insertTab(shell.tabs.indexOf(shell.inspector) + 1, self.state_overview, "Zustände")
+        shell.tabs.insertTab(shell.tabs.indexOf(shell.inspector), self.symbol_overview, "Symbole")
+        for overview in (self.state_overview, self.symbol_overview):
+            overview.actionSelected.connect(lambda key: shell.coordinator.select_node("action", key))  # V-103
+        self.state_overview.actionActivated.connect(self._edit_action)
+        self.symbol_overview.editRequested.connect(self._edit_symbol)  # V-104
+        self._overviews_shown = None
         self.rail = WorkflowRail()
         dock = QDockWidget(shell)
         dock.setObjectName("workflowDock")
@@ -285,6 +295,7 @@ class WorkflowController(QObject):
             session.native_project().display_name, session.snapshot()["plugin"]["id"], session.path,
             len(session.snapshot().get("actions", ())), len(session.snapshot().get("handlers", ()))))
         self._show_handlers()
+        self._show_overviews()
         self._apply_visibility()
         self._publish()
         self.changed.emit()
@@ -503,6 +514,33 @@ class WorkflowController(QObject):
         selection = self.shell.coordinator.selection
         if selection and selection[0] == "handler":
             self.handlers.select(selection[1])
+        action = self.shell.coordinator.selected_action()
+        for overview in (self.state_overview, self.symbol_overview):
+            overview.select(action.id if action else None)
+
+    def _show_overviews(self):
+        session = self.shell.coordinator.session
+        raw = session.snapshot() if session else None
+        project_dir = Path(session.path).resolve().parent if session and session.path else None
+        shown = (session.revision if session else None, self.shell.coordinator.project_token,
+                 missing_assets(raw, project_dir) if raw else ())
+        if shown == self._overviews_shown:
+            return
+        self._overviews_shown = shown
+        self.state_overview.set_project(raw)
+        self.symbol_overview.set_project(raw, project_dir)
+        self._mirror_selection()
+
+    def _edit_action(self, action_id):
+        """Öffnet die Aktion im Aktionsinspektor; im geführten Ablauf gehört er zu Schritt 3 und 4."""
+        c = self.shell.coordinator
+        c.select_node("action", action_id)
+        if self.expert or "inspector" in self._visible_tabs():
+            c.request_edit(action_id)
+
+    def _edit_symbol(self, action_id):
+        self.shell.coordinator.select_node("action", action_id)
+        return self.shell.open_symbol_designer(action_id)
 
     def _handler_change(self, operation) -> bool:
         s = self.shell
