@@ -110,6 +110,7 @@ class DeploymentController(_Panel):
         self.state = None
         self.host = None
         self.uninstall_receipt = None
+        self.status_codes = {}  # unveränderte Statuscodes je Zeile, unabhängig vom Anzeigetext
         intro = QLabel("Installiert ausschließlich Studio-eigene Plugins – standardmäßig als Verzeichnis-Installation "
                        "in den eigenen Ordner Plugins\\<Name> des Logi Plugin Service (sofort per Reload geladen). "
                        "Jedes Plugin bringt seine eigene geprüfte Host-Laufzeit mit und läuft ohne geöffnetes Studio. "
@@ -156,6 +157,7 @@ class DeploymentController(_Panel):
 
     # -- state -------------------------------------------------------------
     def set_status(self, key, value):
+        self.status_codes[key] = value
         self.status_labels[key].setText(value)
         self.status_labels[key].setStyleSheet("color: #1b7f3b;" if value in GOOD else
                                               "color: #b00020;" if "FAIL" in value or "NOT" in value else "")

@@ -967,7 +967,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.native:
             from studio.native_shell import NativeStudioShell
-            window = NativeStudioShell(args.project)
+            window = NativeStudioShell(args.project, workflow=True)
         else:
             window = StudioWindow(args.project)
     except (DocumentError, OSError, ValueError) as exc:

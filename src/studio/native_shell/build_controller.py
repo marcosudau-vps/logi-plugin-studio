@@ -49,6 +49,10 @@ class NativeBuildController(QObject):
         self.worker = None
         self.last_result = None
         self.last_error = None
+        # AP-GUIDE-001: optionale Vorprüfungen (liefern eine Ablehnungsmeldung oder None) und
+        # Benachrichtigungen nach Buildende. Ohne Einträge unverändertes Verhalten.
+        self.guards = []
+        self.listeners = []
         # AP-06: remembered plugin type per project (user-local, not in the project).
         self.mode_store = BuildModeStore()
         self._restoring = False
@@ -259,6 +263,11 @@ class NativeBuildController(QObject):
         if missing:
             self._reject("Voraussetzung fehlt: " + " ".join(missing))
             return False
+        for guard in self.guards:
+            refusal = guard()
+            if refusal:
+                self._reject(refusal)
+                return False
         mode = self.folder_mode
         try:
             entrypoints = (self._entrypoints(c.session.snapshot(), c.extension_store)
@@ -324,6 +333,8 @@ class NativeBuildController(QObject):
         deployment = getattr(self.shell, "deployment_controller", None)
         if deployment is not None:
             deployment.accept_build(result)
+        for listener in self.listeners:
+            listener()
 
     def _failed(self, error):
         self.last_error = error
@@ -331,6 +342,8 @@ class NativeBuildController(QObject):
         self.log.appendPlainText(error)
         self.shell.coordinator.report_error("native-build", error)
         self.shell.statusBar().showMessage("SDK-Build fehlgeschlagen. Details im Plugin-Build-Tab.")
+        for listener in self.listeners:
+            listener()
 
     def _finished(self):
         worker, self.worker = self.worker, None
