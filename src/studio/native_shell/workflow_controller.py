@@ -105,6 +105,9 @@ class WorkflowController(QObject):
         shell.save_all_action = self.save_all_action
         self._decorate_toolbar()
         self._build_menus()
+        from .delivery_panels import STATUS_TEXT_DE
+        shell.deployment_controller.set_status_text(STATUS_TEXT_DE)  # V-105
+        self._was_installed = False
         build = shell.build_controller
         build.guards.append(self._build_guard)  # V-98
         build.listeners.append(self._build_finished)
@@ -279,7 +282,9 @@ class WorkflowController(QObject):
         c = self.shell.coordinator
         if c.project_token != self._project_seen:
             self._project_changed()
-        self.states = evaluate(self.facts())
+        facts = self.facts()
+        self._note_installation(facts)
+        self.states = evaluate(facts)
         if not self.expert and not self.state(self.active).reachable:
             self.active = first_incomplete(self.states)
         shown = (self.states, self.active, self.expert)
@@ -619,7 +624,21 @@ class WorkflowController(QObject):
         build = self.shell.build_controller
         self._built = self._pending if build.last_result is not None else None
         self._pending = None
+        if build.last_result is not None:
+            build.summary.setText(
+                "Build erfolgreich: Das Plugin-Paket ist erstellt und geprüft. Es wurde noch nichts installiert – "
+                "weiter mit Schritt 7 „Installieren und Testen“.")
+            build.log.appendPlainText("Build erfolgreich.")
         self.refresh()
+
+    def _note_installation(self, facts):
+        """Einmaliger Hinweis auf den nächsten Handgriff, sobald die Installation steht."""
+        if facts.installed and not self._was_installed:
+            self.shell.deployment_controller.log.appendPlainText(
+                "Nächster Schritt: Logi Options+ öffnen, dein Gerät wählen, das Plugin in der Aktionsliste "
+                "suchen und eine Aktion auf eine Taste ziehen. Taste drücken und das Ergebnis in der "
+                "Checkliste oben unter „Am Gerät getestet und bestätigt“ bestätigen.")
+        self._was_installed = facts.installed
 
     def _handler_edited(self, text):
         self._handler_cache = (None, None)
