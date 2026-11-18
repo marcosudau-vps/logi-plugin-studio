@@ -12,6 +12,7 @@ from unittest.mock import patch
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT / "tests"))
 
 from PySide6.QtWidgets import QApplication, QMessageBox
 
@@ -347,6 +348,42 @@ class WorkflowShellTests(unittest.TestCase):
         self.assertTrue((self.dir / "demo.vfolders.json").is_file())
         self.assertTrue(wf.next())
         self.assertEqual(wf.active, "build")
+
+    def test_v107_maintenance_is_project_independent_and_tracks_the_open_plugin(self):
+        from test_maintenance import FakeBackend
+        from studio.maintenance.model import DeactivationStore
+        shell = self.shell()
+        wf = shell.workflow
+        self.assertTrue(wf.maintenance_action.isEnabled())
+        backend, store = FakeBackend(self.dir), DeactivationStore(self.dir / "settings")
+        dialog = wf.open_maintenance(backend=backend, store=store)
+        self.assertTrue(dialog.isVisible())
+        self.assertIs(wf.open_maintenance(), dialog)  # höchstens ein Fenster
+        self.assertEqual(dialog.table.rowCount(), 2)
+        dialog.close()
+        self.app.processEvents()
+        self.assertIsNone(wf.maintenance)
+        shell.open_project(self.project)
+        self.write_handler(shell)
+        self.fake_build(shell)
+        deploy = shell.deployment_controller
+        deploy.state = SimpleNamespace(status={"installed": "INSTALLED", "loaded": "LOADED", "connection": "ACTIVE"},
+                                       receipt=None, steps=[], plugin_id="demo.plugin")
+        wf.refresh()
+        self.assertTrue(wf.facts().installed)
+        wf._maintenance_changed("other.plugin", False)
+        self.assertTrue(wf.facts().installed)
+        wf._maintenance_changed("demo.plugin", False)
+        self.assertFalse(wf.facts().installed)
+        self.assertEqual(deploy.status_labels["installed"].text(), "entfernt")
+        wf._maintenance_changed("demo.plugin", True)
+        self.assertTrue(wf.facts().installed)
+
+    def test_start_page_offers_maintenance(self):
+        shell = self.shell()
+        with patch.object(type(shell.workflow), "open_maintenance") as opened:
+            shell.workflow.start_page.maintenance_button.click()
+            opened.assert_called_once()
 
 
 if __name__ == "__main__":

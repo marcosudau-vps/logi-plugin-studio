@@ -14,7 +14,7 @@ vorgesehenen Tests erfolgreich sind. Statuswerte wie in den bisherigen Arbeitsak
 | S4 | Stufe 3b: Zustandssicht | SDK-Zustände getrennt vom Python-Zustand | SOFTWARE_VERIFIED | `src/studio/workflow/overviews.py` | 2 neue Tests | Commit `4ceb4ed` | – |
 | S5 | Stufe 3c: Belegung über virtuelle Ordner | Keypad zeigt im Schritt Belegung nur das bearbeitbare Autorenmodell | SOFTWARE_VERIFIED | `workflow_controller.py`, `window.py` | 2 neue Tests (Platzieren → Speichern → Schritt erfüllt) | Feature-Commit „Belegung über virtuelle Ordner“ | Windows-Darstellung |
 | S6 | Stufe 4: Bauen und Installieren | deutsche Statuswerte, beschriftete Bereiche, Options+-Hinweis, Gerätetest | SOFTWARE_VERIFIED | `delivery_panels.py`, `workflow_controller.py` | T2: 0 neue Fehlschläge | `1e78b76` | Echter Build/Install nur unter Windows |
-| S7 | Stufe 5: Wartung | installierte Plugins, Deaktivieren/Reaktivieren, Neuladen, Protokolle, Voraussetzungen | OFFEN | | | | Dienst-Neustart nicht sicher belegbar |
+| S7 | Stufe 5: Wartung | installierte Plugins, Deaktivieren/Reaktivieren, Neuladen, Protokolle, Voraussetzungen | SOFTWARE_VERIFIED | `src/studio/maintenance/*`, `workflow_controller.py`, `start_page.py`, `guide_topics.de.json` | 7 neue Tests (mit Attrappe) | Feature-Commit „Wartung“, `evidence/screenshots/wartung.png` | echter Pluginordner nur unter Windows; Dienst-Neustart bewusst nicht angeboten |
 | S8 | Stufe 6: Dokumentation | Handbuch, STATUS, CHANGELOG, README, veraltete Dokumente, Benutzerabnahme | OFFEN | | | | |
 | S9 | Stufe 6: Begriffsliste | ein Wort je Sache in den sichtbaren Texten | OFFEN | | | | |
 | S10 | Stufe 6: Vollregression und Abschluss | 0 neue Fehlschläge, Abschlussbericht, Push, Spiegelung in den lokalen Projektordner | OFFEN | | | | Windows-Lauf durch Auftraggeber |
@@ -47,3 +47,11 @@ vorgesehenen Tests erfolgreich sind. Statuswerte wie in den bisherigen Arbeitsak
   virtuelle Autorenmodell und schaltet „Bearbeiten“ ein. **Befund:** Nach „Alles speichern“ wurde der Schrittstatus
   erst beim nächsten Zeitgeber-Tick aktualisiert, weil Extensionänderungen kein `coordinator.changed` auslösen →
   `_folders_changed` aktualisiert den Ablauf jetzt direkt.
+- Stufe 3c als Feature-Commit auf `release/1.0.0`, gepusht.
+- Stufe 5 Wartung. **Technische Prüfung Dienst-Neustart:** Der Code kennt nur den dokumentierten Reload eines
+  einzelnen Plugins (`loupedeck://plugin/<Name>/reload` über `LogiPluginServiceTool.exe`). Für einen Neustart des
+  ganzen Dienstes gibt es keinen belegten Weg; er würde fremde Plugins und Geräte treffen. **Entscheidung:** nicht
+  anbieten, im Fenster begründen, auf „Plugin neu laden“ verweisen. **Entscheidung Aktivieren/Deaktivieren:**
+  Deaktivieren = vorhandene Deinstallation mit Sicherungsbeleg, Reaktivieren = vorhandene Wiederherstellung;
+  keine neue Dateilogik im Pluginordner. „Shared-Peers“ war schon mit Stufe 2 hinter den Plugin-Typ Shared verlegt
+  (Registerkarte nur in Schritt 7 und nur beim Plugin-Typ Shared).

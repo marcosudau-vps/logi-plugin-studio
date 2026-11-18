@@ -62,6 +62,8 @@ class WorkflowController(QObject):
         shell.tabs.insertTab(0, self.start_page, "Start")
         self.start_page.newRequested.connect(shell.create_project)  # V-90
         self.start_page.openRequested.connect(shell.choose_project)
+        self.start_page.maintenanceRequested.connect(lambda: self.open_maintenance())
+        self.maintenance = None
         from studio.handler_inspector import HandlerInspectorWidget
         self.handlers = shell.handler_panel = HandlerInspectorWidget()
         shell.tabs.insertTab(1, self.handlers, "Handler")
@@ -173,6 +175,11 @@ class WorkflowController(QObject):
         self.tools_menu = bar.addMenu("&Werkzeuge")
         self.tools_menu.addAction(tools["ict"])
         self.tools_menu.addAction(tools["build"])
+        self.tools_menu.addSeparator()
+        self.maintenance_action = self.tools_menu.addAction("Wartung …")
+        self.maintenance_action.setObjectName("workflowMaintenanceAction")
+        self.maintenance_action.setToolTip("Installierte Plugins prüfen, neu laden, deaktivieren und reaktivieren.")
+        self.maintenance_action.triggered.connect(self.open_maintenance)  # V-107
         help_menu = bar.addMenu("&Hilfe")
         help_menu.addAction(tools["help"])
         guide = help_menu.addAction("Anleitung zu diesem Schritt")
@@ -626,6 +633,41 @@ class WorkflowController(QObject):
             s.statusBar().showMessage(f"Vorhandene Datei {target.name} zugeordnet (nicht überschrieben).")
         s.build_controller.handler.setText(target.name)
         return True
+
+    # -- Wartung -----------------------------------------------------------
+    def open_maintenance(self, *, backend=None, store=None):
+        """Nicht modales, projektunabhängiges Wartungsfenster; höchstens eines gleichzeitig."""
+        from studio.maintenance.dialog import MaintenanceDialog
+        if self.maintenance is None:
+            self.maintenance = MaintenanceDialog(self.shell, backend=backend, store=store)
+            self.maintenance.pluginChanged.connect(self._maintenance_changed)
+            self.maintenance.finished.connect(self._maintenance_closed)
+        self.maintenance.show()
+        self.maintenance.raise_()
+        self.maintenance.activateWindow()
+        deploy = self.shell.deployment_controller
+        if deploy.state is not None:
+            self.maintenance.select_plugin(deploy.state.plugin_id)
+        return self.maintenance
+
+    def _maintenance_closed(self, *_):
+        dialog, self.maintenance = self.maintenance, None
+        if dialog is not None:
+            dialog.deleteLater()
+
+    def _maintenance_changed(self, plugin_id, active):
+        """Deaktivieren/Reaktivieren des Plugins des offenen Projekts im Installationstab nachführen."""
+        deploy = self.shell.deployment_controller
+        if deploy.state is None or deploy.state.plugin_id != plugin_id:
+            return
+        deploy.state.status["installed"] = "INSTALLED" if active else "REMOVED"
+        deploy.set_status("installed", deploy.state.status["installed"])
+        if not active:
+            deploy.state.status["loaded"] = deploy.state.status["connection"] = "UNKNOWN"
+            deploy.set_status("loaded", "UNKNOWN")
+            deploy.set_status("connection", "UNKNOWN")
+        deploy._sync()
+        self.refresh()
 
     # -- Build --------------------------------------------------------------
     def _build_guard(self):
