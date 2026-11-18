@@ -36,6 +36,7 @@ Ohne gesetztes `LOCALAPPDATA` scheitern unter Linux zusätzlich rund 200 Shell-T
 | T0 | Start-Commit `3c7de52` | 1.208 · 11 F · 32 E · 37 S | – (Basis) | `evidence/tests/baseline_linux_full.txt` |
 | T1 | Stufe 1+2 (`feat/gefuehrter-ablauf`) | 1.235 | 1 → behoben (`test_v17…`: Programmeinstieg startet jetzt geführt; Test angepasst) | Konsolenausgabe, siehe Chronik |
 | T2 | Stufe 4 (`97b98e6`) | 1.247 · 11 F · 32 E · 37 S | **0** | `evidence/tests/stufe4_full.txt`, `stufe4_failures.txt` |
+| T3 | Stufe 3c + 5 (`feat/wartung`) | 1.256 · 11 F · 32 E · 37 S | **0** | `evidence/tests/stufe5_full.txt`, `stufe5_failures.txt` |
 
 Weitere Läufe werden hier fortgeschrieben.
 
@@ -44,8 +45,9 @@ Weitere Läufe werden hier fortgeschrieben.
 | Modul | Inhalt | Tests |
 |---|---|---|
 | `tests/test_workflow_model.py` | Qt-frei: Fakten → Schrittstatus, Sperren, Veralten, benutzerlokaler Speicher | 14 |
-| `tests/test_workflow_shell.py` | echte Shell: Sichtbarkeit je Schritt, Expertenmodus, Build-Sperre, Checkliste, Hilfe, Problemliste, Übersichten, Gerätetest | 15 |
+| `tests/test_workflow_shell.py` | echte Shell: Sichtbarkeit je Schritt, Expertenmodus, Build-Sperre, Checkliste, Hilfe, Problemliste, Übersichten, Belegung, Wartung, Gerätetest | 19 |
 | `tests/test_handler_inspector.py` | Handler-Lebenszyklus Qt-frei und in der Shell, Handlerdatei aus Vorlage | 10 |
+| `tests/test_maintenance.py` | Wartung mit Attrappe der Installationsfunktionen: Zeilen, Deaktivieren/Reaktivieren, Fenster | 5 |
 
 ## Sichtprüfung
 
