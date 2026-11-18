@@ -1,6 +1,6 @@
 ; Logitech Plugin Studio – Windows Setup (Inno Setup 6, free).
 ; Built ONLY by tools/packaging/build_release.py, which passes:
-;   /DAppVersion=1.0.0-rc1 /DAppVersionNumeric=1.0.0.1 /DPayload=<payload dir>
+;   /DAppVersion=1.0.0-rc2 /DAppVersionNumeric=1.0.0.2 /DPayload=<payload dir>
 ;   /DOutputDir=<release_candidate> /DOutputBaseFilename=LogiPluginStudio-Setup-<v>
 ; The payload is byte-identical to the Portable ZIP. The Setup edition only adds
 ; studio-edition.json and the Windows integration (Start menu, uninstall entry).

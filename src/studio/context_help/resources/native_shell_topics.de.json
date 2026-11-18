@@ -46,7 +46,7 @@
     "topic_id": "native_shell.rename",
     "title": "Nativen Anzeigenamen ändern",
     "summary": "Der Dialog bearbeitet ausschließlich den Anzeigenamen der ausgewählten nativen Aktion.",
-    "description": "Die native Action-ID bleibt erhalten. Ohne auflösbare Aktion ist die Funktion gesperrt. Abbrechen ändert nichts; eine veraltete Dialogrevision wird ohne Überschreiben abgewiesen.",
+    "description": "Die native Aktions-ID bleibt erhalten. Ohne auflösbare Aktion ist die Funktion gesperrt. Abbrechen ändert nichts; eine veraltete Dialogrevision wird ohne Überschreiben abgewiesen.",
     "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
     "related_topics": [
       "catalog.edit",

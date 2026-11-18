@@ -31,7 +31,7 @@ def registered_handlers(file: Path) -> set[str] | None:
 
 
 def asset_references(raw: dict) -> dict[str, list[str]]:
-    """Projektrelative Bild-/Vorlagenpfade je Action-ID (``""`` = Plugin-Standardvorlage)."""
+    """Projektrelative Bild-/Vorlagenpfade je Aktions-ID (``""`` = Plugin-Standardvorlage)."""
     result: dict[str, list[str]] = {}
     default = raw.get("plugin", {}).get("default_icon_template")
     if isinstance(default, str):

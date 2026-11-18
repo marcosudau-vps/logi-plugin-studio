@@ -28,7 +28,7 @@ class ActionDraft:
         parse_native_project(project)
         original = next((a for a in project['actions'] if a['id'] == action_id), None)
         if original is None or canonical(original) != canonical(raw_action):
-            raise DraftError('Action-ID und Originaldaten müssen zum Projektsnapshot gehören.')
+            raise DraftError('Aktions-ID und Originaldaten müssen zum Projektsnapshot gehören.')
         if not isinstance(revision, str) or not revision:
             raise DraftError('Eine opake Baserevision ist erforderlich.')
         self._project = deepcopy(project)
@@ -59,7 +59,7 @@ class ActionDraft:
 
     def set_field(self, key, value):
         if key in ('id', 'sdk_type'):
-            raise DraftError('Action-ID und SDK-Typ sind unveränderlich.')
+            raise DraftError('Aktions-ID und SDK-Typ sind unveränderlich.')
         common = {'display_name', 'description', 'group_name', 'handler', 'parameters',
                   'icon', 'icon_template', 'symbol', 'parameter_symbols'}
         special = {'PluginMultistateDynamicCommand': {'states', 'state_change'},

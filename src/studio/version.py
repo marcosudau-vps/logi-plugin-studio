@@ -13,9 +13,9 @@ import sys
 from pathlib import Path
 
 PRODUCT_NAME = "Logitech Plugin Studio"
-VERSION = "1.0.0-rc1"
+VERSION = "1.0.0-rc2"
 #: Numeric form for Windows version resources / Inno Setup VersionInfoVersion.
-VERSION_NUMERIC = "1.0.0.1"
+VERSION_NUMERIC = "1.0.0.2"
 EDITION_MARKER = "studio-edition.json"
 
 

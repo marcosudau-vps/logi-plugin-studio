@@ -187,10 +187,15 @@ class WorkflowShellTests(unittest.TestCase):
         shell.coordinator.rename_action(action["id"], "Geändert", base_revision=shell.coordinator.session.revision)
         self.assertIn("Alles gespeichert", wf._build_guard())
         self.assertTrue(wf.save_all_action.isEnabled())
+        from PySide6.QtGui import QKeySequence
+        self.assertEqual(wf.save_all_action.shortcut(), QKeySequence(QKeySequence.StandardKey.Save))
+        self.assertTrue(shell.save_action.shortcut().isEmpty())
         self.assertTrue(shell.save_all())
         self.assertFalse(shell.coordinator.session.dirty)
         self.assertIsNone(wf._build_guard())
         wf.set_expert(True)
+        self.assertEqual(shell.save_action.shortcut(), QKeySequence(QKeySequence.StandardKey.Save))
+        self.assertEqual(wf.save_all_action.shortcut(), QKeySequence("Ctrl+Shift+S"))
         shell.coordinator.rename_action(action["id"], "Nochmal", base_revision=shell.coordinator.session.revision)
         self.assertIsNone(wf._build_guard())  # Expertenmodus sperrt nicht
 

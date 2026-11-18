@@ -55,7 +55,7 @@ def selection_context(host):
     facts = (('Entität', safe_fact(f'{kind}: {identity}')),)
     action = host.selected_action()
     if kind == 'folder_entry' and action:
-        facts += (('Action-ID', safe_fact(action.id)),)
+        facts += (('Aktions-ID', safe_fact(action.id)),)
     if action and host.action_parameter is not None and any(
             p.name == host.action_parameter for p in action.parameters):
         topic = 'catalog.parameter'
@@ -227,7 +227,7 @@ class NativeHelpBindings(QObject):
             action = c.selected_action()
             facts = (('Verfügbar', str(widget.isEnabled())),)
             if action:
-                facts += (('Action-ID', safe_fact(action.id)),)
+                facts += (('Aktions-ID', safe_fact(action.id)),)
         if resolver in ('problem_filter', 'diagnostic'):
             facts = (('Schweregrad', w.problems.severity_filter()),
                      ('Suchlänge', str(len(w.problems.filter_text()))),

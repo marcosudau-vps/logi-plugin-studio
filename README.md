@@ -2,7 +2,9 @@
 
 Windows-Studio und Python-Anbindung für Logitech-Actions-SDK-Plugins. Führende Fachsemantik: **SDK Native First**, siehe [ARCH-ADR-001](docs/decisions/ARCH-ADR-001.md).
 
-**Aktueller Entwicklungsstand, 07.11.2026:** Native Actions bearbeiten/erstellen/löschen, VirtualFolder-Composer in der nativen Shell, SDK-native Folder-Ausführung und dynamische Membership sowie der integrierte SDK-Build aus gespeicherten virtuellen Ordnern sind softwareseitig implementiert. AP-FOLDER-002 und REVIEW-FIX-20261106 wurden in ihrem Softwareumfang [gemeinsam unabhängig abgenommen](work/acceptance/20261107-joint-folder-build/ABNAHME.md). Eine vollständige Hardware-/Gesamtproduktfreigabe wird nicht behauptet. [Aktueller Status](STATUS.md).
+**Aktueller Entwicklungsstand, 18.11.2026:** Release-Kandidat 1.0.0-rc2 mit **geführtem Ablauf** in sieben Schritten (Projekt → Handler → Aktionen → Darstellung → Belegung → Prüfen und Bauen → Installieren und Testen), HandlerInspector, Wartung und Expertenmodus. Status READY_FOR_REVIEW; Windows-Prüfung und Benutzerabnahme stehen aus. [Aktueller Status](STATUS.md) · [Arbeitsakte AP-GUIDE-001](work/guided-workflow/AP-GUIDE-001/README.md).
+
+*Frühere Fassung dieses Absatzes (07.11.2026):* Native Actions bearbeiten/erstellen/löschen, VirtualFolder-Composer in der nativen Shell, SDK-native Folder-Ausführung und dynamische Membership sowie der integrierte SDK-Build aus gespeicherten virtuellen Ordnern sind softwareseitig implementiert. AP-FOLDER-002 und REVIEW-FIX-20261106 wurden in ihrem Softwareumfang [gemeinsam unabhängig abgenommen](work/acceptance/20261107-joint-folder-build/ABNAHME.md). Eine vollständige Hardware-/Gesamtproduktfreigabe wird nicht behauptet. [Aktueller Status](STATUS.md).
 
 ## Start
 

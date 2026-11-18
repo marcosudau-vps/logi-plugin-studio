@@ -199,7 +199,7 @@ class Document:
             if type(p.position) is not int or p.position < 0:
                 raise FolderError('Position muss eine nichtnegative Ganzzahl sein.')
             if p.action_parameter is not None and (p.kind != 'action' or not isinstance(p.action_parameter, str)):
-                raise FolderError('actionParameter ist nur bei Actions als Text zulässig.')
+                raise FolderError('actionParameter ist nur bei Aktionen als Text zulässig.')
             if p.kind in ('contains', 'link') and p.target.plugin_id == self.plugin_id:
                 self.folder(p.target.resource_id)
             if p.kind == 'contains':

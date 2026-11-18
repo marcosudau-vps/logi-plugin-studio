@@ -23,14 +23,14 @@ class NativeBuildPreflightError(ValueError):
 #: User-facing plugin types. The key is the generator's ``folder_mode``.
 FOLDER_MODES = {
     "compatible": ("Kompatibel (Standard)",
-                   "Bisheriges Verhalten bestehender Projekte: SDK-Actions plus optionaler "
+                   "Bisheriges Verhalten bestehender Projekte: SDK-Aktionen plus optionaler "
                    "virtueller Folderaufsatz aus der gespeicherten .vfolders.json. Keine Peer-Runtime."),
     "native": ("Nativ – reines SDK-Plugin",
-               "Nur originale Logitech-SDK-Actions und statische SDK-DynamicFolder aus dem "
+               "Nur originale Logitech-SDK-Aktionen und statische SDK-DynamicFolder aus dem "
                "nativen Projekt; normale Python-Bridge. Keine Folder-/Peer-Runtime, virtuelle "
                "Ordner werden nicht ausgeliefert."),
     "shared": ("Shared DynamicFolder",
-               "SDK-Actions plus vollständig eingebettete Folder- und Peer-Runtime. Fremde "
+               "SDK-Aktionen plus vollständig eingebettete Folder- und Peer-Runtime. Fremde "
                "Referenzen aus den virtuellen Ordnern werden zur Laufzeit beim Owner-Plugin "
                "ausgeführt, sofern dort freigegeben (Pairing/Berechtigungen)."),
 }
@@ -122,7 +122,7 @@ def prepare_native_build(session, store, *, entrypoints=None, folder_mode="compa
             raise NativeBuildPreflightError("Im Modus Nativ werden keine virtuellen Einstiegspunkte verwendet.")
     elif folder_mode == "compatible" and externals:
         warnings.append(f"{len(externals)} externe Referenz(en) bleiben im Modus Kompatibel offline; "
-                        "für fremde Actions den Modus Shared DynamicFolder wählen.")
+                        "für fremde Aktionen den Modus Shared DynamicFolder wählen.")
     references = None
     try:
         session._check_disk()

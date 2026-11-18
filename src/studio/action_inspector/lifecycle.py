@@ -43,11 +43,11 @@ def propose_create(project, action):
     proposed = deepcopy(project)
     parse_native_project(proposed)
     if not isinstance(action, dict):
-        raise DraftError('/: Eine Action als Objekt ist erforderlich.')
+        raise DraftError('/: Eine Aktion als Objekt ist erforderlich.')
     if not is_valid_id(action.get('id')):
-        raise DraftError('/id: Ungültige Action-ID. Beispiel: action.mein-befehl (klein, ohne Leerzeichen).')
+        raise DraftError('/id: Ungültige Aktions-ID. Beispiel: action.mein-befehl (klein, ohne Leerzeichen).')
     if any(a['id'] == action['id'] for a in proposed['actions']):
-        raise DraftError('/id: Diese Action-ID existiert bereits; bitte eine eindeutige ID eingeben.')
+        raise DraftError('/id: Diese Aktions-ID existiert bereits; bitte eine eindeutige ID eingeben.')
     if not isinstance(action.get('display_name'), str) or not action['display_name'].strip():
         raise DraftError('/display_name: Bitte einen nicht leeren Anzeigenamen eingeben.')
     canonical(action)
@@ -72,13 +72,13 @@ def check_delete(project, action_id):
     parse_native_project(project)
     action = next((a for a in project['actions'] if a['id'] == action_id), None)
     if action is None:
-        raise DraftError('Native Action-ID nicht mehr vorhanden; nichts geändert.')
+        raise DraftError('Native Aktions-ID nicht mehr vorhanden; nichts geändert.')
     refs = tuple((f['id'], e['id']) for f in project['folders'] for e in f['entries']
                  if e['action'] == action_id)
     reason = (f'{len(refs)} Folder-Referenz(en) verhindern das Löschen: ' +
               ', '.join(f'{f} / {e}' for f, e in refs)) if refs else ''
     if len(project['actions']) == 1:
-        reason = 'Die letzte Action darf nicht gelöscht werden; das Projekt benötigt mindestens eine Action.' + (
+        reason = 'Die letzte Aktion darf nicht gelöscht werden; das Projekt benötigt mindestens eine Aktion.' + (
             '\n' + reason if reason else '')
     return DeleteCheck(action_id, action['display_name'], refs, reason)
 

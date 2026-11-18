@@ -122,7 +122,8 @@ class WorkflowRail(QWidget):
             item.setToolTip(criterion.detail or criterion.text)
             self.checklist.addItem(item)
         rows = min(max(self.checklist.count(), 1), 5)
-        self.checklist.setFixedHeight(rows * max(self.checklist.sizeHintForRow(0), 16) + 8)
+        row_height = max(self.checklist.sizeHintForRow(0), self.checklist.fontMetrics().height() + 4)
+        self.checklist.setFixedHeight(rows * row_height + 2 * self.checklist.frameWidth() + 4)
 
     def active(self) -> str:
         return self._active

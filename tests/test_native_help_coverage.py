@@ -244,7 +244,7 @@ class NativeHelpCoverageTests(unittest.TestCase):
                 self.assertIn(identity, str(self.state(topic).facts))
                 self.focus(self.w.explorer.search_edit, 'explorer.search')
                 self.focus(self.w.explorer.tree, topic)
-        self.assertIn(('Action-ID', 'action.command'), self.state().facts)
+        self.assertIn(('Aktions-ID', 'action.command'), self.state().facts)  # AP-GUIDE-001: Begriffsliste
 
     def test_explorer_groups_and_loss(self):
         self.node('action', 'action.command')

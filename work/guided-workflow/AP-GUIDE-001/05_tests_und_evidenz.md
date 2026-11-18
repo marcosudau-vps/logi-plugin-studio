@@ -37,8 +37,10 @@ Ohne gesetztes `LOCALAPPDATA` scheitern unter Linux zusätzlich rund 200 Shell-T
 | T1 | Stufe 1+2 (`feat/gefuehrter-ablauf`) | 1.235 | 1 → behoben (`test_v17…`: Programmeinstieg startet jetzt geführt; Test angepasst) | Konsolenausgabe, siehe Chronik |
 | T2 | Stufe 4 (`97b98e6`) | 1.247 · 11 F · 32 E · 37 S | **0** | `evidence/tests/stufe4_full.txt`, `stufe4_failures.txt` |
 | T3 | Stufe 3c + 5 (`feat/wartung`) | 1.256 · 11 F · 32 E · 37 S | **0** | `evidence/tests/stufe5_full.txt`, `stufe5_failures.txt` |
+| T4 | Stufe 6 nach Begriffsliste, vor Testanpassung | 1.256 · 13 F · 32 E · 37 S | 2 (alter Wortlaut „letzte Action“) → Erwartung angepasst | Konsolenausgabe |
+| **T5** | **Endstand** (`feat/abschluss-dokumentation`) | **1.256 · 11 F · 32 E · 37 S** | **0** – Fehlschlagliste identisch mit T0 | `evidence/tests/final_full.txt`, `final_failures.txt` |
 
-Weitere Läufe werden hier fortgeschrieben.
+Neue Tests insgesamt: 48 (1.208 → 1.256). Angepasste Bestandstests: 4, nur erwartete Formulierungen.
 
 ## Neue Testmodule
 

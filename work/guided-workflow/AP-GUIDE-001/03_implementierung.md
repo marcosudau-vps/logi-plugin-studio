@@ -98,6 +98,15 @@ Schritt 7 nach.
 „Shared-Peers“: bereits seit Stufe 2 nur in Schritt 7 und nur beim Plugin-Typ „Shared DynamicFolder“ sichtbar;
 im Expertenmodus wie bisher immer.
 
+## Stufe 6 – Begriffe und Abschluss
+
+- [Begriffsliste](../../../docs/architecture/studio/Begriffe.md) und deren Anwendung auf sichtbare Texte, Meldungen
+  und Hilfethemen. Ersetzt wurde nur Text in Zeichenkettenliteralen bzw. in den Feldern `title`, `summary`,
+  `description`, `example` der Hilfedateien; Bezeichner, Themen-IDs und Daten bleiben unverändert.
+- Strg+S = „Alles speichern“ im geführten Ablauf; Statuszeile „Projekt: … | Ordner: …“.
+- Version `1.0.0-rc2` (`src/studio/version.py`, Kommentar in `LogiPluginStudio.iss`).
+- Zeilenenden der fünf versehentlich umgestellten CRLF-Dateien wiederhergestellt.
+
 ## Abweichungen vom Plan
 
 | Plan | Umsetzung | Grund |

@@ -10,7 +10,7 @@ from adapters.logitech.native import ACTION_TYPES
 
 CONTROL_TYPES = ('textbox', 'checkbox', 'textarea', 'file_selector', 'directory_selector', 'slider', 'numeric_up_down')
 MISSING = object()
-LABELS = {'id':'Action-ID', 'sdk_type':'SDK-Typ', 'display_name':'Anzeigename', 'description':'Beschreibung', 'group_name':'Gruppe',
+LABELS = {'id':'Aktions-ID', 'sdk_type':'SDK-Typ', 'display_name':'Anzeigename', 'description':'Beschreibung', 'group_name':'Gruppe',
  'super_group_name':'Übergeordnete Gruppe', 'handler':'Handler', 'name':'Name', 'label':'Beschriftung',
  'image':'Bildreferenz (.png/.svg)', 'minimum':'Minimum', 'maximum':'Maximum', 'default':'Standardwert',
  'step':'Schrittweite', 'format':'Format', 'format_string':'Zahlenformat', 'has_reset':'Reset verfügbar',
@@ -302,7 +302,7 @@ class ActionInspectorWidget(QWidget):
         self.delete_info.setText(('Löschen: ' + check.action_id + '\n' + check.reason) if check and check.reason else '')
         topic = 'delete_references' if check and check.references else 'delete_last' if check and check.reason else 'delete'
         help_topic(self.delete_info, topic); help_topic(self.delete_button, topic)
-        self.delete_button.setToolTip(check.reason if check and check.reason else 'Ausgewählte Action-ID nach ausdrücklicher Bestätigung löschen.')
+        self.delete_button.setToolTip(check.reason if check and check.reason else 'Ausgewählte Aktions-ID nach ausdrücklicher Bestätigung löschen.')
     def _change_type(self):
         value = self.sections['identity'].fields['sdk_type'].value()
         if value == self.draft.snapshot()['sdk_type']: return

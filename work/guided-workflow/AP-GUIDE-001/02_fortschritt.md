@@ -8,16 +8,16 @@ vorgesehenen Tests erfolgreich sind. Statuswerte wie in den bisherigen Arbeitsak
 | # | Stufe / Schritt | Ziel | Status | Betroffene Dateien | Teststatus | Nachweis | Offene Risiken |
 |---|---|---|---|---|---|---|---|
 | S0 | Stufe 0: Ausgangsbasis | Git-Struktur, Start-Commit, Basislauf | SOFTWARE_VERIFIED | `.gitignore`, `.gitattributes` | Basis 1.208 · 43 umgebungsbedingte Abweichungen (siehe 05) | `evidence/tests/baseline_linux_*` | Windows-Basislauf nur aus AP-POLISH-001 |
-| S1 | Stufe 1: Konzept | Spezifikation, Sichtbarkeitsmatrix | SOFTWARE_VERIFIED | `docs/architecture/studio/widgets/WorkflowGuide.md` | – | Commit `4968ac8` | Begriffsliste noch offen (→ S9) |
+| S1 | Stufe 1: Konzept | Spezifikation, Sichtbarkeitsmatrix | SOFTWARE_VERIFIED | `docs/architecture/studio/widgets/WorkflowGuide.md` | – | Commit `4968ac8` | Begriffsliste in S9 |
 | S2 | Stufe 2: Gerüst | Schrittmodell, Schrittleiste, Startseite, Schritt-Steuerung, Führungsthemen, Menü, Symbolleiste, Alles speichern, Expertenmodus, Build-Sperre | SOFTWARE_VERIFIED | `src/studio/workflow/*`, `src/studio/native_shell/workflow_controller.py`, `window.py`, `build_controller.py`, `app.py`, `guide_topics.de.json` | 27 neue Tests; T1 | Commit `636a9bb` | Windows-Darstellung |
 | S3 | Stufe 3a: HandlerInspector | Handler anlegen/umbenennen/löschen, Handlerdatei aus Vorlage | SOFTWARE_VERIFIED | `src/studio/handler_inspector/*`, `coordinator.py` | 10 neue Tests | Commit `35f9436` | – |
 | S4 | Stufe 3b: Zustandssicht | SDK-Zustände getrennt vom Python-Zustand | SOFTWARE_VERIFIED | `src/studio/workflow/overviews.py` | 2 neue Tests | Commit `4ceb4ed` | – |
 | S5 | Stufe 3c: Belegung über virtuelle Ordner | Keypad zeigt im Schritt Belegung nur das bearbeitbare Autorenmodell | SOFTWARE_VERIFIED | `workflow_controller.py`, `window.py` | 2 neue Tests (Platzieren → Speichern → Schritt erfüllt) | Feature-Commit „Belegung über virtuelle Ordner“ | Windows-Darstellung |
 | S6 | Stufe 4: Bauen und Installieren | deutsche Statuswerte, beschriftete Bereiche, Options+-Hinweis, Gerätetest | SOFTWARE_VERIFIED | `delivery_panels.py`, `workflow_controller.py` | T2: 0 neue Fehlschläge | `1e78b76` | Echter Build/Install nur unter Windows |
 | S7 | Stufe 5: Wartung | installierte Plugins, Deaktivieren/Reaktivieren, Neuladen, Protokolle, Voraussetzungen | SOFTWARE_VERIFIED | `src/studio/maintenance/*`, `workflow_controller.py`, `start_page.py`, `guide_topics.de.json` | 7 neue Tests (mit Attrappe) | Feature-Commit „Wartung“, `evidence/screenshots/wartung.png` | echter Pluginordner nur unter Windows; Dienst-Neustart bewusst nicht angeboten |
-| S8 | Stufe 6: Dokumentation | Handbuch, STATUS, CHANGELOG, README, veraltete Dokumente, Benutzerabnahme | OFFEN | | | | |
-| S9 | Stufe 6: Begriffsliste | ein Wort je Sache in den sichtbaren Texten | OFFEN | | | | |
-| S10 | Stufe 6: Vollregression und Abschluss | 0 neue Fehlschläge, Abschlussbericht, Push, Spiegelung in den lokalen Projektordner | OFFEN | | | | Windows-Lauf durch Auftraggeber |
+| S8 | Stufe 6: Dokumentation | Handbuch, STATUS, CHANGELOG, README, veraltete Dokumente, Benutzerabnahme | SOFTWARE_VERIFIED | `docs/ANWENDERHANDBUCH.md`, `STATUS.md`, `CHANGELOG.md`, `README.md`, `docs/architecture/studio/README.md`, `widgets/KeypadPreview.md`, `work/planning/README.md`, `outputs/BENUTZERABNAHME.md` | – | Feature-Commit „Begriffe, Dokumentation und Abschluss“ | – |
+| S9 | Stufe 6: Begriffsliste | ein Wort je Sache in den sichtbaren Texten | SOFTWARE_VERIFIED | `docs/architecture/studio/Begriffe.md`, 12 Quelldateien, 5 Hilfedateien | 3 Bestandstests im Wortlaut angepasst | wie S8 | SDK-Typnamen im Aktionskatalog bewusst unverändert |
+| S10 | Stufe 6: Vollregression und Abschluss | 0 neue Fehlschläge, Abschlussbericht, Push, Spiegelung in den lokalen Projektordner | SOFTWARE_VERIFIED | `07_abschlussbericht.md` | 1.256 Tests, Fehlschlagliste identisch mit Basis | `evidence/tests/final_*` | Windows-Lauf durch Auftraggeber |
 
 ## Chronik
 
@@ -55,3 +55,18 @@ vorgesehenen Tests erfolgreich sind. Statuswerte wie in den bisherigen Arbeitsak
   Deaktivieren = vorhandene Deinstallation mit Sicherungsbeleg, Reaktivieren = vorhandene Wiederherstellung;
   keine neue Dateilogik im Pluginordner. „Shared-Peers“ war schon mit Stufe 2 hinter den Plugin-Typ Shared verlegt
   (Registerkarte nur in Schritt 7 und nur beim Plugin-Typ Shared).
+- Stufe 5 als `caf0a44` auf `release/1.0.0`, gepusht.
+- Stufe 6 Begriffsliste: „Action“ → „Aktion“ in sichtbaren Texten und Hilfethemen; Befehle „Projekt öffnen …“,
+  „Projekt speichern“, „Ordner speichern“, „Rückgängig (Projekt|Ordner)“, Statuszeile „Projekt: … | Ordner: …“.
+  Drei Bestandstests prüften den alten Wortlaut → nur die erwartete Formulierung angepasst.
+  **Entscheidung:** SDK-Typnamen im Aktionskatalog bleiben (Daten- und Filtergrundlage des abgenommenen Widgets).
+- Strg+S speichert im geführten Ablauf alles (im Expertenmodus wie bisher nur das Projekt; „Alles speichern“ dort
+  Strg+Umschalt+S).
+- **Befund Zeilenenden:** Fünf CRLF-Quelldateien waren in Stufe 2–5 beim Bearbeiten auf LF umgestellt worden
+  (Schein-Diffs von über 3.000 Zeilen). Ursprüngliche Zeilenenden wiederhergestellt; alle geänderten Dateien
+  gegen den Start-Commit geprüft – kein Unterschied mehr im Zeilenende.
+- Sichtprüfung offscreen: Checkliste in Schritt 6 schnitt den vierten Punkt ab → Zeilenhöhe aus der Schrift
+  berechnet. Version auf 1.0.0-rc2.
+- Handbuch auf den geführten Ablauf umgeschrieben (Abschnitte 2–11), Benutzerabnahme für rc2 erstellt, STATUS,
+  CHANGELOG, README, Studio-Architektur, KeypadPreview-Status und Planungsindex fortgeschrieben.
+- Vollregression: 1.256 Tests, Fehlschlagliste identisch mit der Ausgangsbasis. **Status READY_FOR_REVIEW.**

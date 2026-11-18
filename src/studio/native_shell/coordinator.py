@@ -102,11 +102,11 @@ class StudioCoordinator(QObject):
         if base_revision != self.session.revision:
             raise NativeRevisionConflict('Veraltete oder fremde base_revision; nichts geändert.')
         if not self._exists('action', action_id):
-            raise NativeSessionError('Native Action-ID nicht mehr vorhanden; nichts geändert.')
+            raise NativeSessionError('Native Aktions-ID nicht mehr vorhanden; nichts geändert.')
         proposed = self.session.snapshot()
         record = next((a for a in proposed['actions'] if a['id'] == action_id), None)
         if record is None:
-            raise NativeSessionError('Native Action-ID im JSON-Snapshot verloren; nichts geändert.')
+            raise NativeSessionError('Native Aktions-ID im JSON-Snapshot verloren; nichts geändert.')
         record['display_name'] = display_name
         revision = self.session.replace(proposed, base_revision=base_revision)  # V-15
         self._after_change()
@@ -122,10 +122,10 @@ class StudioCoordinator(QObject):
         proposed = self.session.snapshot()
         index = next((i for i, a in enumerate(proposed['actions']) if a['id'] == action_id), None)
         if index is None:
-            raise NativeSessionError('Native Action-ID nicht mehr vorhanden.')
+            raise NativeSessionError('Native Aktions-ID nicht mehr vorhanden.')
         original = proposed['actions'][index]
         if not isinstance(proposed_action, dict) or any(proposed_action.get(k) != original[k] for k in ('id', 'sdk_type')):
-            raise NativeSessionError('Action-ID und SDK-Typ sind unveränderlich.')
+            raise NativeSessionError('Aktions-ID und SDK-Typ sind unveränderlich.')
         try:
             draft = ActionDraft(proposed, action_id, original, base_revision)
             for key in original.keys() | proposed_action.keys():
@@ -273,7 +273,7 @@ class StudioCoordinator(QObject):
                 and p.target.plugin_id == self.extension_store.document.plugin_id
                 and p.target.resource_id in removed]
         if refs:
-            raise NativeSessionError('History würde referenzierte Actions entfernen. Zuerst virtuelle Platzierungen bewusst entfernen: ' + ', '.join(refs))
+            raise NativeSessionError('Rückgängig/Wiederholen würde referenzierte Aktionen entfernen. Zuerst virtuelle Platzierungen bewusst entfernen: ' + ', '.join(refs))
 
     def save(self):
         if self.session is None:
