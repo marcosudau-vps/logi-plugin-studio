@@ -76,6 +76,16 @@ nur lesend. Bearbeitet wird im vorhandenen Aktionsinspektor bzw. SymbolDesigner.
 - Nach erfolgreichem Build eine verständliche Meldung statt `BUILD_PROVEN`; nach der Installation einmalig der
   Hinweis auf die Zuweisung in Logi Options+ und auf die Bestätigung des Gerätetests.
 
+## Stufe 3c – Belegung über virtuelle Ordner
+
+Entscheidung 2 des Auftraggebers: kein Editor für native Platzierungen. Im geführten Ablauf stellt
+`WorkflowController._sync_keypad_source()` die vorhandene Quellenauswahl der Tastenvorschau auf „Virtuelle
+Ordner“ und sperrt sie; beim Betreten von Schritt 5 wird „Bearbeiten“ eingeschaltet. Im Expertenmodus ist die
+Auswahl frei, native SDK-Folder bleiben dort als Anzeige erreichbar. Geschrieben wird weiterhin nur über den
+vorhandenen Weg `NativeKeypadBinding.apply_edit → FolderComposer → ExtensionStore` (V-19).
+`window._folders_changed` ruft zusätzlich `workflow.refresh()` auf, damit Extensionänderungen sofort im
+Schrittstatus erscheinen.
+
 ## Abweichungen vom Plan
 
 | Plan | Umsetzung | Grund |

@@ -303,6 +303,51 @@ class WorkflowShellTests(unittest.TestCase):
         with patch.object(type(shell), "open_symbol_designer", return_value=True) as designer:
             wf.symbol_overview.edit_button.click()
             designer.assert_called_once_with("action.command")
+    def test_v106_layout_step_edits_only_the_virtual_folders(self):
+        from studio.native_shell.keypad_binding import VIRTUAL
+        shell = self.shell(self.project)
+        wf = shell.workflow
+        self.write_handler(shell)
+        keypad = shell.keypad
+        self.assertNotEqual(shell.tabs.currentWidget(), keypad.panel)
+        self.assertTrue(wf.enter("layout"))
+        self.assertIs(shell.tabs.currentWidget(), keypad.panel)
+        self.assertEqual(keypad.source.currentData(), VIRTUAL)
+        self.assertTrue(keypad.virtual)
+        self.assertFalse(keypad.source.isEnabled())
+        self.assertIn("virtuellen Ordnern", keypad.source.toolTip())
+        self.assertTrue(keypad.edit.isChecked())
+        self.assertTrue(keypad.widget.editing_active())
+        wf.set_expert(True)
+        self.assertTrue(keypad.source.isEnabled())
+        keypad.source.setCurrentIndex(keypad.source.findData("native:folder.main"))
+        self.assertFalse(keypad.virtual)  # native SDK-Folder bleiben im Expertenmodus als Anzeige erreichbar
+        wf.set_expert(False)
+        self.assertEqual(keypad.source.currentData(), VIRTUAL)
+        self.assertEqual(shell.coordinator.session.snapshot()["folders"][0]["entries"][0]["id"], "placement.command")
+        self.assertFalse(shell.coordinator.session.dirty)  # nur Ansicht umgestellt, nichts geschrieben
+
+    def test_layout_step_places_an_action_and_requires_saving(self):
+        from studio.keypad_contract import EditRequest, SlotAddress
+        shell = self.shell(self.project)
+        wf = shell.workflow
+        self.write_handler(shell)
+        wf.enter("layout")
+        frame = shell.keypad.widget.frame()
+        empty = next(slot for slot in frame.slots if slot.role == "empty" and slot.editable)
+        target = SlotAddress(frame.view_id, frame.page_index, empty.physical_index)
+        request = EditRequest("r1", frame.revision, "place", target=target, action_id="action.command",
+                              action_parameter="first")
+        self.assertTrue(shell.keypad.apply_edit(request))
+        wf.refresh()
+        self.assertEqual(next(c for c in wf.state("layout").criteria if c.key == "layout.saved").status, OPEN)
+        self.assertEqual(wf.state("build").status, LOCKED)
+        self.assertTrue(shell.save_all())
+        self.assertEqual(wf.state("layout").status, DONE)
+        self.assertTrue((self.dir / "demo.vfolders.json").is_file())
+        self.assertTrue(wf.next())
+        self.assertEqual(wf.active, "build")
+
 
 if __name__ == "__main__":
     unittest.main()

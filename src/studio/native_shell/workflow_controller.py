@@ -301,6 +301,7 @@ class WorkflowController(QObject):
             len(session.snapshot().get("actions", ())), len(session.snapshot().get("handlers", ()))))
         self._show_handlers()
         self._show_overviews()
+        self._sync_keypad_source()
         self._apply_visibility()
         self._publish()
         self.changed.emit()
@@ -423,12 +424,15 @@ class WorkflowController(QObject):
             self._shown = None
             self.refresh()
             return False
+        entering_layout = key == "layout" and self.active != "layout"
         self.active = key
         project = self._project_key()
         if project:
             self.store.remember(*project, step=key)
         self.refresh()
         self._show_home()
+        if entering_layout and not self.expert and self.shell.coordinator.session is not None:
+            self.shell.keypad.edit.setChecked(True)  # Belegen ist der Zweck dieses Schritts
         self.shell.coordinator.help.set_context(HelpContext(target.step.topic))
         return True
 
@@ -535,6 +539,26 @@ class WorkflowController(QObject):
         self.state_overview.set_project(raw)
         self.symbol_overview.set_project(raw, project_dir)
         self._mirror_selection()
+
+    def _sync_keypad_source(self):
+        """Entscheidung 2: Im geführten Ablauf wird die Belegung nur in den virtuellen Ordnern bearbeitet.
+
+        Die Tastenvorschau zeigt dann ausschließlich das virtuelle Autorenmodell; native SDK-Folder bleiben
+        im Expertenmodus als Anzeige erreichbar. Es wird nur die vorhandene Quellenauswahl umgestellt.
+        """
+        from .keypad_binding import VIRTUAL
+        keypad = self.shell.keypad
+        if self.shell.coordinator.session is None or keypad.source.count() == 0:
+            return
+        guided = not self.expert
+        if guided and keypad.source.currentData() != VIRTUAL:
+            index = keypad.source.findData(VIRTUAL)
+            if index >= 0:
+                keypad.source.setCurrentIndex(index)  # V-106: vorhandener Quellenwechsel der Vorschau
+        keypad.source.setEnabled(not guided)
+        keypad.source.setToolTip(
+            "Im geführten Ablauf wird die Belegung in den virtuellen Ordnern bearbeitet. Native SDK-Folder des "
+            "Projekts zeigt der Expertenmodus an." if guided else "")
 
     def _edit_action(self, action_id):
         """Öffnet die Aktion im Aktionsinspektor; im geführten Ablauf gehört er zu Schritt 3 und 4."""

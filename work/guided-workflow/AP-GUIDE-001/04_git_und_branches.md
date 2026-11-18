@@ -47,6 +47,6 @@ Vor dem Start-Commit wurden alle Dateien mit den Erkennungsmustern des sicheren 
 | `636a9bb` | Feature: Geführter Ablauf in sieben Schritten |
 | `35f9436` | Feature: HandlerInspector |
 | `4ceb4ed` | Feature: Übersichten Zustände und Symbole |
-| (folgt) | Feature: Bauen und Installieren im Ablauf (mit Anlage dieser Arbeitsakte) |
+| `1e78b76` | Feature: Bauen und Installieren im Ablauf (mit Anlage dieser Arbeitsakte) |
 
 Fortschreibung bei jedem weiteren Feature.
