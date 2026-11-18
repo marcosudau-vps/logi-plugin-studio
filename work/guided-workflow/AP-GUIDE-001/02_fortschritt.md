@@ -12,8 +12,8 @@ vorgesehenen Tests erfolgreich sind. Statuswerte wie in den bisherigen Arbeitsak
 | S2 | Stufe 2: Gerüst | Schrittmodell, Schrittleiste, Startseite, Schritt-Steuerung, Führungsthemen, Menü, Symbolleiste, Alles speichern, Expertenmodus, Build-Sperre | SOFTWARE_VERIFIED | `src/studio/workflow/*`, `src/studio/native_shell/workflow_controller.py`, `window.py`, `build_controller.py`, `app.py`, `guide_topics.de.json` | 27 neue Tests; T1 | Commit `636a9bb` | Windows-Darstellung |
 | S3 | Stufe 3a: HandlerInspector | Handler anlegen/umbenennen/löschen, Handlerdatei aus Vorlage | SOFTWARE_VERIFIED | `src/studio/handler_inspector/*`, `coordinator.py` | 10 neue Tests | Commit `35f9436` | – |
 | S4 | Stufe 3b: Zustandssicht | SDK-Zustände getrennt vom Python-Zustand | SOFTWARE_VERIFIED | `src/studio/workflow/overviews.py` | 2 neue Tests | Commit `4ceb4ed` | – |
-| S5 | Stufe 3c: Belegung über virtuelle Ordner | Keypad zeigt im Schritt Belegung das bearbeitbare Autorenmodell | OFFEN | | | | |
-| S6 | Stufe 4: Bauen und Installieren | deutsche Statuswerte, beschriftete Bereiche, Options+-Hinweis, Gerätetest | IMPLEMENTED | `delivery_panels.py`, `workflow_controller.py` | T2: 0 neue Fehlschläge | Commit `97b98e6` (Feature-Branch) | Echter Build/Install nur unter Windows |
+| S5 | Stufe 3c: Belegung über virtuelle Ordner | Keypad zeigt im Schritt Belegung nur das bearbeitbare Autorenmodell | SOFTWARE_VERIFIED | `workflow_controller.py`, `window.py` | 2 neue Tests (Platzieren → Speichern → Schritt erfüllt) | Feature-Commit „Belegung über virtuelle Ordner“ | Windows-Darstellung |
+| S6 | Stufe 4: Bauen und Installieren | deutsche Statuswerte, beschriftete Bereiche, Options+-Hinweis, Gerätetest | SOFTWARE_VERIFIED | `delivery_panels.py`, `workflow_controller.py` | T2: 0 neue Fehlschläge | `1e78b76` | Echter Build/Install nur unter Windows |
 | S7 | Stufe 5: Wartung | installierte Plugins, Deaktivieren/Reaktivieren, Neuladen, Protokolle, Voraussetzungen | OFFEN | | | | Dienst-Neustart nicht sicher belegbar |
 | S8 | Stufe 6: Dokumentation | Handbuch, STATUS, CHANGELOG, README, veraltete Dokumente, Benutzerabnahme | OFFEN | | | | |
 | S9 | Stufe 6: Begriffsliste | ein Wort je Sache in den sichtbaren Texten | OFFEN | | | | |
@@ -41,3 +41,9 @@ vorgesehenen Tests erfolgreich sind. Statuswerte wie in den bisherigen Arbeitsak
 - Stufe 3b Übersichten Zustände und Symbole. Stufe 4 begonnen.
 - **18.11.2026, 02:14** – Fortsetzungsauftrag. Arbeitsstand vollständig vorhanden. Stufe 4 committet
   (`97b98e6`), Lauf T2 ohne neue Fehlschläge. Diese Arbeitsakte angelegt und den bisherigen Verlauf nachgetragen.
+- Stufe 4 als `1e78b76` auf `release/1.0.0`; alle Branches gepusht.
+- Stufe 3c: **Befund:** Bei einem neuen Projekt zeigte die Tastenvorschau zuerst den nativen SDK-Folder
+  (nur Anzeige); im Schritt Belegung konnte man so nichts ablegen. Jetzt stellt der Ablauf die Vorschau auf das
+  virtuelle Autorenmodell und schaltet „Bearbeiten“ ein. **Befund:** Nach „Alles speichern“ wurde der Schrittstatus
+  erst beim nächsten Zeitgeber-Tick aktualisiert, weil Extensionänderungen kein `coordinator.changed` auslösen →
+  `_folders_changed` aktualisiert den Ablauf jetzt direkt.

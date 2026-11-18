@@ -191,6 +191,8 @@ class NativeStudioShell(QMainWindow):
         self._folder_diagnostics()
         self._update_delete_state()
         self._refresh_status()
+        if getattr(self, 'workflow', None) is not None:
+            self.workflow.refresh()  # V-92: auch Extensionänderungen aktualisieren den Ablauf sofort
 
     def _folder_diagnostics(self):
         c = self.coordinator

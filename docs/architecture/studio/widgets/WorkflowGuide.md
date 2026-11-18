@@ -39,6 +39,10 @@ Regeln:
 - Eine spätere Änderung löscht nichts. Weicht der gespeicherte Stand vom gebauten ab, wird der Build
   „veraltet“; ist ein älterer Build installiert, wird die Installation „veraltet“.
 - Optionale Schritte haben keine Pflichtkriterien und sperren nur bei echten Fehlern.
+- **Belegung nur über virtuelle Ordner** (Entscheidung vom 16.11.2026): Im geführten Ablauf zeigt die
+  Tastenvorschau ausschließlich das virtuelle Autorenmodell; die Quellenauswahl ist gesperrt, und beim Betreten
+  von Schritt 5 ist „Bearbeiten“ eingeschaltet. Native SDK-Folder des Projekts bleiben unverändert und sind im
+  Expertenmodus als Anzeige erreichbar. Es gibt keinen Editor für native Platzierungen.
 - Im geführten Modus verweigert „SDK-Plugin bauen“ den Start, solange „Alles gespeichert“ oder
   „Keine Fehler“ nicht erfüllt ist.
 
@@ -60,4 +64,4 @@ Build aus `NativeBuildController.last_result` mit Fingerabdruck der gespeicherte
 
 ## Verbindungen
 
-Die Kanten V-90 bis V-99 stehen mit Testfunktion im [Verbindungsregister](../04-Verbindungsregister.md).
+Die Kanten V-90 bis V-106 stehen mit Testfunktion im [Verbindungsregister](../04-Verbindungsregister.md).
