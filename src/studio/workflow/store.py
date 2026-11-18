@@ -14,7 +14,7 @@ import tempfile
 import time
 from pathlib import Path
 
-from studio.native_shell.build_mode_store import settings_dir
+from studio.workflow.paths import settings_dir
 
 FORMAT = "studio-workflow-1"
 FILE_NAME = "workflow.json"

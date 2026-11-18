@@ -25,7 +25,8 @@ und der Gerätetest wird vom Anwender bestätigt. Der Expertenmodus stellt die f
 | 4 Bauen und Installieren | deutsche Statuswerte, beschriftete Bereiche, Options+-Hinweis, Gerätetest | SOFTWARE_VERIFIED | `1e78b76` |
 | 3c Belegung | nur über virtuelle Ordner (Entscheidung 2) | SOFTWARE_VERIFIED | `f1b5102` |
 | 5 Wartung | Plugins neu laden, deaktivieren, reaktivieren, Protokoll, Voraussetzungen | SOFTWARE_VERIFIED | `caf0a44` |
-| 6 Abschluss | Begriffsliste, Handbuch, STATUS/CHANGELOG/README, Benutzerabnahme, Version 1.0.0-rc2, Zeilenenden korrigiert | SOFTWARE_VERIFIED | siehe [04](04_git_und_branches.md) |
+| 6 Abschluss | Begriffsliste, Handbuch, STATUS/CHANGELOG/README, Benutzerabnahme, Version 1.0.0-rc2, Zeilenenden korrigiert | SOFTWARE_VERIFIED | `e5feba2` |
+| Nachtrag | Qt-freie Module, Spiegelung in den lokalen Projektordner | SOFTWARE_VERIFIED | siehe [04](04_git_und_branches.md) |
 
 ## Architektur
 
@@ -39,7 +40,7 @@ Testfunktion im Verbindungsregister.
 
 ## Prüfstand
 
-* Vollregression (Linux/offscreen): **1.256 Tests**, davon 48 neu. Fehlschlagliste **identisch mit der
+* Vollregression (Linux/offscreen): **1.258 Tests**, davon 50 neu. Fehlschlagliste **identisch mit der
   Ausgangsbasis** (43 rein umgebungsbedingte Abweichungen, siehe [05](05_tests_und_evidenz.md)); **0 neue
   Fehlschläge**. Evidenz: `evidence/tests/final_full.txt`, `final_failures.txt`.
 * Angepasste Bestandstests: 4, jeweils nur die erwartete Formulierung (`test_v17…` geführter Programmeinstieg;
@@ -57,7 +58,8 @@ Testfunktion im Verbindungsregister.
 4. **Zeilenenden.** In Stufe 2–5 wurden fünf CRLF-Quelldateien beim Bearbeiten auf LF umgestellt (große
    Schein-Diffs). In Stufe 6 auf die ursprünglichen CRLF-Zeilenenden zurückgesetzt; seither werden Dateien mit
    unverändertem Zeilenende bearbeitet. `.gitattributes` verhindert Umwandlungen durch Git.
-5. **Dienst-Neustart.** Kein belegter sicherer Weg; bewusst nicht angeboten (siehe [06](06_offene_punkte.md)).
+5. **Qt-freie Module luden indirekt Qt** (Paketimport `studio.native_shell`); im Nachtrag behoben und per Test abgesichert.
+6. **Dienst-Neustart.** Kein belegter sicherer Weg; bewusst nicht angeboten (siehe [06](06_offene_punkte.md)).
 
 ## Grenzen
 
@@ -67,8 +69,8 @@ Testfunktion im Verbindungsregister.
 
 ## Nächste Schritte
 
-1. Stand holen (GitHub `release/1.0.0` oder gespiegelter lokaler Projektordner) und unter Windows
-   `python tools/run_tests.py` ausführen.
+1. Der lokale Projektordner enthält bereits den Release-Stand (81 Dateien gespiegelt und per SHA-256 geprüft,
+   Originale gesichert unter `backups/`). Unter Windows `python tools/run_tests.py` ausführen.
 2. Benutzerabnahme nach [outputs/BENUTZERABNAHME.md](outputs/BENUTZERABNAHME.md).
 3. Optional `python tools/packaging/build_release.py` für Setup und Portable 1.0.0-rc2.
 4. Nach deiner Freigabe: Merge `release/1.0.0` → `main` als Release-Commit 1.0.0.

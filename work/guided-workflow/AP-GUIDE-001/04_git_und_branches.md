@@ -18,6 +18,7 @@ Repository: `https://github.com/marcosudau-vps/logi-plugin-studio` (öffentlich)
 | `feat/belegung-virtuelle-ordner` | `release/1.0.0` | Feature „Belegung über virtuelle Ordner“ | `release/1.0.0` |
 | `feat/wartung` | `release/1.0.0` | Feature „Wartung“ | `release/1.0.0` |
 | `feat/abschluss-dokumentation` | `release/1.0.0` | Feature „Begriffe, Dokumentation und Abschluss“ | `release/1.0.0` |
+| `feat/nachtrag-abschluss` | `release/1.0.0` | Nachtrag: Qt-freie Module, Spiegelungsvermerk | `release/1.0.0` |
 
 Weitere Feature-Branches werden hier ergänzt.
 
@@ -54,6 +55,7 @@ Vor dem Start-Commit wurden alle Dateien mit den Erkennungsmustern des sicheren 
 
 | `f1b5102` | Feature: Belegung über virtuelle Ordner |
 | `caf0a44` | Feature: Wartung |
-| (letzter Commit) | Feature: Begriffe, Dokumentation und Abschluss – enthält den Endstand dieser Akte |
+| `e5feba2` | Feature: Begriffe, Dokumentation und Abschluss |
+| (letzter Commit) | Feature: Nachtrag Abschluss – enthält den Endstand dieser Akte |
 
 Der Merge nach `main` erfolgt erst nach deiner Freigabe (siehe [07_abschlussbericht.md](07_abschlussbericht.md)).

@@ -17,7 +17,8 @@ vorgesehenen Tests erfolgreich sind. Statuswerte wie in den bisherigen Arbeitsak
 | S7 | Stufe 5: Wartung | installierte Plugins, Deaktivieren/Reaktivieren, Neuladen, Protokolle, Voraussetzungen | SOFTWARE_VERIFIED | `src/studio/maintenance/*`, `workflow_controller.py`, `start_page.py`, `guide_topics.de.json` | 7 neue Tests (mit Attrappe) | Feature-Commit „Wartung“, `evidence/screenshots/wartung.png` | echter Pluginordner nur unter Windows; Dienst-Neustart bewusst nicht angeboten |
 | S8 | Stufe 6: Dokumentation | Handbuch, STATUS, CHANGELOG, README, veraltete Dokumente, Benutzerabnahme | SOFTWARE_VERIFIED | `docs/ANWENDERHANDBUCH.md`, `STATUS.md`, `CHANGELOG.md`, `README.md`, `docs/architecture/studio/README.md`, `widgets/KeypadPreview.md`, `work/planning/README.md`, `outputs/BENUTZERABNAHME.md` | – | Feature-Commit „Begriffe, Dokumentation und Abschluss“ | – |
 | S9 | Stufe 6: Begriffsliste | ein Wort je Sache in den sichtbaren Texten | SOFTWARE_VERIFIED | `docs/architecture/studio/Begriffe.md`, 12 Quelldateien, 5 Hilfedateien | 3 Bestandstests im Wortlaut angepasst | wie S8 | SDK-Typnamen im Aktionskatalog bewusst unverändert |
-| S10 | Stufe 6: Vollregression und Abschluss | 0 neue Fehlschläge, Abschlussbericht, Push, Spiegelung in den lokalen Projektordner | SOFTWARE_VERIFIED | `07_abschlussbericht.md` | 1.256 Tests, Fehlschlagliste identisch mit Basis | `evidence/tests/final_*` | Windows-Lauf durch Auftraggeber |
+| S10 | Stufe 6: Vollregression und Abschluss | 0 neue Fehlschläge, Abschlussbericht, Push, Spiegelung in den lokalen Projektordner | SOFTWARE_VERIFIED | `07_abschlussbericht.md` | 1.258 Tests, Fehlschlagliste identisch mit Basis | `evidence/tests/final_*` | Windows-Lauf durch Auftraggeber |
+| S11 | Nachtrag: Qt-freie Module | Ablaufmodell, Ablaufspeicher, Handler-Lebenszyklus und Wartungslogik ohne Qt importierbar | SOFTWARE_VERIFIED | `src/studio/workflow/paths.py`, `store.py`, `maintenance/model.py`, `handler_inspector/__init__.py` | 2 neue Tests | Feature-Commit „Nachtrag Abschluss“ | – |
 
 ## Chronik
 
@@ -70,3 +71,20 @@ vorgesehenen Tests erfolgreich sind. Statuswerte wie in den bisherigen Arbeitsak
 - Handbuch auf den geführten Ablauf umgeschrieben (Abschnitte 2–11), Benutzerabnahme für rc2 erstellt, STATUS,
   CHANGELOG, README, Studio-Architektur, KeypadPreview-Status und Planungsindex fortgeschrieben.
 - Vollregression: 1.256 Tests, Fehlschlagliste identisch mit der Ausgangsbasis. **Status READY_FOR_REVIEW.**
+- **Spiegelung in den lokalen Projektordner** `P:\LokaleProjekte\logi_actions_sdk\PluginStudioArchitecture`
+  (Stand `release/1.0.0` = `e5feba2`): 81 Dateien (49 neu, 32 geändert). Vorab geprüft: alle 32 zu ersetzenden
+  Dateien waren lokal unverändert gegenüber dem Start-Commit (keine Konflikte). Sicherung der 32 Originale:
+  `backups/20261118-vor-spiegelung-release-1.0.0.tar` (SHA-256 `05a55e3a…c846`, nur lokal). Nach dem Entpacken
+  alle 81 Dateien per SHA-256 gegen den Release-Stand geprüft: 0 Abweichungen. Archiv und Manifest unter
+  `work/generated/sync/` (nur lokal). Nichts wurde gelöscht.
+- Dieser Vermerk liegt auf `feat/abschluss-dokumentation` und kommt mit dem nächsten Feature-Commit bzw. vor dem
+  Merge nach `main` auf `release/1.0.0` (kein nachträgliches Umschreiben des bereits gepushten Release-Commits).
+- **Befund beim Gegencheck auf dem verbundenen Rechner:** Das als Qt-frei spezifizierte Ablaufmodell lud über
+  `studio.native_shell.build_mode_store` (Paketimport `studio.native_shell`) indirekt PySide6; ebenso
+  `studio.handler_inspector` über sein `__init__`. Unter Windows ohne Auswirkung, aber gegen die Spezifikation.
+  Korrektur: Qt-freie Kopie der Ordnerregel in `studio/workflow/paths.py` (Gleichheit per Test geprüft), Widget im
+  `handler_inspector`-Paket erst bei Bedarf geladen. Neuer Test lädt die Module in einem eigenen Prozess mit
+  gesperrtem PySide6-Import.
+- Ein nachträgliches Umschreiben des bereits gepushten Release-Commits (Force-Push) wurde nicht vorgenommen.
+  Spiegelungsvermerk und Qt-Korrektur kommen als eigener Feature-Commit „Nachtrag Abschluss“ auf `release/1.0.0`.
+- Vollregression nach dem Nachtrag: 1.258 Tests, Fehlschlagliste identisch mit der Ausgangsbasis.
