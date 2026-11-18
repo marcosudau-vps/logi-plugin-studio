@@ -15,6 +15,8 @@ Repository: `https://github.com/marcosudau-vps/logi-plugin-studio` (öffentlich)
 | `feat/handler-inspector` | `release/1.0.0` | Feature „HandlerInspector“ | `release/1.0.0` |
 | `feat/uebersichten-zustaende-symbole` | `release/1.0.0` | Feature „Übersichten Zustände und Symbole“ | `release/1.0.0` |
 | `feat/bauen-und-installieren-gefuehrt` | `release/1.0.0` | Feature „Bauen und Installieren im Ablauf“ | `release/1.0.0` |
+| `feat/belegung-virtuelle-ordner` | `release/1.0.0` | Feature „Belegung über virtuelle Ordner“ | `release/1.0.0` |
+| `feat/wartung` | `release/1.0.0` | Feature „Wartung“ | `release/1.0.0` |
 
 Weitere Feature-Branches werden hier ergänzt.
 
@@ -48,5 +50,7 @@ Vor dem Start-Commit wurden alle Dateien mit den Erkennungsmustern des sicheren 
 | `35f9436` | Feature: HandlerInspector |
 | `4ceb4ed` | Feature: Übersichten Zustände und Symbole |
 | `1e78b76` | Feature: Bauen und Installieren im Ablauf (mit Anlage dieser Arbeitsakte) |
+
+| `f1b5102` | Feature: Belegung über virtuelle Ordner |
 
 Fortschreibung bei jedem weiteren Feature.

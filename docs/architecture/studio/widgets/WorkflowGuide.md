@@ -55,6 +55,9 @@ Regeln:
 | Schrittleiste | `src/studio/workflow/widget.py` | Sieben Schritte mit Status, Checkliste des aktiven Schritts, nächster Handgriff, Zurück/Weiter |
 | Startseite | `src/studio/workflow/start_page.py` | Einstieg: Neues Projekt, Projekt öffnen, Projektangaben |
 | Host | `src/studio/native_shell/workflow_controller.py` | Fakten lesen, Sichtbarkeit setzen, Hilfe und Problemliste versorgen |
+| Handler | `src/studio/handler_inspector/` | Schritt 2, siehe [HandlerInspector](HandlerInspector.md) |
+| Übersichten | `src/studio/workflow/overviews.py` | Zustände (Schritt 3), Symbole (Schritt 4) |
+| Wartung | `src/studio/maintenance/` | projektunabhängig, siehe [Wartung](Maintenance.md) |
 
 Fakten und ihre Quelle: Projekt/Handler/Aktionen aus `NativeProjectSession.snapshot()`; Entwurf aus dem
 Aktionsinspektor; verwaiste Platzierungen aus `ExtensionStore.document.missing_actions()`; Fehlerzahl aus der
@@ -64,4 +67,4 @@ Build aus `NativeBuildController.last_result` mit Fingerabdruck der gespeicherte
 
 ## Verbindungen
 
-Die Kanten V-90 bis V-106 stehen mit Testfunktion im [Verbindungsregister](../04-Verbindungsregister.md).
+Die Kanten V-90 bis V-107 stehen mit Testfunktion im [Verbindungsregister](../04-Verbindungsregister.md).

@@ -86,9 +86,23 @@ vorhandenen Weg `NativeKeypadBinding.apply_edit → FolderComposer → Extension
 `window._folders_changed` ruft zusätzlich `workflow.refresh()` auf, damit Extensionänderungen sofort im
 Schrittstatus erscheinen.
 
+## Stufe 5 – Wartung
+
+Siehe [Maintenance.md](../../../docs/architecture/studio/widgets/Maintenance.md). Neues Paket
+`src/studio/maintenance/`: `model.py` (Qt-frei: Zeilen, Liste deaktivierter Plugins, Deaktivieren/Reaktivieren
+über eine austauschbare `MaintenanceBackend`-Indirektion nach dem Muster `workflow.ServiceAdapter`) und
+`dialog.py` (nicht modales Fenster). Erreichbar über *Werkzeuge → Wartung …* und die Startseite. Deaktiviert
+der Anwender dort das Plugin des offenen Projekts, führt `_maintenance_changed` den Installationstab und damit
+Schritt 7 nach.
+
+„Shared-Peers“: bereits seit Stufe 2 nur in Schritt 7 und nur beim Plugin-Typ „Shared DynamicFolder“ sichtbar;
+im Expertenmodus wie bisher immer.
+
 ## Abweichungen vom Plan
 
 | Plan | Umsetzung | Grund |
 |---|---|---|
 | Diagnose-Quelle `workflow.<schritt>` | eine Quelle `workflow` mit den offenen Punkten des aktiven Schritts | Die Problemliste soll zeigen, was jetzt zu tun ist, nicht alle künftigen Schritte. |
 | Optionale Schritte ausdrücklich überspringen | ohne eigenen Knopf; optionale Schritte sperren nie | Ein Knopf ohne Wirkung wäre irreführend. |
+| Wartung als „eigener Bereich“ | nicht modales Fenster statt Registerkarte | Die Registerkarten folgen den Schritten eines Projekts; die Wartung ist projektunabhängig und auch ohne Projekt erreichbar. |
+| Dienst-Neustart (U-01) | nicht angeboten | kein belegter sicherer Weg; beträfe fremde Plugins (siehe Chronik) |

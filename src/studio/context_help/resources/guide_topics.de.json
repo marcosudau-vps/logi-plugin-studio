@@ -75,9 +75,9 @@
     "topic_id": "guide.maintenance",
     "title": "Wartung",
     "summary": "Installierte Studio-Plugins, Voraussetzungen und Protokolle prüfen.",
-    "description": "Die Wartung ist unabhängig vom geöffneten Projekt. Sie zeigt alle Plugins, die mit dem Studio installiert wurden, samt Zustand ihrer Host-Laufzeit, prüft die Voraussetzungen auf diesem Rechner und lädt ein einzelnes Plugin neu. Plugins anderer Hersteller werden angezeigt, aber nie verändert.",
-    "example": "Wartung → Installierte Plugins → Plugin wählen → „Plugin neu laden“",
-    "technical_details": "Das Neuladen verwendet das Reload-Werkzeug des Logi Plugin Service und betrifft nur das gewählte Plugin.",
+    "description": "Die Wartung ist unabhängig vom geöffneten Projekt und über Werkzeuge → Wartung oder die Startseite erreichbar. Sie zeigt alle Plugins im Pluginordner des Logi Plugin Service samt Zustand ihrer Host-Laufzeit. Studio-eigene Plugins lassen sich neu laden, deaktivieren und wieder reaktivieren; das Protokoll des Dienstes zeigt, ob ein Plugin geladen wurde. Deaktivieren entfernt das Plugin mit einer Sicherung, aus der Reaktivieren es unverändert wiederherstellt. Plugins anderer Hersteller werden angezeigt, aber nie verändert. Ein Neustart des gesamten Logi Plugin Service wird bewusst nicht angeboten, weil er alle Plugins und Geräte betrifft.",
+    "example": "Wartung → Plugin wählen → „Deaktivieren …“ → später „Reaktivieren“",
+    "technical_details": "Deaktivieren nutzt die vorhandene Deinstallation mit Sicherungsbeleg, Reaktivieren die vorhandene Wiederherstellung; beides gefolgt vom Neuladen nur dieses Plugins. Die Liste deaktivierter Plugins liegt benutzerlokal unter LogiPluginStudio\\settings\\deactivated.json. Tastenbelegungen in Logi Options+ bleiben unberührt.",
     "related_topics": ["guide.install"]
   },
   {

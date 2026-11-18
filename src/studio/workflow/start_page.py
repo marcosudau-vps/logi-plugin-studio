@@ -15,6 +15,7 @@ INTRO = ("<h2>Ein Plugin in sieben Schritten</h2>"
 class StartPage(QWidget):
     newRequested = Signal()
     openRequested = Signal()
+    maintenanceRequested = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -35,9 +36,16 @@ class StartPage(QWidget):
         self.open_button.setObjectName("workflowStartOpen")
         self.open_button.setMinimumHeight(44)
         self.open_button.clicked.connect(self.openRequested)
+        self.maintenance_button = QPushButton("Wartung …")
+        self.maintenance_button.setObjectName("workflowStartMaintenance")
+        self.maintenance_button.setMinimumHeight(44)
+        self.maintenance_button.setToolTip("Installierte Plugins prüfen, neu laden, deaktivieren und reaktivieren – "
+                                           "auch ohne geöffnetes Projekt.")
+        self.maintenance_button.clicked.connect(self.maintenanceRequested)
         row.addWidget(self.new_button)
         row.addWidget(self.open_button)
         row.addStretch(1)
+        row.addWidget(self.maintenance_button)
         layout.addLayout(row)
         self.project = QLabel()
         self.project.setObjectName("workflowStartProject")
