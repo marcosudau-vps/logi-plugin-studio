@@ -381,6 +381,12 @@ class WorkflowController(QObject):
         session = s.coordinator.session
         dirty = bool(session and (session.dirty or (s.composer and s.composer.store.dirty) or s.inspector.dirty))
         self.save_all_action.setEnabled(dirty)
+        # Strg+S speichert im geführten Ablauf alles; im Expertenmodus wie bisher nur das Projekt.
+        save, save_all = (QKeySequence(), QKeySequence(QKeySequence.StandardKey.Save)) if not self.expert else (
+            QKeySequence(QKeySequence.StandardKey.Save), QKeySequence("Ctrl+Shift+S"))
+        if s.save_action.shortcut() != save:
+            s.save_action.setShortcut(save)
+            self.save_all_action.setShortcut(save_all)
 
     def _show_home(self):
         tabs = self._tabs()

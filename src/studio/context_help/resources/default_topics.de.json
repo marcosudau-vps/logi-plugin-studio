@@ -160,7 +160,7 @@
   {
     "topic_id": "action.definition",
     "title": "Was ist eine Aktion?",
-    "summary": "Eine Aktionsdefinition beschreibt eine vom Logitech Actions SDK bereitgestellte oder referenzierte Funktion.",
+    "summary": "Eine Aktionsdefinition beschreibt eine vom Logitech Aktionen SDK bereitgestellte oder referenzierte Funktion.",
     "description": "Ein Tastendruck kann eine Aktion auslösen. Eine Platzierung verknüpft die Aktion mit einer konkreten Position.",
     "example": "Zwei Tasten können dieselbe Mikrofonaktion auslösen. Eine Bildaktualisierung ändert die Anzeige der vorhandenen Aktion.",
     "technical_details": "Parameter und native Zustände richten sich nach der SDK-Aktionsklasse. Die Platzierung wird separat verwaltet.",

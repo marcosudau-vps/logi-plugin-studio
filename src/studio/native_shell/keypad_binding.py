@@ -73,7 +73,7 @@ def _action_slot(index, entry_id, position, parameter, action, project, root, *,
 
 def _unavailable_reason(action):
     if action.sdk_type == "PluginDynamicAdjustment":
-        return "SDK-Encoder-Action; das MX Creative Keypad hat hier keinen Encoder."
+        return "SDK-Regler-Aktion; das MX Creative Keypad hat hier keinen Encoder."
     if action.sdk_type == "ActionEditorCommand":
         return "ActionEditorCommand ist im SDK-Folder nicht unterstützt. Im Katalog verfügbar."
     return None
@@ -97,7 +97,7 @@ class NativeKeypadBinding(QObject):
         self.source.setAccessibleName("Quelle der Tastenvorschau")
         self.back = QPushButton("Zurück im Ordner", self.panel)
         self.edit = QCheckBox("Bearbeiten", self.panel)
-        self.edit.setToolTip("ICT bearbeiten; virtuelle Actions nur an freien Folgeplätzen ablegen.")
+        self.edit.setToolTip("ICT bearbeiten; virtuelle Aktionen nur an freien Folgeplätzen ablegen.")
         for control in (self.source, self.back, self.edit):
             controls.addWidget(control, int(control is self.source))
         layout.addLayout(controls)
@@ -238,7 +238,7 @@ class NativeKeypadBinding(QObject):
                     action = actions[entry.action]
                 if action is None:
                     slots.append(SlotData(index, "unavailable", label=entry.target.resource_id,
-                                          tooltip="Lokale Action fehlt; Referenz im FolderComposer reparieren."))
+                                          tooltip="Lokale Aktion fehlt; Referenz im FolderComposer reparieren."))
                     continue
                 reason = _unavailable_reason(action)
                 if entry.action_parameter is not None and entry.action_parameter not in {p.name for p in action.parameters}:
@@ -402,12 +402,12 @@ class NativeKeypadBinding(QObject):
             source = entries[row]
             if (source.id != address.placement_id or source.kind != "action"
                     or source.target.plugin_id != document.plugin_id):
-                raise FolderError("Nur lokale Action-Platzierungen bearbeiten.")
+                raise FolderError("Nur lokale Aktionsplatzierungen bearbeiten.")
         action_id = source.target.resource_id if source else request.action_id
         parameter = source.action_parameter if source else request.action_parameter
         action = next((a for a in self.host.session.native_project().actions if a.id == action_id), None)
         if action is None or _unavailable_reason(action):
-            raise FolderError("Diese Action kann nicht auf einer LCD-Taste platziert werden.")
+            raise FolderError("Diese Aktion kann nicht auf einer LCD-Taste platziert werden.")
         if parameter is not None and parameter not in {p.name for p in action.parameters}:
             raise FolderError("SDK-actionParameter ist nicht deklariert.")
         if request.operation == "remove":

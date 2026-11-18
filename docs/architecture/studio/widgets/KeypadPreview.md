@@ -1,6 +1,6 @@
 # KeypadPreviewWidget – Schnittstelle
 
-**Status:** isoliert APPROVED (AP-WIDGET-002), **native Produktintegration AUFGESCHOBEN** bis ein belegter Frame-/Capability-Adapter und ein Placement-Commit-Vertrag vorhanden sind.  
+**Status:** isoliert APPROVED (AP-WIDGET-002). **Seit AP-STUDIO-FINAL-001 (08.11.2026) im nativen Studio integriert**, siehe [Native Keypad und ICT](../NativeKeypadAndIct.md); im geführten Ablauf (AP-GUIDE-001) zeigt Schritt 5 nur das virtuelle Autorenmodell. *Historischer Status bis 07.11.2026:* native Produktintegration aufgeschoben bis ein belegter Frame-/Capability-Adapter und ein Placement-Commit-Vertrag vorhanden sind.  
 **Code:** `src/studio/keypad_preview/widget.py`; `src/studio/keypad_contract.py`. Abnahme: `work/acceptance/20261104-keypad-catalog/ABNAHME.md`.
 
 ## Eingabe-Datentypen

@@ -79,3 +79,12 @@ Der native Studio-Tab **Plugin-Build** reicht nach explizitem Klick den gespeich
 ## Schichtentrennung nach dem SDK-Audit 08.11.2026
 
 `NativeStudioShell` darf weiterhin die optionale `virtual-folders-1`-Extension bedienen. Deren Runtime-Code und C#-Vorlage liegen jetzt ausschließlich unter `src/extensions/shared_folders/`, nicht in der generischen SDK-Bridge. [Grenzvertrag](../sdk-bridge-schichtentrennung.md) · [Python-API-Abdeckung](../../specifications/sdk-python-api-checklist.md). Die vorhandenen Studio-/Build-Tests gelten unverändert; ein Häkchen für C#-Generierung ist noch keine vollständige Python-SDK-API.
+
+## 18.11.2026 – Geführter Ablauf AP-GUIDE-001 (READY_FOR_REVIEW)
+
+Die native Shell besitzt eine abschaltbare Komfortschicht `workflow=True` (Programmeinstieg): sieben Schritte mit
+Checkliste, Sichtbarkeit je Schritt, Führungsthemen, Build-Sperre und Expertenmodus. Neue Komponenten:
+[WorkflowGuide](widgets/WorkflowGuide.md), [HandlerInspector](widgets/HandlerInspector.md),
+[Wartung](widgets/Maintenance.md), Übersichten Zustände/Symbole. [Begriffsliste](Begriffe.md).
+Verbindungen [V-90 bis V-107](04-Verbindungsregister.md). Kein neuer Writer; NativeProjectSession und ExtensionStore
+bleiben alleinige Eigentümer ihrer Dateien.

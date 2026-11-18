@@ -69,7 +69,7 @@ class NativeStudioShell(QMainWindow):
         toolbar = QToolBar("Natives Projekt")
         toolbar.setMovable(False)
         self.addToolBar(toolbar)
-        self.open_action = QAction("Nativ öffnen", self)
+        self.open_action = QAction("Projekt öffnen …", self)
         self.open_action.setShortcut(QKeySequence.StandardKey.Open)
         self.open_action.triggered.connect(self.choose_project)  # V-26
         toolbar.addAction(self.open_action)
@@ -77,8 +77,8 @@ class NativeStudioShell(QMainWindow):
         self.new_action.setShortcut(QKeySequence.StandardKey.New)
         self.new_action.triggered.connect(self.create_project)
         toolbar.insertAction(self.open_action, self.new_action)
-        self.save_action = self._action(toolbar, 'Natives Projekt speichern', self.save_project, QKeySequence.StandardKey.Save)
-        self.folder_save_action = self._action(toolbar, 'Extension speichern', self.save_folders)
+        self.save_action = self._action(toolbar, 'Projekt speichern', self.save_project, QKeySequence.StandardKey.Save)
+        self.folder_save_action = self._action(toolbar, 'Ordner speichern', self.save_folders)
         self.undo_action = self._action(toolbar, 'Rückgängig', self.undo_project, QKeySequence.StandardKey.Undo)
         self.redo_action = self._action(toolbar, 'Wiederholen', self.redo_project, QKeySequence.StandardKey.Redo)
         self.rename_action = self._action(toolbar, 'Anzeigename', self.rename_selected)
@@ -202,7 +202,7 @@ class NativeStudioShell(QMainWindow):
                 self.problems.remove_source('folders.references')
             return
         c.publish_diagnostics('folders.references', [Diagnostic('FOLDER_ACTION_UNAVAILABLE',
-            '/placements/' + p.id, 'Native Action nicht verfügbar: ' + p.target.key +
+            '/placements/' + p.id, 'Native Aktion nicht verfügbar: ' + p.target.key +
             '. Platzierung bleibt erhalten; im Ordnertab bewusst entfernen oder native Quelle wiederherstellen.')
             for p in missing], project_token=c.project_token, base_revision=c.session.revision)
 
@@ -245,8 +245,8 @@ class NativeStudioShell(QMainWindow):
         if action is None or (isinstance(action_id, str) and action.id != action_id):
             return
         revision = c.session.revision
-        name, accepted = QInputDialog.getText(self, 'Nativer Anzeigename',
-            f'Nur NativeAction.display_name ändern\n{action.id}', text=action.display_name)
+        name, accepted = QInputDialog.getText(self, 'Anzeigename ändern',
+            f'Neuer Anzeigename der Aktion\n{action.id}', text=action.display_name)
         if accepted:
             try:
                 c.rename_action(action.id, name, base_revision=revision)
@@ -446,7 +446,7 @@ class NativeStudioShell(QMainWindow):
                 c._select(None)
         self._sync_inspector()
         if identity and not c._exists('action', identity):
-            self.inspector.empty_message = 'Die Action-ID existiert nicht mehr. Entwurf verworfen; aktuelle Action auswählen.'
+            self.inspector.empty_message = 'Die Aktions-ID existiert nicht mehr. Entwurf verworfen; aktuelle Aktion auswählen.'
             self.inspector._validate()
 
     def delete_selected(self):
@@ -583,14 +583,14 @@ class NativeStudioShell(QMainWindow):
         self.setWindowTitle(("* " if (session and session.dirty) or folders_dirty else "") +
                             (session.native_project().display_name + " — " if session else "") +
                             f"{PRODUCT_NAME} {VERSION}")
-        self.statusBar().showMessage(("Nativ: " + ("Ungespeichert" if session.dirty else "Gespeichert") +
-            " | Extension: " + ("Ungespeichert" if folders_dirty else "Gespeichert") + " | " + str(session.path))
+        self.statusBar().showMessage(("Projekt: " + ("Ungespeichert" if session.dirty else "Gespeichert") +
+            " | Ordner: " + ("Ungespeichert" if folders_dirty else "Gespeichert") + " | " + str(session.path))
             if session else "Kein natives Projekt geöffnet")
         self.save_action.setEnabled(session is not None)
         self.folder_save_action.setEnabled(self.composer is not None)
         owner = self.composer.store if folder_context else session
-        self.undo_action.setText('Extension rückgängig' if folder_context else 'Native Änderung rückgängig')
-        self.redo_action.setText('Extension wiederholen' if folder_context else 'Native Änderung wiederholen')
+        self.undo_action.setText('Rückgängig (Ordner)' if folder_context else 'Rückgängig (Projekt)')
+        self.redo_action.setText('Wiederholen (Ordner)' if folder_context else 'Wiederholen (Projekt)')
         self.undo_action.setEnabled(bool(owner and owner.can_undo))
         self.redo_action.setEnabled(bool(owner and owner.can_redo))
         self.reload_action.setEnabled(bool(session and session.path))

@@ -55,9 +55,9 @@
   },
   {
     "topic_id": "explorer.folder_entry",
-    "title": "Folder-Eintrag und Action-Referenz",
+    "title": "Folder-Eintrag und Aktionsreferenz",
     "summary": "Der Eintrag bezeichnet eine Platzierung innerhalb des nativen Folders.",
-    "description": "Seine native Placement-ID ist von der referenzierten Action-ID getrennt. Die angezeigte Position wird nicht in eine Geräte-Taste oder Seite umgerechnet. Der Folder wird hier nur gelesen.",
+    "description": "Seine native Placement-ID ist von der referenzierten Aktions-ID getrennt. Die angezeigte Position wird nicht in eine Geräte-Taste oder Seite umgerechnet. Der Folder wird hier nur gelesen.",
     "technical_details": "Die Zuordnung erfolgt im nativen Host über HelpContext. Die Hilfe erzeugt keinen Projekt-Commit.",
     "related_topics": [
       "explorer.folder",

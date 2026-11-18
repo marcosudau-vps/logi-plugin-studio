@@ -14,7 +14,7 @@
   {
     "topic_id": "inspector.identity",
     "title": "Stabile SDK-Identität",
-    "summary": "Action-ID und SDK-Klasse bleiben unveränderlich.",
+    "summary": "Aktions-ID und SDK-Klasse bleiben unveränderlich.",
     "description": "Bei vorhandenen Aktionen sind diese Werte nur lesbar. Vor dem Erstellen ist die eindeutige ID editierbar und der SDK-Typ wählbar. Folder-Platzierungen referenzieren die stabile ID.",
     "example": "PluginDynamicCommand ist ein unterstützter SDK-Typ.",
     "technical_details": "Normative Referenz: src/adapters/logitech/native.py, parse_native_project. NativeProjectSession bleibt einziger Projektwriter.",
@@ -159,7 +159,7 @@
     "topic_id": "inspector.create",
     "title": "Native Aktion erstellen",
     "summary": "Mit + Neue Aktion einen getrennten Formularentwurf beginnen.",
-    "description": "Wähle SDK-Typ, eindeutige Action-ID, Anzeigename und einen vorhandenen Handler. Vor Übernehmen existiert die Action weder im Katalog noch im Projektbaum. Abbrechen schützt vorhandene Eingaben.",
+    "description": "Wähle SDK-Typ, eindeutige Aktions-ID, Anzeigename und einen vorhandenen Handler. Vor Übernehmen existiert die Aktion weder im Katalog noch im Projektbaum. Abbrechen schützt vorhandene Eingaben.",
     "example": "Neue Aktion → Felder bearbeiten → Übernehmen → separat Speichern.",
     "related_topics": [
       "inspector.create_id",
@@ -170,7 +170,7 @@
   },
   {
     "topic_id": "inspector.create_id",
-    "title": "Eindeutige Action-ID",
+    "title": "Eindeutige Aktions-ID",
     "summary": "Die sichtbare ID ist vor Übernehmen editierbar.",
     "description": "IDs beginnen mit einem Kleinbuchstaben und enthalten nur kleine Buchstaben, Ziffern und einzelne Punkt-, Bindestrich- oder Unterstrichtrenner. Die ID muss unter actions[] eindeutig sein. Der Host ändert die bestätigte ID niemals automatisch.",
     "example": "action.mein-befehl",
@@ -193,10 +193,10 @@
   },
   {
     "topic_id": "inspector.unplaced",
-    "title": "Neue Action ist unplatziert",
+    "title": "Neue Aktion ist unplatziert",
     "summary": "Erstellen fügt ausschließlich die Aktionsdefinition hinzu.",
     "description": "Es entsteht kein FolderEntry und keine Gerätebelegung. Der Katalog und Projektbaum zeigen die neue Definition. Folder- und Gerätebearbeitung benötigen einen späteren eigenen Editor.",
-    "example": "Die neue Action lässt sich ohne Folder-Referenz wieder löschen.",
+    "example": "Die neue Aktion lässt sich ohne Folder-Referenz wieder löschen.",
     "related_topics": [
       "inspector.create",
       "inspector.delete"
@@ -204,10 +204,10 @@
   },
   {
     "topic_id": "inspector.delete",
-    "title": "Native Action löschen",
-    "summary": "Nur unreferenzierte Actions dürfen nach Bestätigung gelöscht werden.",
+    "title": "Native Aktion löschen",
+    "summary": "Nur unreferenzierte Aktionen dürfen nach Bestätigung gelöscht werden.",
     "description": "Der Inspector nennt die stabile ID. Der Bestätigungsdialog nennt zusätzlich den Anzeigenamen und startet mit Abbrechen als Standard. Handler bleiben erhalten; Speichern erfolgt separat. Bei FolderEntry-Auswahl gibt es keinen Löschbefehl für das Placement.",
-    "example": "Neu erstellte unplatzierte Action auswählen → Aktion löschen → ausdrücklich bestätigen.",
+    "example": "Neu erstellte unplatzierte Aktion auswählen → Aktion löschen → ausdrücklich bestätigen.",
     "related_topics": [
       "inspector.delete_references",
       "inspector.delete_last",
@@ -217,8 +217,8 @@
   {
     "topic_id": "inspector.delete_references",
     "title": "Folder-Referenzen schützen",
-    "summary": "Eine referenzierte Action ist gegen Löschen geschützt.",
-    "description": "Die Erklärung nennt Anzahl sowie Folder- und Placement-IDs. Es erscheint keine bestätigende Löschabfrage. FolderEntries werden weder kaskadierend gelöscht noch auf andere Actions umgehängt.",
+    "summary": "Eine referenzierte Aktion ist gegen Löschen geschützt.",
+    "description": "Die Erklärung nennt Anzahl sowie Folder- und Placement-IDs. Es erscheint keine bestätigende Löschabfrage. FolderEntries werden weder kaskadierend gelöscht noch auf andere Aktionen umgehängt.",
     "example": "folder.main / placement.command referenziert action.command.",
     "related_topics": [
       "inspector.delete",
@@ -227,10 +227,10 @@
   },
   {
     "topic_id": "inspector.delete_last",
-    "title": "Letzte Action erhalten",
-    "summary": "Das native Autorenprojekt benötigt mindestens eine Action.",
-    "description": "Auch eine unplatzierte letzte Action darf nicht gelöscht werden. Der Host prüft das Parserminimum vor jeder Löschung.",
-    "example": "Eine einzelne Action bleibt im Projekt erhalten.",
+    "title": "Letzte Aktion erhalten",
+    "summary": "Das native Autorenprojekt benötigt mindestens eine Aktion.",
+    "description": "Auch eine unplatzierte letzte Aktion darf nicht gelöscht werden. Der Host prüft das Parserminimum vor jeder Löschung.",
+    "example": "Eine einzelne Aktion bleibt im Projekt erhalten.",
     "related_topics": [
       "inspector.delete",
       "inspector.create"
@@ -261,8 +261,8 @@
   {
     "topic_id": "inspector.refresh",
     "title": "Entwurf verwerfen und aktualisieren",
-    "summary": "Lade bewusst die aktuelle Action-ID neu.",
-    "description": "Der Befehl verwirft die Formulareingaben und liest die aktuelle Sessionrevision derselben ID. Eine entfernte Action ergibt einen erklärten Leerzustand. Bei externem Dateikonflikt muss zusätzlich das Projekt bewusst neu geladen werden. Ein Create-Entwurf wird verworfen.",
+    "summary": "Lade bewusst die aktuelle Aktions-ID neu.",
+    "description": "Der Befehl verwirft die Formulareingaben und liest die aktuelle Sessionrevision derselben ID. Eine entfernte Aktion ergibt einen erklärten Leerzustand. Bei externem Dateikonflikt muss zusätzlich das Projekt bewusst neu geladen werden. Ein Create-Entwurf wird verworfen.",
     "example": "Entwurf verwerfen / aktuelle Daten neu laden.",
     "related_topics": [
       "inspector.stale",

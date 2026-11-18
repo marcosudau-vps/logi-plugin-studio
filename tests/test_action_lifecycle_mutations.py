@@ -126,7 +126,7 @@ class MutationTests(unittest.TestCase):
         single['actions'] = [self.action()]
         single['folders'] = []
         parse_native_project(single)
-        with self.assertRaisesRegex(ValueError, 'letzte Action'):
+        with self.assertRaisesRegex(ValueError, 'letzte Aktion'):  # AP-GUIDE-001: Begriffsliste
             propose_delete(single, 'action.neu')
         single['actions'] = []
         with self.assertRaisesRegex(ValueError, 'non-empty'):

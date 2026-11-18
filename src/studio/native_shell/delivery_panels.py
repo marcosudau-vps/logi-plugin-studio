@@ -412,7 +412,7 @@ class PairingController(_Panel):
         from extensions.shared_folders.pairing import PairingStore, shared_home
         self.store = PairingStore()
         intro = QLabel("Shared-Plugins finden sich nur, wenn sie gepaart sind. Paaren erlaubt noch KEINE "
-                       "fremde Ausführung: Actions und Ordner werden einzeln, gerichtet freigegeben. "
+                       "fremde Ausführung: Aktionen und Ordner werden einzeln, gerichtet freigegeben. "
                        f"Schlüssel liegen in {shared_home()}, sind mit Windows-DPAPI an Ihr Windows-Konto "
                        "gebunden und stehen nie im Projekt, Paket oder Protokoll. "
                        "Änderungen wirken nach dem nächsten Plugin-Start bzw. Reload.")
@@ -530,7 +530,7 @@ class PairingController(_Panel):
                 raw = session.snapshot()
                 self.offers = project_offers(raw, initial_layout(raw)[0])
             except Exception as exc:
-                self.log.appendPlainText(f"Freigabefähige Actions nicht ermittelbar: {exc}")
+                self.log.appendPlainText(f"Freigabefähige Aktionen nicht ermittelbar: {exc}")
         known = self._known = self.known()
         for combo in (self.peer_a, self.peer_b):
             text = combo.currentText()
@@ -626,7 +626,7 @@ class PairingController(_Panel):
         consumer = self.consumer.currentText()
         ops = [op for op, box in (("command", self.op_command), ("adjustment", self.op_adjust)) if box.isChecked()]
         if scope is None or not consumer or not self.owner:
-            self.log.appendPlainText("Freigabe: Empfänger und Action/Ordner wählen.")
+            self.log.appendPlainText("Freigabe: Empfänger und Aktion/Ordner wählen.")
             return False
         try:
             return self._guard("Freigabe", lambda: self.store.grant(self.owner, consumer, scope, ops,

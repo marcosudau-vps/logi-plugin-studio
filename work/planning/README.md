@@ -76,3 +76,11 @@ Die abgeschlossenen Agentenprompts liegen unter [`../legacy/planning/completed-p
 ## AP-INSP-002 – unabhängig APPROVED am 06.11.2026
 
 [Vollständige unabhängige Abnahme](../acceptance/20261106-action-lifecycle/ABNAHME.md). 1.018/1.018 Gesamttests, 33/33 echte Windows-Qt-Modultests, 39/39 zusätzliche Reviewer-End-to-End-Prüfungen, 23/23 bestehende Quell-/Dokumentationsänderungen gegen SHA-256-Baseline, 6 neue Dateien, 8 belegte neue V-IDs und 65 eindeutige Hilfe-Topics. Folder-Referenzen geschützt; OBS-INSP-001/002 umgesetzt. Nächster Schritt eigener nativer FolderEditor/Placement-Vertrag. Kein Folgeagent gestartet.
+
+## AP-GUIDE-001 – Geführter Ablauf (16.–18.11.2026, READY_FOR_REVIEW)
+
+Plan, Auftrag, Fortschritt, Tests und Abschlussbericht: [Arbeitsakte](../guided-workflow/AP-GUIDE-001/README.md).
+Umgesetzt: geführter Ablauf in sieben Schritten, HandlerInspector, Übersichten Zustände/Symbole, Wartung,
+Begriffsliste. Der UI-Backlog [studio-oberflaeche-verbesserungssammlung.md](studio-oberflaeche-verbesserungssammlung.md)
+ist damit in U-02 bis U-09 und E-01 bis E-12 weitgehend bedient; offen bleibt U-01 (Dienst-Neustart, bewusst nicht
+umgesetzt). Nächster Schritt: Windows-Prüfung, Release-Build 1.0.0-rc2 und Benutzerabnahme durch den Auftraggeber.

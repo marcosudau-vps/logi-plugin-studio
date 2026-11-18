@@ -2,8 +2,8 @@
   {
     "topic_id": "folders.studio",
     "title": "Virtuelle Ordner im Studio",
-    "summary": "Ordner, Links und Action-Platzierungen gehören zur optionalen Extension.",
-    "description": "Ordner bilden die echte virtuelle Hierarchie. Links öffnen dasselbe Ziel über einen eigenen Weg; Back kehrt zum Ausgangspunkt zurück. Actions werden nur referenziert und können mehrfach platziert werden. Im Aktionsinspektor öffnen führt zur nativen Definition und schützt laufende Entwürfe. Nicht verfügbare Referenzen bleiben sichtbar und können bewusst als Platzierung entfernt werden. Extension speichern schreibt die zugeordnete .vfolders.json neben dem Projekt. Import übernimmt nur Ordnerdaten in diese Zuordnung; Export erzeugt eine zusätzliche neue Datei. Natives Projekt speichern schreibt separat. Bei geöffnetem Ordnertab beziehen sich Rückgängig und Wiederholen auf die Extension, sonst auf das native Projekt. Diese Vorschau ist keine Gerätebelegung.",
+    "summary": "Ordner, Links und Aktionsplatzierungen gehören zur optionalen Extension.",
+    "description": "Ordner bilden die echte virtuelle Hierarchie. Links öffnen dasselbe Ziel über einen eigenen Weg; Back kehrt zum Ausgangspunkt zurück. Aktionen werden nur referenziert und können mehrfach platziert werden. Im Aktionsinspektor öffnen führt zur nativen Definition und schützt laufende Entwürfe. Nicht verfügbare Referenzen bleiben sichtbar und können bewusst als Platzierung entfernt werden. Ordner speichern schreibt die zugeordnete .vfolders.json neben dem Projekt. Import übernimmt nur Ordnerdaten in diese Zuordnung; Export erzeugt eine zusätzliche neue Datei. Projekt speichern schreibt separat. Bei geöffnetem Ordnertab beziehen sich Rückgängig und Wiederholen auf die Extension, sonst auf das native Projekt. Diese Vorschau ist keine Gerätebelegung.",
     "technical_details": "NativeProjectSession und ExtensionStore haben getrennte History und Dateiautorität. Aufeinanderfolgende Saves sind keine dateiübergreifende Transaktion. Konflikte und Abbrechen erhalten die verbliebenen Änderungen.",
     "related_topics": ["inspector.overview", "native_shell.save", "problems.diagnostic"]
   }

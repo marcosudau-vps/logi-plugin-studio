@@ -1,4 +1,12 @@
-# Aktueller Projektstatus – 09.11.2026
+# Aktueller Projektstatus – 18.11.2026
+
+**AP-GUIDE-001 · READY_FOR_REVIEW (Release-Kandidat 1.0.0-rc2, Quellstand).** Das native Studio führt jetzt in sieben Schritten vom Projekt bis zur getesteten Taste am Gerät: **Projekt → Handler → Aktionen → Darstellung → Belegung → Prüfen und Bauen → Installieren und Testen**. Je Schritt sind nur die passenden Bereiche sichtbar, jeder Schritt hat eine Checkliste mit prüfbaren Kriterien, die Hilfe erklärt den nächsten Handgriff, und der Build startet erst bei gespeichertem, fehlerfreiem Stand. Neu: **HandlerInspector** (Handler anlegen/umbenennen/löschen, Handlerdatei aus Vorlage), Übersichten **Zustände** und **Symbole**, **Wartung** (Plugins neu laden, deaktivieren, reaktivieren, Protokoll), Menüleiste, Symbolleiste, „Alles speichern“, **Expertenmodus** für die freie Ansicht und einheitliche Begriffe. Architektur unverändert (ARCH-ADR-001, ein Writer je Datei, kein neues Fachmodell); ohne `workflow=True` verhält sich die Shell wie in 1.0.0-rc1.
+
+Quellcode und Versionsverwaltung: GitHub `marcosudau-vps/logi-plugin-studio`, Branch `release/1.0.0` (je Feature ein Commit). Regression unter Linux/offscreen ohne neue Fehlschläge gegenüber der Ausgangsbasis; **Windows-Prüfung, neuer Release-Build (Setup/Portable) und Benutzerabnahme stehen aus.** Keine Selbstabnahme.
+
+[Arbeitsakte](work/guided-workflow/AP-GUIDE-001/README.md) · [Abschlussbericht](work/guided-workflow/AP-GUIDE-001/07_abschlussbericht.md) · [Benutzerabnahme](work/guided-workflow/AP-GUIDE-001/outputs/BENUTZERABNAHME.md) · [Geführter Ablauf](docs/architecture/studio/widgets/WorkflowGuide.md)
+
+## Stand 09.11.2026 (historisch)
 
 **AP-POLISH-001 · READY_FOR_REVIEW (technischer Release-Kandidat 1.0.0-rc1).** Zwei gleichwertige Windows-Fassungen aus einem Release-Befehl: `LogiPluginStudio-Setup-1.0.0-rc1.exe` (Inno Setup, ohne Adminrechte) und `LogiPluginStudio-Portable-1.0.0-rc1.zip` mit identischem Programminhalt. Jedes gebaute Plugin (nativ, kompatibel, Shared) startet seinen Python-Host jetzt selbst aus einer **pluginlokalen, SHA-256-geprüften Host-Laufzeit** – ohne Studio, ohne Python, unabhängig vom Studio-Ort. Pairing-Schlüssel sind DPAPI-geschützt, der Plugin-Typ wird je Projekt gemerkt. Vollregression **1.208/1.208, Exit 0**; Pflichttest Verschieben/Reload/Rejoin im **echten Logi Plugin Service 11/11 PASS**. Keine Veröffentlichung, keine Selbstabnahme.
 

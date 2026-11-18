@@ -2,6 +2,15 @@
 
 > **Architekturentscheidung 03.11.2026:** [ARCH-ADR-001](docs/decisions/ARCH-ADR-001.md), [SDK-Modellabgleich](docs/specifications/sdk-native-modellabgleich-v01.md), [Konsolidierungslog](work/planning/native-first-konsolidierung-20261103.md). **Dokumentationsänderung; kein SDK-/Projektformatumbau.**
 
+## 18.11.2026 – AP-GUIDE-001 Geführter Ablauf, Release-Kandidat 1.0.0-rc2, READY_FOR_REVIEW
+
+- Geführter Ablauf in sieben Schritten als abschaltbare Komfortschicht (`NativeStudioShell(..., workflow=True)`; Programmeinstieg startet geführt): Schrittleiste mit Checkliste und nächstem Handgriff, Startseite, Sichtbarkeit je Schritt, Führungsthemen in der bestehenden Hilfe, offene Punkte in der Problemliste, Build-Sperre bei ungespeichertem oder fehlerhaftem Stand, Erkennung veralteter Builds, bestätigter Gerätetest. Expertenmodus für die freie Ansicht.
+- Neu: HandlerInspector, Übersichten Zustände und Symbole, Wartungsfenster, Menüleiste, Symbolleiste, „Alles speichern“ (Strg+S im geführten Ablauf), deutsche Statuswerte, Begriffsliste (`docs/architecture/studio/Begriffe.md`).
+- Belegung im geführten Ablauf nur über virtuelle Ordner; native SDK-Folder bleiben Anzeige (Entscheidung des Auftraggebers).
+- Kein neues Fachmodell, kein neuer Writer; Ablaufzustand nur benutzerlokal. Verbindungen V-90 bis V-107.
+- Git-Repository mit Release-Branch `release/1.0.0`; Herstellerdokumentation und historische Arbeitsakten bleiben lokal.
+- 3 Bestandstests nur im erwarteten Wortlaut angepasst (Begriffsliste), 1 Bestandstest für den geführten Programmeinstieg. Details: `work/guided-workflow/AP-GUIDE-001/07_abschlussbericht.md`.
+
 ## 09.11.2026 – AP-POLISH-001 Release-Kandidat 1.0.0-rc1, READY_FOR_REVIEW
 
 - Ein Release-Befehl (`tools/packaging/build_release.py`) erzeugt Setup (Inno Setup) und Portable aus demselben Payload; zentrale Version `src/studio/version.py`; Manifest, Hashlisten, Lizenzhinweise, Verifikation.

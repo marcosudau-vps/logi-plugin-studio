@@ -49,15 +49,15 @@ class FolderComposer(QWidget):
         heading.setStyleSheet('font-size: 20px; font-weight: 600;')
         layout.addWidget(heading)
         notice = QLabel('Ordner = echte Hierarchie · Link = gemeinsames Ziel · Kopie = neue IDs. '
-                        'Simulation ohne Hardware. SDK-Actions bleiben im nativen Projekt.')
+                        'Simulation ohne Hardware. SDK-Aktionen bleiben im nativen Projekt.')
         notice.setWordWrap(True)
         layout.addWidget(notice)
         files = QHBoxLayout()
         self._button(files, 'import_button', 'Import …', self.import_file)
-        self._button(files, 'export_button', 'Als neue Extension exportieren …', self.export_file)
-        self._button(files, 'save_button', 'Extension speichern', self.save_file)
-        self._button(files, 'undo_button', 'Extension Undo', lambda: self.history(False))
-        self._button(files, 'redo_button', 'Extension Redo', lambda: self.history(True))
+        self._button(files, 'export_button', 'Ordner als neue Datei exportieren …', self.export_file)
+        self._button(files, 'save_button', 'Ordner speichern', self.save_file)
+        self._button(files, 'undo_button', 'Rückgängig (Ordner)', lambda: self.history(False))
+        self._button(files, 'redo_button', 'Wiederholen (Ordner)', lambda: self.history(True))
         layout.addLayout(files)
         self.file_status = QLabel()
         self.file_status.setTextFormat(Qt.TextFormat.PlainText)
@@ -132,7 +132,7 @@ class FolderComposer(QWidget):
         )):
             self._button(page_buttons, attribute, text, callback, i // 4, i % 4)
         body.addLayout(page_buttons)
-        self.empty_label = QLabel('Leere Seite. Einen Ordner, Link oder eine vorhandene SDK-Action hinzufügen.')
+        self.empty_label = QLabel('Leere Seite. Einen Ordner, Link oder eine vorhandene SDK-Aktion hinzufügen.')
         self.empty_label.setWordWrap(True)
         body.addWidget(self.empty_label)
         self.entries = QListWidget()
@@ -149,7 +149,7 @@ class FolderComposer(QWidget):
         self._button(row, 'down_button', '↓ Eintrag', lambda: self.reorder_entry(1), 1, 1)
         self._button(row, 'move_entry_button', 'Eintrag verschieben …', self.move_entry, 1, 2)
         body.addLayout(row)
-        actions = QGroupBox('Vorhandene native SDK-Action referenzieren')
+        actions = QGroupBox('Vorhandene native SDK-Aktion referenzieren')
         action_layout = QVBoxLayout(actions)
         self.action_combo = QComboBox()
         self.action_combo.setObjectName('nativeActionSource')
@@ -157,8 +157,8 @@ class FolderComposer(QWidget):
         self.action_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         action_layout.addWidget(self.action_combo)
         action_row = QHBoxLayout()
-        self._button(action_row, 'add_action_button', 'Action platzieren', self.add_action)
-        self._button(action_row, 'external_action_button', 'Externe Action-Referenz …', self.external_action)
+        self._button(action_row, 'add_action_button', 'Aktion platzieren', self.add_action)
+        self._button(action_row, 'external_action_button', 'Externe Aktionsreferenz …', self.external_action)
         action_layout.addLayout(action_row)
         body.addWidget(actions)
         splitter.addWidget(right)
@@ -279,7 +279,7 @@ class FolderComposer(QWidget):
                 if p.id == selected_id:
                     self.entries.setCurrentItem(item)
             if not self.entries.count():
-                self.entries.setToolTip('Leere Seite. Ordner, Link oder vorhandene SDK-Action hinzufügen.')
+                self.entries.setToolTip('Leere Seite. Ordner, Link oder vorhandene SDK-Aktion hinzufügen.')
             self.empty_label.setVisible(not self.entries.count())
             self.action_combo.clear()
             for value in self.providers.actions():
@@ -320,7 +320,7 @@ class FolderComposer(QWidget):
         else:
             value = self.providers.resolve(p.target, 'action' if p.kind == 'action' else 'folder')
             label, available = value.name, value.available
-        kind = {'contains': 'Ordner', 'link': 'Link ↗', 'action': 'Action'}[p.kind]
+        kind = {'contains': 'Ordner', 'link': 'Link ↗', 'action': 'Aktion'}[p.kind]
         parameter = f' [Parameter: {p.action_parameter}]' if p.action_parameter is not None else ''
         return f'{p.position+1}. {kind} · {label}{parameter}' + ('' if available else ' · nicht verfügbar')
 
@@ -414,7 +414,7 @@ class FolderComposer(QWidget):
         f = self.document.folder(self.navigation.folder_id)
         # Validate before a modal confirmation; no recursive resource deletion.
         candidate = self.document.delete_folder(f.id)
-        if QMessageBox.question(self, 'Echten Ordner löschen', f'{f.name}\n{f.id}\nNur diesen Ordner und seine Platzierungen löschen? SDK-Actions und Linkziele bleiben erhalten.',
+        if QMessageBox.question(self, 'Echten Ordner löschen', f'{f.name}\n{f.id}\nNur diesen Ordner und seine Platzierungen löschen? SDK-Aktionen und Linkziele bleiben erhalten.',
                                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel,
                                 QMessageBox.StandardButton.Cancel) == QMessageBox.StandardButton.Yes:
             self._commit(candidate, f.parent_id or candidate.root_id)
@@ -443,7 +443,7 @@ class FolderComposer(QWidget):
         if p.kind != 'action' or p.target.plugin_id != self.document.plugin_id:
             raise FolderError('Nur lokale native Actiondefinitionen im Inspektor öffnen.')
         if not self.providers.resolve(p.target).available:
-            raise FolderError('Action nicht verfügbar; Platzierung bleibt bis zur bewussten Entfernung erhalten.')
+            raise FolderError('Aktion nicht verfügbar; Platzierung bleibt bis zur bewussten Entfernung erhalten.')
         self.actionEditRequested.emit(p.target.resource_id)
 
     def back(self):

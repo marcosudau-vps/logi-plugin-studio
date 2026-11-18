@@ -203,7 +203,7 @@ class LifecycleWidgetTests(ShellCase):
         self.path.write_text(json.dumps(raw),encoding='utf-8')
         self.c.open_project(self.path,discard=True);self.c.select_node('action','action.command')
         self.assertFalse(self.w.inspector.delete_button.isEnabled())
-        self.assertIn('letzte Action',self.w.inspector.delete_info.text())
+        self.assertIn('letzte Aktion',self.w.inspector.delete_info.text())  # AP-GUIDE-001: Begriffsliste
         self.assertFalse(self.w.delete_selected());self.assertFalse(self.c.session.can_undo)
 
 
