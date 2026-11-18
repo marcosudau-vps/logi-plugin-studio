@@ -15,7 +15,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
-from studio.native_shell.build_mode_store import settings_dir
+from studio.workflow.paths import settings_dir
 
 RUNTIME_TEXT = {"PLUGIN_LOCAL": "eigene Laufzeit, geprüft", "PLUGIN_LOCAL_DAMAGED": "Laufzeit beschädigt – neu installieren",
                 "SYSTEM_PYTHON": "ohne eigene Laufzeit (Entwicklerbuild)", "INVALID_RECORD": "Laufzeit-Eintrag ungültig",

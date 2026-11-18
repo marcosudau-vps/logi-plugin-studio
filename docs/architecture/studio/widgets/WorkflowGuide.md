@@ -51,6 +51,7 @@ Regeln:
 | Baustein | Code | Aufgabe |
 |---|---|---|
 | Schrittmodell | `src/studio/workflow/model.py` | Qt-frei: `Facts` → `evaluate()` → `StepState` mit `Criterion` |
+| Ordnerregel (Qt-frei) | `src/studio/workflow/paths.py` | gleiche Regel wie `build_mode_store.settings_dir` |
 | Benutzerlokaler Zustand | `src/studio/workflow/store.py` | Modus, zuletzt aktiver Schritt, Handlerdatei, bestätigter Gerätetest je Projektpfad und Plugin-ID |
 | Schrittleiste | `src/studio/workflow/widget.py` | Sieben Schritte mit Status, Checkliste des aktiven Schritts, nächster Handgriff, Zurück/Weiter |
 | Startseite | `src/studio/workflow/start_page.py` | Einstieg: Neues Projekt, Projekt öffnen, Projektangaben |

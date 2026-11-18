@@ -1897,6 +1897,8 @@ test_unregistered_handler_is_a_warning_and_does_not_block (test_workflow_model.W
 test_without_project_only_first_step_is_reachable (test_workflow_model.WorkflowModelTests.test_without_project_only_first_step_is_reachable) ... ok
 test_defaults_roundtrip_and_isolation_by_plugin_id (test_workflow_model.WorkflowStoreTests.test_defaults_roundtrip_and_isolation_by_plugin_id) ... ok
 test_rejects_unknown_fields_and_survives_damaged_file (test_workflow_model.WorkflowStoreTests.test_rejects_unknown_fields_and_survives_damaged_file) ... ok
+test_model_modules_do_not_import_qt (test_workflow_qt_free.QtFreeModulesTests.test_model_modules_do_not_import_qt) ... ok
+test_settings_dir_matches_the_build_mode_store (test_workflow_qt_free.QtFreeModulesTests.test_settings_dir_matches_the_build_mode_store) ... ok
 test_build_becomes_stale_after_a_saved_change (test_workflow_shell.WorkflowShellTests.test_build_becomes_stale_after_a_saved_change) ... ok
 test_device_test_must_be_confirmed_by_the_user (test_workflow_shell.WorkflowShellTests.test_device_test_must_be_confirmed_by_the_user) ... ok
 test_handler_template_registers_every_handler (test_workflow_shell.WorkflowShellTests.test_handler_template_registers_every_handler) ... ok
@@ -2461,13 +2463,12 @@ Traceback (most recent call last):
   File "/home/claude/logi-plugin-studio/tests/test_ap_polish_001.py", line 647, in test_documentation_links_resolve
     self.assertEqual(result.returncode, 0, result.stdout)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: 1 != 0 : Gepruefte lokale Markdown-Links: 623; fehlende Ziele: 138; in historischen Build-Artefakten (nicht veraendert): 0
+AssertionError: 1 != 0 : Gepruefte lokale Markdown-Links: 632; fehlende Ziele: 136; in historischen Build-Artefakten (nicht veraendert): 0
 FEHLT: README.md: work/acceptance/20261107-joint-folder-build/ABNAHME.md
 FEHLT: README.md: work/reviews/REVIEW-FIX-20261106/README.md
 FEHLT: README.md: work/product-readiness/HW-01/06_hardwarefunktionspruefung_2026-11-03.md
 FEHLT: README.md: work/acceptance/20261108-two-final-packages/GEMEINSAME-ABNAHME.md
 FEHLT: README.md: work/acceptance/20261108-release-final/ABNAHME.md
-FEHLT: STATUS.md: work/guided-workflow/AP-GUIDE-001/07_abschlussbericht.md
 FEHLT: STATUS.md: work/polish/AP-POLISH-001/10_abschlussbericht.md
 FEHLT: STATUS.md: work/polish/AP-POLISH-001/08_tests_und_evidenz.md
 FEHLT: STATUS.md: work/polish/AP-POLISH-001/outputs/BENUTZERABNAHME.md
@@ -2564,7 +2565,6 @@ FEHLT: work/README.md: acceptance/20261106-studio-coordinator/ABNAHME.md
 FEHLT: work/README.md: acceptance/20261106-help-coverage/ABNAHME.md
 FEHLT: work/README.md: acceptance/20261106-action-inspector/ABNAHME.md
 FEHLT: work/README.md: acceptance/20261106-action-lifecycle/ABNAHME.md
-FEHLT: work/guided-workflow/AP-GUIDE-001/README.md: 07_abschlussbericht.md
 FEHLT: work/planning/README.md: ../acceptance/20261105-native-session-explorer/ABNAHME.md
 FEHLT: work/planning/README.md: ../acceptance/20261105-native-session-explorer/ABNAHME.md
 FEHLT: work/planning/README.md: ../acceptance/20261105-native-session-explorer/ABNAHME.md
@@ -2609,7 +2609,7 @@ Traceback (most recent call last):
   File "/home/claude/logi-plugin-studio/tests/test_ap_polish_001.py", line 292, in test_installed_pre_1_0_build_keeps_plaintext_until_its_update
     self.assertIn("key_protected", self.disk("p.b")["peers"]["p.a"])
     ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: 'key_protected' not found in {'grants': [], 'key': 'b801b426d9d5b79a3827ba0a256ee610c718c6464e8661056bbe72a7c802c06e'}
+AssertionError: 'key_protected' not found in {'grants': [], 'key': '6b95a880792d08c1494676b2b518374a9a05dd82b558095745d7c592528ce0de'}
 
 ======================================================================
 FAIL: test_keys_are_dpapi_protected_on_disk_and_readable_by_the_runtime (test_ap_polish_001.ProtectedPairingTests.test_keys_are_dpapi_protected_on_disk_and_readable_by_the_runtime)
@@ -2676,7 +2676,7 @@ Traceback (most recent call last):
   File "/home/claude/logi-plugin-studio/tests/test_release_final_delivery_ui.py", line 105, in test_pairing_tab_pairs_grants_revokes_without_secrets_in_ui
     self.assertNotIn("key", stored)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
-AssertionError: 'key' unexpectedly found in {'grants': [{'operations': ['command'], 'scope': {'kind': 'action', 'parameter': 'first', 'resource': 'action.command'}}], 'key': '7788f433c5f7d9e7c31b433772ec6408f8f9198c3bf42e8f556ccd6b2f60cbe8'}
+AssertionError: 'key' unexpectedly found in {'grants': [{'operations': ['command'], 'scope': {'kind': 'action', 'parameter': 'first', 'resource': 'action.command'}}], 'key': 'e98d9a5c2bf11fd225a62ac9a68b557f63350293749022a7189ae8fe3d609b07'}
 
 ======================================================================
 FAIL: test_secrets_never_reach_audit_or_status (test_release_final_pairing.PairingTests.test_secrets_never_reach_audit_or_status)
@@ -2685,7 +2685,7 @@ Traceback (most recent call last):
   File "/home/claude/logi-plugin-studio/tests/test_release_final_pairing.py", line 109, in test_secrets_never_reach_audit_or_status
     self.assertNotIn("key", stored)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
-AssertionError: 'key' unexpectedly found in {'grants': [{'operations': ['command'], 'scope': {'kind': 'action', 'parameter': 'first', 'resource': 'action.command'}}], 'key': 'b76dbb75fdab871befc7c052bdf43ffe6bf1e4943d90ebabce610ddd57571839'}
+AssertionError: 'key' unexpectedly found in {'grants': [{'operations': ['command'], 'scope': {'kind': 'action', 'parameter': 'first', 'resource': 'action.command'}}], 'key': '91f1483910b5f496bf40a037ff7894db8fc9aa69694e2d6c9d1766c09772c975'}
 
 ======================================================================
 FAIL: test_explicit_extension_generator_cli_produces_native_sources (test_review_folder_runtime.FolderProjectionTests.test_explicit_extension_generator_cli_produces_native_sources)
@@ -2698,6 +2698,6 @@ AssertionError: 2 != 0 : Folder generation refused: PluginApi.dll path must be a
 
 
 ----------------------------------------------------------------------
-Ran 1256 tests in 94.747s
+Ran 1258 tests in 96.377s
 
 FAILED (failures=11, errors=32, skipped=37)

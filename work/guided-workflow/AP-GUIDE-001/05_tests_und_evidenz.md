@@ -38,9 +38,10 @@ Ohne gesetztes `LOCALAPPDATA` scheitern unter Linux zusätzlich rund 200 Shell-T
 | T2 | Stufe 4 (`97b98e6`) | 1.247 · 11 F · 32 E · 37 S | **0** | `evidence/tests/stufe4_full.txt`, `stufe4_failures.txt` |
 | T3 | Stufe 3c + 5 (`feat/wartung`) | 1.256 · 11 F · 32 E · 37 S | **0** | `evidence/tests/stufe5_full.txt`, `stufe5_failures.txt` |
 | T4 | Stufe 6 nach Begriffsliste, vor Testanpassung | 1.256 · 13 F · 32 E · 37 S | 2 (alter Wortlaut „letzte Action“) → Erwartung angepasst | Konsolenausgabe |
-| **T5** | **Endstand** (`feat/abschluss-dokumentation`) | **1.256 · 11 F · 32 E · 37 S** | **0** – Fehlschlagliste identisch mit T0 | `evidence/tests/final_full.txt`, `final_failures.txt` |
+| T5 | Stufe 6 (`feat/abschluss-dokumentation`) | 1.256 · 11 F · 32 E · 37 S | 0 – identisch mit T0 | (überschrieben durch T6) |
+| **T6** | **Endstand** nach Nachtrag (`feat/nachtrag-abschluss`) | **1.258 · 11 F · 32 E · 37 S** | **0** – Fehlschlagliste identisch mit T0 | `evidence/tests/final_full.txt`, `final_failures.txt` |
 
-Neue Tests insgesamt: 48 (1.208 → 1.256). Angepasste Bestandstests: 4, nur erwartete Formulierungen.
+Neue Tests insgesamt: 50 (1.208 → 1.258). Angepasste Bestandstests: 4, nur erwartete Formulierungen.
 
 ## Neue Testmodule
 
@@ -50,6 +51,7 @@ Neue Tests insgesamt: 48 (1.208 → 1.256). Angepasste Bestandstests: 4, nur erw
 | `tests/test_workflow_shell.py` | echte Shell: Sichtbarkeit je Schritt, Expertenmodus, Build-Sperre, Checkliste, Hilfe, Problemliste, Übersichten, Belegung, Wartung, Gerätetest | 19 |
 | `tests/test_handler_inspector.py` | Handler-Lebenszyklus Qt-frei und in der Shell, Handlerdatei aus Vorlage | 10 |
 | `tests/test_maintenance.py` | Wartung mit Attrappe der Installationsfunktionen: Zeilen, Deaktivieren/Reaktivieren, Fenster | 5 |
+| `tests/test_workflow_qt_free.py` | Qt-freie Module ohne PySide6 importierbar; Ordnerregel gleich `build_mode_store` | 2 |
 
 ## Sichtprüfung
 
