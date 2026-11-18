@@ -82,6 +82,8 @@ class WorkflowShellTests(unittest.TestCase):
         self.assertEqual(plain.tabs.tabText(0), "Auswahl / native Details")
         self.assertTrue(all(plain.tabs.isTabVisible(i) for i in range(plain.tabs.count())))
         self.assertEqual(plain.build_controller.guards, [])
+        plain.deployment_controller.set_status("build", "OK")
+        self.assertEqual(plain.deployment_controller.status_labels["build"].text(), "OK")  # Codes unverändert
         self.assertFalse(hasattr(plain, "save_all_action"))
 
     def test_v90_start_without_project_shows_only_start_and_help(self):
@@ -198,6 +200,8 @@ class WorkflowShellTests(unittest.TestCase):
         self.fake_build(shell)
         self.assertEqual(wf.state("build").status, DONE)
         self.assertEqual(wf.state("install").status, OPEN)
+        self.assertIn("Build erfolgreich", shell.build_controller.summary.text())
+        self.assertNotIn("BUILD_PROVEN", shell.build_controller.summary.text())
         action = shell.coordinator.session.snapshot()["actions"][0]
         shell.coordinator.rename_action(action["id"], "Neu", base_revision=shell.coordinator.session.revision)
         self.assertEqual(wf.state("build").status, OPEN)  # ungespeichert
@@ -223,6 +227,10 @@ class WorkflowShellTests(unittest.TestCase):
             self.assertTrue(wf.confirm_hardware())
         self.assertEqual(wf.state("install").status, DONE)
         self.assertEqual(deploy.status_codes["hardware"], "HARDWARE_PASS")
+        self.assertEqual(deploy.status_labels["hardware"].text(), "am Gerät bestätigt")  # V-105
+        self.assertIn("HARDWARE_PASS", deploy.status_labels["hardware"].toolTip())
+        self.assertIn("Logi Options+ öffnen", deploy.log.toPlainText())
+        self.assertEqual(deploy.log.toPlainText().count("Nächster Schritt"), 1)
         self.assertTrue(wf.enter("install"))
         self.assertIn("Fertig", wf.rail.hint.text())
 

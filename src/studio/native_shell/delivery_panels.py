@@ -20,6 +20,18 @@ STATUS_LABELS = (("build", "Build"), ("package", "Paket"), ("installed", "Instal
                  ("loaded", "Plugin geladen"), ("connection", "Verbindung"),
                  ("hardware", "Hardwareprüfung"), ("rollback", "Rollback"))
 GOOD = {"OK", "VALID", "INSTALLED", "UPDATED", "LOADED", "ACTIVE", "AVAILABLE", "HARDWARE_PASS"}
+#: Anzeigetexte der Statuscodes für den geführten Ablauf (AP-GUIDE-001). Die Codes selbst bleiben
+#: unverändert in ``status_codes`` und als Tooltip erhalten.
+STATUS_TEXT_DE = {
+    "OK": "in Ordnung", "VALID": "gültig", "INVALID": "ungültig", "UNKNOWN": "unbekannt", "NO": "nein",
+    "INSTALLED": "installiert", "UPDATED": "aktualisiert", "ROLLED_BACK": "zurückgerollt", "REMOVED": "entfernt",
+    "LOADED": "geladen", "LOAD_FAILED": "Laden fehlgeschlagen",
+    "LOADED_FROM_OTHER_PATH": "aus einem anderen Ordner geladen",
+    "ACTIVE": "aktiv", "HOST_NOT_RUNNING": "Python-Host läuft nicht",
+    "HARDWARE_PENDING": "noch nicht am Gerät getestet", "HARDWARE_PASS": "am Gerät bestätigt",
+    "AVAILABLE": "verfügbar", "NOT_AVAILABLE": "nicht verfügbar", "EXECUTED": "ausgeführt",
+    "RESTORE_AVAILABLE": "Wiederherstellung verfügbar",
+}
 METHOD_TEXT = {
     "directory": "Verzeichnis-Installation: das Paket wird in den Studio-eigenen Ordner "
                  "Plugins\\<Name> des Logi Plugin Service kopiert und per Reload sofort geladen",
@@ -111,6 +123,7 @@ class DeploymentController(_Panel):
         self.host = None
         self.uninstall_receipt = None
         self.status_codes = {}  # unveränderte Statuscodes je Zeile, unabhängig vom Anzeigetext
+        self.status_text = None  # optionale Übersetzung Code → Anzeigetext; None zeigt die Codes
         intro = QLabel("Installiert ausschließlich Studio-eigene Plugins – standardmäßig als Verzeichnis-Installation "
                        "in den eigenen Ordner Plugins\\<Name> des Logi Plugin Service (sofort per Reload geladen). "
                        "Jedes Plugin bringt seine eigene geprüfte Host-Laufzeit mit und läuft ohne geöffnetes Studio. "
@@ -151,14 +164,24 @@ class DeploymentController(_Panel):
         self.inventory = QListWidget()
         self.inventory.setObjectName("deploymentInventory")
         self.inventory.setMaximumHeight(110)
+        self.layout.addWidget(QLabel("Installierte Plugins (nach Klick auf „Installierte Plugins“):"))
         self.layout.addWidget(self.inventory)
+        self.layout.addWidget(QLabel("Protokoll:"))
         self.layout.addWidget(self.log, 1)
         self._sync()
 
     # -- state -------------------------------------------------------------
+    def set_status_text(self, mapping):
+        """Anzeigetexte umschalten und bereits gezeigte Werte neu darstellen."""
+        self.status_text = mapping
+        for key, value in dict(self.status_codes).items():
+            self.set_status(key, value)
+
     def set_status(self, key, value):
         self.status_codes[key] = value
-        self.status_labels[key].setText(value)
+        shown = self.status_text.get(value, value) if self.status_text else value
+        self.status_labels[key].setText(shown)
+        self.status_labels[key].setToolTip("" if shown == value else f"Statuscode: {value}")
         self.status_labels[key].setStyleSheet("color: #1b7f3b;" if value in GOOD else
                                               "color: #b00020;" if "FAIL" in value or "NOT" in value else "")
 
