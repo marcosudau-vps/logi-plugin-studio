@@ -67,8 +67,8 @@ Testfunktion im Verbindungsregister.
 
 ## Nächste Schritte
 
-1. Stand holen (GitHub `release/1.0.0` oder gespiegelter lokaler Projektordner) und unter Windows
-   `python tools/run_tests.py` ausführen.
+1. Der lokale Projektordner enthält bereits den Release-Stand (81 Dateien gespiegelt und per SHA-256 geprüft,
+   Originale gesichert unter `backups/`). Unter Windows `python tools/run_tests.py` ausführen.
 2. Benutzerabnahme nach [outputs/BENUTZERABNAHME.md](outputs/BENUTZERABNAHME.md).
 3. Optional `python tools/packaging/build_release.py` für Setup und Portable 1.0.0-rc2.
 4. Nach deiner Freigabe: Merge `release/1.0.0` → `main` als Release-Commit 1.0.0.

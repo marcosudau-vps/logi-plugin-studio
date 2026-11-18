@@ -70,3 +70,12 @@ vorgesehenen Tests erfolgreich sind. Statuswerte wie in den bisherigen Arbeitsak
 - Handbuch auf den geführten Ablauf umgeschrieben (Abschnitte 2–11), Benutzerabnahme für rc2 erstellt, STATUS,
   CHANGELOG, README, Studio-Architektur, KeypadPreview-Status und Planungsindex fortgeschrieben.
 - Vollregression: 1.256 Tests, Fehlschlagliste identisch mit der Ausgangsbasis. **Status READY_FOR_REVIEW.**
+- **Spiegelung in den lokalen Projektordner** `P:\LokaleProjekte\logi_actions_sdk\PluginStudioArchitecture`
+  (Stand `release/1.0.0` = `e5feba2`): 81 Dateien (49 neu, 32 geändert). Vorab geprüft: alle 32 zu ersetzenden
+  Dateien waren lokal unverändert gegenüber dem Start-Commit (keine Konflikte). Sicherung der 32 Originale:
+  `backups/20261118-vor-spiegelung-release-1.0.0.tar` (SHA-256 `05a55e3a…c846`, nur lokal). Nach dem Entpacken
+  alle 81 Dateien per SHA-256 gegen den Release-Stand geprüft: 0 Abweichungen. Archiv und Manifest unter
+  `work/generated/sync/` (nur lokal). Nichts wurde gelöscht.
+- Dieser Vermerk liegt auf `feat/abschluss-dokumentation` und kommt mit dem nächsten Feature-Commit bzw. vor dem
+  Merge nach `main` auf `release/1.0.0` (kein nachträgliches Umschreiben des bereits gepushten Release-Commits).
+
